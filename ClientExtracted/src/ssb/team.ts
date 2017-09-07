@@ -41,6 +41,10 @@ export class TeamIntegration {
     appTeamsActions.selectTeamByUserId(userId);
   }
 
+  public displayTeamById(teamId: string): void {
+    appTeamsActions.selectTeam(teamId);
+  }
+
   public signInTeam(): void {
     dialogActions.showLoginDialog();
   }

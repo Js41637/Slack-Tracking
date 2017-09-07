@@ -1,0 +1,147 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1163917428" : {
+    "translation" : "Il semble que vous n'ayez actuellement aucune connexion Internet.",
+    "notes" : ""
+  },
+  "1232096808" : {
+    "translation" : "Pour vous connecter à Slack, vous devez saisir un nom d'utilisateur et un mot de passe pour le serveur ",
+    "notes" : ""
+  },
+  "1430913379" : {
+    "translation" : "Vous ne faites plus partie de Slack bêta. Retour à votre programme régulier...",
+    "notes" : ""
+  },
+  "1760198367" : {
+    "translation" : "Téléchargement direct",
+    "notes" : ""
+  },
+  "1769100289" : {
+    "translation" : "Chaîne alpha",
+    "notes" : ""
+  },
+  "1770559555" : {
+    "translation" : "⌘{idx}",
+    "notes" : ""
+  },
+  "1799453982" : {
+    "translation" : "La dernière erreur que nous avons rencontrée avait le code",
+    "notes" : ""
+  },
+  "2147584373" : {
+    "translation" : "échap",
+    "notes" : ""
+  },
+  "2149589909" : {
+    "translation" : "Copier",
+    "notes" : ""
+  },
+  "2150499559" : {
+    "translation" : "retour",
+    "notes" : ""
+  },
+  "2180558037" : {
+    "translation" : "Vous faites maintenant partie de Slack bêta ! 🎉 Votre application recevra les mises à jour bêta dès qu’elles seront disponibles.",
+    "notes" : ""
+  },
+  "2180567387" : {
+    "translation" : "Ctrl+{idx}",
+    "notes" : ""
+  },
+  "2222000475" : {
+    "translation" : "Se connecter à un autre espace de travail...",
+    "notes" : ""
+  },
+  "2265579820" : {
+    "translation" : "Ouvrir le lien dans l'application",
+    "notes" : ""
+  },
+  "2378984742" : {
+    "translation" : "Connexion...",
+    "notes" : ""
+  },
+  "2762353363" : {
+    "translation" : "Chaîne bêta",
+    "notes" : ""
+  },
+  "2764913361" : {
+    "translation" : "Essayer maintenant",
+    "notes" : ""
+  },
+  "2875270439" : {
+    "translation" : "Pour vous connecter à Slack, vous devez saisir un nom d'utilisateur et un mot de passe pour le proxy ",
+    "notes" : ""
+  },
+  "2944450756" : {
+    "translation" : "Windows Store",
+    "notes" : ""
+  },
+  "3013915013" : {
+    "translation" : "Vous ne faites plus partie de Slack alpha. Retour à votre programme régulier...",
+    "notes" : ""
+  },
+  "3051370728" : {
+    "translation" : "Slack tentera de se reconnecter automatiquement.",
+    "notes" : ""
+  },
+  "3399652912" : {
+    "translation" : "😔 Pour participer au programme bêta, veuillez installer Slack directement depuis l'adresse slack.com/download.",
+    "notes" : ""
+  },
+  "3671115087" : {
+    "translation" : "Ce lien ouvre une application, pas un site web. C'est ce à quoi vous vous attendez ? Cliquez pour continuer. Dans le cas contraire, vérifiez qu'il s'agit d'un lien auquel vous pouvez faire confiance.",
+    "notes" : ""
+  },
+  "3675156611" : {
+    "translation" : "Toujours ouvrir les liens vers {protocol}//",
+    "notes" : ""
+  },
+  "389485451" : {
+    "translation" : "Vous faites maintenant partie de Slack Alpha ! 🎉 Votre application recevra les mises à jour bêta dès qu'elles seront disponibles.",
+    "notes" : ""
+  },
+  "412256135" : {
+    "translation" : "Avis et remerciements",
+    "notes" : ""
+  },
+  "4160805346" : {
+    "translation" : "App Store",
+    "notes" : ""
+  },
+  "4259611323" : {
+    "translation" : "Vérifez que votre logiciel de sécurité ne bloque pas Slack.",
+    "notes" : ""
+  },
+  "470219197" : {
+    "translation" : "Élément copié !",
+    "notes" : ""
+  },
+  "574976044" : {
+    "translation" : "😔 Pour participer au programme bêta, veuillez installer Slack directement depuis l'adresse slack.com/download.",
+    "notes" : ""
+  },
+  "658381336" : {
+    "translation" : "Quelque chose ne fonctionne pas",
+    "notes" : ""
+  },
+  "818505023" : {
+    "translation" : "Slack n'a pas pu se charger ",
+    "notes" : ""
+  },
+  "834244254" : {
+    "translation" : "Slack n’est pas parvenu à démarrer et nous ne sommes pas certains de la cause. Vous pouvez essayer de redémarrer l’application ou contactez-nous : ",
+    "notes" : ""
+  },
+  "952470608" : {
+    "translation" : "Ce que vous pouvez essayer de faire :",
+    "notes" : ""
+  }
+}

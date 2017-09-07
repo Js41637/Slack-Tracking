@@ -1,0 +1,75 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1121062925" : {
+    "translation" : "{unreads,plural,=1{# ungelesene Nachricht}other{# ungelesene Nachrichten}}",
+    "notes" : ""
+  },
+  "2243997838" : {
+    "translation" : "Slack Alpha",
+    "notes" : ""
+  },
+  "2359727256" : {
+    "translation" : "Willkommen bei Slack!",
+    "notes" : ""
+  },
+  "2507268860" : {
+    "translation" : "Du befindest dich bereits in Slack Alpha! Deine App wird Updates erhalten, sobald sie verfügbar sind.",
+    "notes" : ""
+  },
+  "2531415917" : {
+    "translation" : "{unreadHighlights,plural,=1{# ungelesene Erwähnung}other{# ungelesene Erwähnungen}}",
+    "notes" : ""
+  },
+  "2560021664" : {
+    "translation" : "Dieses Symbol wird einen blauen Punkt für ungelesene Nachrichten und einen roten für Benachrichtigungen anzeigen. Wenn du Slack hier ständig anzeigen lassen möchtest, ziehe das Symbol aus dem Überlaufmenü heraus.",
+    "notes" : ""
+  },
+  "2691950950" : {
+    "translation" : "Du hast ungelesene Nachrichten",
+    "notes" : ""
+  },
+  "2817997211" : {
+    "translation" : "Slack ist so eingerichtet, dass es immer blinken wird, wenn du Nachrichten erhältst. Ändern kannst du dies im Bereich Preferences > Notifications (Persönliche Einstellungen > Benachrichtigungen).",
+    "notes" : ""
+  },
+  "2961127628" : {
+    "translation" : "Du befindest dich bereits in Slack Beta! Deine App wird Updates erhalten, sobald sie verfügbar sind.",
+    "notes" : ""
+  },
+  "3379982589" : {
+    "translation" : "Über Slack",
+    "notes" : ""
+  },
+  "3397546176" : {
+    "translation" : "Slack Beta",
+    "notes" : ""
+  },
+  "4163153666" : {
+    "translation" : "Warum wurde Slack nicht beendet?",
+    "notes" : ""
+  },
+  "485203098" : {
+    "translation" : "Du befindest dich bereits in Slack! Deine App wird Updates erhalten, sobald sie verfügbar sind.",
+    "notes" : ""
+  },
+  "847616947" : {
+    "translation" : "{unreadHighlights,plural,=1{# ungelesenes Highlight}other{# ungelesene Highlights}}",
+    "notes" : ""
+  },
+  "850658910" : {
+    "translation" : "Keine ungelesenen Nachrichten",
+    "notes" : ""
+  },
+  "982478753" : {
+    "translation" : "Slack ist so eingerichtet, dass es dauerhaft im Benachrichtigungsbereich läuft. Ändern kannst du dies im Bereich Preferences > {platform} App (Persönliche Einstellungen > {platform} App).",
+    "notes" : ""
+  }
+}

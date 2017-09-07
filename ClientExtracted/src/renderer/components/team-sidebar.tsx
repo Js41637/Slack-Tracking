@@ -60,6 +60,7 @@ export interface TeamSidebarState {
 
   mouseY?: number;
   selectedTeamToDrag?: string | null;
+  locale: string;
 }
 
 interface MotionCallbackArgs {
@@ -155,7 +156,8 @@ export class TeamSidebar extends Component<TeamSidebarProps, TeamSidebarState> {
       numberOfTeams: teamStore.getNumTeams(),
       selectedTeamId: appTeamsStore.getSelectedTeamId(),
       isMac: settingStore.isMac(),
-      isWin10: settingStore.getSetting<boolean>('isWin10')
+      isWin10: settingStore.getSetting<boolean>('isWin10'),
+      locale: settingStore.getSetting<string>('locale'),
     };
   }
 
@@ -174,7 +176,8 @@ export class TeamSidebar extends Component<TeamSidebarProps, TeamSidebarState> {
    * declared in `syncState`), we have to manually update it when a team is
    * added or removed. This ain't pretty.
    */
-  public componentWillUpdate(_nextProps: TeamSidebarProps, nextState: Partial<TeamSidebarState>) {
+  public componentWillUpdate(nextProps: TeamSidebarProps, nextState: Partial<TeamSidebarState>) {
+    super.componentWillUpdate(nextProps, nextState);
     const didTeamsChange = this.state.numberOfTeams !== nextState.numberOfTeams;
 
     if (didTeamsChange) {
@@ -464,8 +467,13 @@ export class TeamSidebar extends Component<TeamSidebarProps, TeamSidebarState> {
         click: () => eventActions.signOutTeam(teamId)
       });
     } else {
+      const { isMac } = this.state;
+      const label = isMac ?
+        $intl.t('&Sign in to Another Workspace…', LOCALE_NAMESPACE.MENU)() :
+        $intl.t('&Sign in to another workspace…', LOCALE_NAMESPACE.MENU)();
+
       menuItem = new MenuItem({
-        label: $intl.t('&Sign in to another team…', LOCALE_NAMESPACE.MENU)(),
+        label,
         click: dialogActions.showLoginDialog
       });
     }

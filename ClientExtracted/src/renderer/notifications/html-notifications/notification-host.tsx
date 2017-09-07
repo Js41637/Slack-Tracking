@@ -14,7 +14,7 @@ import { notificationStore } from '../../../stores/notification-store';
 import { settingStore } from '../../../stores/setting-store';
 import { windowStore } from '../../../stores/window-store';
 import { WindowMetadata } from '../../../utils/shared-constants';
-import { WebappNotificationOptions } from '../interfaces';
+import { NotifyPosition, WebappNotificationOptions } from '../interfaces';
 import { NotificationItem } from './notification-item';
 import { NotificationWindowHelpers } from './notification-window-helpers';
 
@@ -37,6 +37,7 @@ export interface NotificationHostState {
   notificationsWindow: WindowMetadata | null;
   mainWindow: WindowMetadata | null;
   zoomLevel: number;
+  notifyPosition: NotifyPosition;
   displayedNotifs: Array<WebappNotificationOptions>;
 }
 
@@ -78,7 +79,8 @@ export class NotificationHost extends Component<Partial<NotificationHostProps>, 
           const mainWindowId = this.state.mainWindow!.id;
           const mainWindow = BrowserWindow.fromId(mainWindowId);
 
-          showPositionedNotificationWindow(browserWindow, mainWindow, this.state.zoomLevel!);
+          showPositionedNotificationWindow(browserWindow, mainWindow,
+            this.state.zoomLevel!, this.state.notifyPosition!);
         })
     );
 
@@ -93,7 +95,8 @@ export class NotificationHost extends Component<Partial<NotificationHostProps>, 
       notifications: notificationStore.getNotifications(),
       notificationsWindow: windowStore.getNotificationsWindow(),
       mainWindow: windowStore.getMainWindow(),
-      zoomLevel: settingStore.getSetting<number>('zoomLevel')
+      zoomLevel: settingStore.getSetting<number>('zoomLevel'),
+      notifyPosition: settingStore.getSetting<NotifyPosition>('notifyPosition')
     };
   }
 
@@ -161,7 +164,8 @@ export class NotificationHost extends Component<Partial<NotificationHostProps>, 
 
     const style: React.CSSProperties = { flexDirection: 'column' };
 
-    if (process.platform !== 'darwin') {
+    const isTop = this.state.notifyPosition!.corner.split('_')[0] === 'top';
+    if (!isTop) {
       notifications = notifications.reverse();
       style.flexDirection = 'column-reverse';
     }

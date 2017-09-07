@@ -6,11 +6,13 @@ export const NOTIFICATION_SIZE = { width: 375, height: 88 };
 export const MAX_NOTIFICATIONS = 3;
 
 import { screen as Screen } from 'electron';
+import { NotifyPosition } from '../interfaces';
 
 export class NotificationWindowHelpers {
   public static showPositionedNotificationWindow(wnd: Electron.BrowserWindow,
                                                  mainWindow: Electron.BrowserWindow,
-                                                 zoomLevel: number) {
+                                                 zoomLevel: number,
+                                                 notifyPosition: NotifyPosition) {
     // NB: Each zoom level corresponds to a 20% change
     const scaleFactor = 1 + (zoomLevel * 0.2);
 
@@ -20,6 +22,7 @@ export class NotificationWindowHelpers {
         width: Math.round(NOTIFICATION_SIZE.width * scaleFactor),
         height: Math.round(NOTIFICATION_SIZE.height * scaleFactor)
       },
+      screenPosition: notifyPosition,
       maxCount: MAX_NOTIFICATIONS,
       parent: mainWindow,
       screenApi: Screen
@@ -46,11 +49,15 @@ export class NotificationWindowHelpers {
   public static calculateHostCoordinates(options: {
     size: Electron.Size;
     parent: Electron.BrowserWindow;
+    screenPosition: NotifyPosition;
     maxCount: number;
     screenApi: Electron.Screen;
   }): Electron.Rectangle {
     const { size, parent, maxCount, screenApi } = options;
-    const display = NotificationWindowHelpers.getDisplayForHost(parent, screenApi);
+    let screenPosition = options.screenPosition;
+    screenPosition = screenPosition || { corner: 'bottom_right', display: 'same_as_app' };
+
+    const display = NotificationWindowHelpers.getDisplayForHost(parent, screenPosition, screenApi);
     const bounds = display.workArea;
 
     // We don't resize the window dynamically, so pick a height that will fit
@@ -63,13 +70,23 @@ export class NotificationWindowHelpers {
     // Be sure to add x or y to the height or width.
     let targetX = Number.NaN, targetY = Number.NaN;
 
-    // Top right on macOS, bottom right on all other platforms
-    if (process.platform === 'darwin') {
-        targetX = bounds.x + bounds.width - size.width;
-        targetY = bounds.y;
-    } else {
-        targetX = bounds.x + bounds.width - size.width;
-        targetY = bounds.y + bounds.height - targetHeight;
+    switch (screenPosition.corner) {
+    case 'top_left':
+      targetX = bounds.x;
+      targetY = bounds.y;
+      break;
+    case 'top_right':
+      targetX = bounds.x + bounds.width - size.width;
+      targetY = bounds.y;
+      break;
+    case 'bottom_left':
+      targetX = bounds.x;
+      targetY = bounds.y + bounds.height - targetHeight;
+      break;
+    case 'bottom_right':
+      targetX = bounds.x + bounds.width - size.width;
+      targetY = bounds.y + bounds.height - targetHeight;
+      break;
     }
 
     return {
@@ -85,21 +102,28 @@ export class NotificationWindowHelpers {
    * the `screenPosition.display` preference.
    *
    * @param  {BrowserWindow} parent   The parent window
+   * @param  {Object} screenPosition  Determines where notifications appear
    * @param  {Screen} screenApi       Used to retrieve display information
    * @return {Object}                 A display object
    */
-  public static getDisplayForHost(parent: Electron.BrowserWindow, screenApi: Electron.Screen) {
-    // NB: Pick the display based on the center point of the main window.
-    // The top-left can be negative for maximized windows.
-    const position = parent.getPosition();
-    const windowSize = parent.getSize();
-    const centerPoint = {
-      x: Math.round(position[0] + windowSize[0] / 2.0),
-      y: Math.round(position[1] + windowSize[1] / 2.0)
-    };
+  public static getDisplayForHost(parent: Electron.BrowserWindow, screenPosition: NotifyPosition = {} as any, screenApi: Electron.Screen) {
+    switch (screenPosition.display) {
+    case 'same_as_app': {
+      // NB: Pick the display based on the center point of the main window.
+      // The top-left can be negative for maximized windows.
+      const position = parent.getPosition();
+      const windowSize = parent.getSize();
+      const centerPoint = {
+        x: Math.round(position[0] + windowSize[0] / 2.0),
+        y: Math.round(position[1] + windowSize[1] / 2.0)
+      };
 
-    const sameDisplayAsApp = screenApi.getDisplayNearestPoint(centerPoint);
-    return sameDisplayAsApp || screenApi.getPrimaryDisplay();
+      const sameDisplayAsApp = screenApi.getDisplayNearestPoint(centerPoint);
+      return sameDisplayAsApp || screenApi.getPrimaryDisplay();
+    }
+    default:
+      return screenApi.getPrimaryDisplay();
+    }
   }
 
   /**

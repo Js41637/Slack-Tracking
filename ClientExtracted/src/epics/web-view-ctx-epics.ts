@@ -1,16 +1,20 @@
 import { MiddlewareAPI } from 'redux';
 import { ActionsObservable, Epic } from 'redux-observable';
 import { Action } from '../actions/action';
-import { EVENTS } from '../actions/index';
+import { EVENTS, SELECTED_TEAM_ACTION, TEAMS } from '../actions/index';
 import { completeAction } from '../custom-operators';
-import '../custom-operators';
+
+import { intl as $intl } from '../i18n/intl';
 import { logger } from '../logger';
 import { RootState } from '../reducers/index';
-import '../rx-operators';
 import { getSetting } from '../stores/setting-store-helper';
 import { flushTelemetry } from '../telemetry';
 import { releaseDocumentFocus } from '../utils/document-focus';
 import { pickActionData } from './pick-action-data';
+import { pickLocale } from './pick-locale';
+
+import '../custom-operators';
+import '../rx-operators';
 
 interface WebViewContext {
   isLoginDialog: boolean;
@@ -129,4 +133,18 @@ const quitApplicationEpic: Epic<Action<any>, any> = (actionObservable: ActionsOb
     .mergeMap(flushTelemetry)
     .let(completeAction);
 
-export const webViewContextEpics = [focusEpic, goToOffsetEpic, quitApplicationEpic];
+const applyLocaleByTeamSelectionEpic: Epic<Action<any>, RootState> =
+  (actionObservable: ActionsObservable<Action<any>>, store: MiddlewareAPI<RootState>) =>
+    actionObservable.ofType(...SELECTED_TEAM_ACTION, TEAMS.REMOVE_TEAM, TEAMS.REMOVE_TEAMS)
+      .map(() => pickLocale(store))
+      .filter((locale) => !!locale)
+      .distinctUntilChanged()
+      .do((locale) => $intl.applyLocale(locale!))
+      .let(completeAction);
+
+export const webViewContextEpics = [
+  focusEpic,
+  goToOffsetEpic,
+  quitApplicationEpic,
+  applyLocaleByTeamSelectionEpic
+];

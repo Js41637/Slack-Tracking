@@ -2,6 +2,7 @@
  * @module SSBIntegration
  */ /** for typedoc */
 
+import { intl as $intl, localeType } from '../i18n/intl';
 import { ReduxComponent } from '../lib/redux-component';
 import { logger } from '../logger';
 import { appStore } from '../stores/app-store';
@@ -21,6 +22,7 @@ export interface ReduxHelperState {
   canUpdate: boolean;
   customMenuItemClickedEvent: StoreEvent;
   systemTextSettingsChangedEvent: StoreEvent;
+  locale: localeType;
 }
 
 // NB: This is a Do Everything Component solely because having too many Redux
@@ -45,6 +47,7 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
       systemTextSettingsChangedEvent: eventStore.getEvent('systemTextSettingsChanged'),
       spellcheckerLanguage: settingStore.getSetting<string>('spellcheckerLanguage'),
       canUpdate: process.platform !== 'linux' && !IS_STORE_BUILD,
+      locale: settingStore.getSetting<localeType>('locale'),
     };
   }
 
@@ -53,11 +56,18 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
     this.updateSuspendResume(prevState);
     this.updateUpdateStatus(prevState);
     this.updateSpellcheckerLanguage(prevState);
+    this.updateLocale(prevState);
   }
 
   public updateLastActiveTeam(prevState: Partial<ReduxHelperState>): void {
-    if (this.state.currentTeamId && this.state.currentTeamId !== prevState.currentTeamId) {
-      this.lastSelectedTeams.unshift(this.state.currentTeamId);
+    const currentTeamId = this.state.currentTeamId;
+
+    if (currentTeamId && currentTeamId !== prevState.currentTeamId) {
+      this.lastSelectedTeams.unshift(currentTeamId);
+
+      if (window.TSSSB && window.TSSSB.teamSelectionChanged) {
+        window.TSSSB.teamSelectionChanged(currentTeamId);
+      }
     }
 
     while (this.lastSelectedTeams.length > 16) {
@@ -100,7 +110,7 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
    *    releaseVersion  The version number for the available update
    */
   public updateUpdateStatus(prevState: Partial<ReduxHelperState>) {
-    const { updateStatus, updateInfo, releaseChannel, canUpdate } = this.state as ReduxHelperState;
+    const { updateStatus, updateInfo, releaseChannel, canUpdate, locale } = this.state as ReduxHelperState;
     if (updateStatus === prevState.updateStatus) return;
 
     if (window.TSSSB &&
@@ -109,7 +119,7 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
 
       window.TSSSB.showUpdateBanner({
         canUpdate,
-        learnMoreUrl: getReleaseNotesUrl(releaseChannel === 'beta'),
+        learnMoreUrl: getReleaseNotesUrl(releaseChannel === 'beta', locale),
         releaseVersion: updateInfo.releaseName
       });
     }
@@ -140,5 +150,19 @@ export class ReduxHelper extends ReduxComponent<ReduxHelperState> {
 
   public isSelectedTeam(): boolean {
     return window.teamId === this.state.currentTeamId;
+  }
+
+  /**
+   * When the `locale` setting is changed, we'll make sure to update
+   * any interop contexts (like webapp windows).
+   *
+   * @param {Partial<ReduxHelperState>} prevState
+   */
+  private updateLocale(prevState: Partial<ReduxHelperState>) {
+    const { locale } = this.state as ReduxHelperState;
+
+    if (locale !== prevState.locale) {
+      $intl.applyLocale(locale);
+    }
   }
 }

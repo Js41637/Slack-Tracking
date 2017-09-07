@@ -25,7 +25,7 @@
  * @preferred
  */ /** for typedoc */
 
-import { remote, webFrame } from 'electron';
+import { remote, screen as ElectronScreen, webFrame } from 'electron';
 import { initializeEvalHandler } from 'electron-remote';
 import { logger } from '../logger';
 import { setupCrashReporter } from '../setup-crash-reporter';
@@ -33,7 +33,6 @@ import { overrideDropbox } from './override-dropbox';
 import { overrideWindowOpen } from './override-window-open';
 import { TouchBarIntegration } from './touchbar';
 
-import { screen as ElectronScreen } from 'electron';
 import { Store } from '../lib/store';
 import { AppIntegration } from './app';
 import { Calls } from './calls';

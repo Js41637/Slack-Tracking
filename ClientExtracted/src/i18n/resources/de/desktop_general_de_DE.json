@@ -1,0 +1,107 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1179112694" : {
+    "translation" : "Deine Einstellungen wurden aktualisiert. Starte Slack neu, damit diese Änderungen wirksam werden.",
+    "notes" : ""
+  },
+  "1343450128" : {
+    "translation" : "Link öffnen",
+    "notes" : ""
+  },
+  "1789338757" : {
+    "translation" : "Maximieren rückgängig machen",
+    "notes" : ""
+  },
+  "1946414326" : {
+    "translation" : "Benutzername",
+    "notes" : ""
+  },
+  "2147486172" : {
+    "translation" : "OK",
+    "notes" : ""
+  },
+  "2147572423" : {
+    "translation" : "Ja",
+    "notes" : ""
+  },
+  "2212687320" : {
+    "translation" : "Schließen",
+    "notes" : ""
+  },
+  "2220908756" : {
+    "translation" : "Linux",
+    "notes" : ""
+  },
+  "2227449712" : {
+    "translation" : "Slack",
+    "notes" : ""
+  },
+  "2629256940" : {
+    "translation" : "Maximieren",
+    "notes" : ""
+  },
+  "296709561" : {
+    "translation" : "Neu laden",
+    "notes" : ""
+  },
+  "3028657111" : {
+    "translation" : "Der Slack-Service scheint im Moment nicht verfügbar zu sein. Bitte schau auf status.slack.com, woran es liegen könnte.",
+    "notes" : ""
+  },
+  "3108624819" : {
+    "translation" : "Lade Slack neu oder starte die App neu.",
+    "notes" : ""
+  },
+  "3110580365" : {
+    "translation" : "Achtung! Das erneute Laden von Slack wird auch den Anruf beenden, in dem du dich gerade befindest. Möchtest du wirklich neu laden?",
+    "notes" : ""
+  },
+  "3397585530" : {
+    "translation" : "Slack Corp",
+    "notes" : ""
+  },
+  "339815480" : {
+    "translation" : "Einreichen",
+    "notes" : ""
+  },
+  "3429113531" : {
+    "translation" : "Passwort",
+    "notes" : ""
+  },
+  "3540450348" : {
+    "translation" : "Das tut uns wirklich leid! Bevor du dich an die Fehlerbehebung machst, prüfe bitte den Status unserer Server.",
+    "notes" : ""
+  },
+  "4158593690" : {
+    "translation" : "Abbrechen",
+    "notes" : ""
+  },
+  "4258369885" : {
+    "translation" : "Slack – {teamName}",
+    "notes" : "Do not translate between {}"
+  },
+  "614675951" : {
+    "translation" : "Neustart",
+    "notes" : ""
+  },
+  "824085699" : {
+    "translation" : "Überprüfe deine Konsole oder App-Logs auf Fehler und melde dich bei uns, falls du weitere Hilfe benötigst.",
+    "notes" : ""
+  },
+  "853060286" : {
+    "translation" : "Minimieren",
+    "notes" : ""
+  },
+  "866663011" : {
+    "translation" : "Windows",
+    "notes" : ""
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1114262255" : {
+    "translation" : "Alles bestens",
+    "notes" : ""
+  },
+  "1195334581" : {
+    "translation" : "Wir konnten nicht nach Updates suchen",
+    "notes" : ""
+  },
+  "120966588" : {
+    "translation" : "Eine neue Version von Slack ist verfügbar!",
+    "notes" : ""
+  },
+  "1294172317" : {
+    "translation" : "Bist du sicher?",
+    "notes" : ""
+  },
+  "1567656214" : {
+    "translation" : "Dabei wirst du aus all deinen Workspaces abgemeldet, die App wird auf den Originalzustand zurückgesetzt und neu gestartet.",
+    "notes" : ""
+  },
+  "1588876707" : {
+    "translation" : "Falls das Problem weiterhin besteht, kannst du Schwierigkeiten melden oder unter feedback@slack.com Kontakt mit uns aufnehmen.",
+    "notes" : ""
+  },
+  "1704747187" : {
+    "translation" : "Überprüfe deine Internetverbindung und kontaktiere den Support, falls dieses Problem weiterhin besteht.",
+    "notes" : ""
+  },
+  "194011383" : {
+    "translation" : "Ein Update ist verfügbar",
+    "notes" : ""
+  },
+  "2896655900" : {
+    "translation" : "Neu starten && Problem melden",
+    "notes" : "double ampersand is for windows platform. if translated string does not need ampersand can ignore it."
+  },
+  "3526497016" : {
+    "translation" : "Neu starten & Problem melden",
+    "notes" : ""
+  },
+  "3783833534" : {
+    "translation" : "Was gibt's Neues",
+    "notes" : ""
+  },
+  "3805691147" : {
+    "translation" : "Slack ist abgestürzt!",
+    "notes" : ""
+  },
+  "3843442431" : {
+    "translation" : "Jetzt aktualisieren",
+    "notes" : ""
+  },
+  "3940220280" : {
+    "translation" : "Es tut uns schrecklich leid, aber es sind Probleme aufgetreten und wir müssen Slack neu starten.",
+    "notes" : ""
+  },
+  "563969361" : {
+    "translation" : "Du hast die neueste Version von Slack. Danke, dass du am Ball bleibst.",
+    "notes" : ""
+  },
+  "769875324" : {
+    "translation" : "Slack neu laden und Anruf beenden?",
+    "notes" : ""
+  },
+  "867210976" : {
+    "translation" : "Slack zurücksetzen?",
+    "notes" : ""
+  }
+}

@@ -72,6 +72,8 @@ export interface WebViewContextState {
   isMac: boolean;
   authInfo: Electron.AuthInfo | null;
   isLoading?: boolean;
+  loadedWhileHidden?: boolean;
+  locale: string;
 }
 
 export class WebViewContext extends Component<WebViewContextProps, WebViewContextState> {
@@ -103,7 +105,11 @@ export class WebViewContext extends Component<WebViewContextProps, WebViewContex
 
   constructor(props: WebViewContextProps) {
     super(props);
-
+    // Paranoia: Always start out visible, just in case it helps with
+    // https://github.com/electron/electron/issues/8505
+    this.state = assignIn({
+      isLoading: true,
+    }, this.state);
     this.currentViewId = WebViewContext.numberOfWebViews++;
     this.consoleLogger = new Logger({
       identifierOverride: `webapp-${props.id}`,
@@ -113,6 +119,7 @@ export class WebViewContext extends Component<WebViewContextProps, WebViewContex
 
   public syncState(): WebViewContextState {
     return {
+      locale: settingStore.getSetting<string>('locale'),
       zoomLevel: settingStore.getSetting<number>('zoomLevel'),
       isMac: settingStore.isMac(),
       authInfo: dialogStore.getInfoForAuthDialog()
@@ -141,7 +148,31 @@ export class WebViewContext extends Component<WebViewContextProps, WebViewContex
         Observable.fromEvent(webView, 'did-stop-loading').mapTo(false)
       )
       .startWith(true)
-      .subscribe((isLoading) => this.setState(() => ({ isLoading })))
+      .subscribe((isLoading) => {
+        if (isLoading && this.state.isMac) {
+          // XXX: If we get did-start-loading and the webview is invisible,
+          // then on Mac we will definitely fall into issue 8505.
+          // Raise a flag to indicate that we may need to force reload
+          // on shown.
+          let loadedWhileHidden = false;
+          try {
+            if (window.getComputedStyle(webView).visibility === 'hidden') {
+              loadedWhileHidden = true;
+              logger.info('Setting loadedWhileHidden for webview');
+            } else {
+              logger.info('Clearing loadedWhileHidden for webview');
+            }
+          } catch (error) {
+            logger.error('Failed to check webview visibility on load');
+          }
+          this.setState(() => ({
+            isLoading,
+            loadedWhileHidden,
+          }));
+        } else {
+          this.setState(() => ({ isLoading }));
+        }
+      })
     );
 
     this.disposables.add(Observable.fromEvent(webView, 'dom-ready').subscribe(() => {
@@ -169,8 +200,6 @@ export class WebViewContext extends Component<WebViewContextProps, WebViewContex
     this.disposables.add(Observable.fromEvent(webView, 'did-get-redirect-request')
       .filter(({ isMainFrame }) => isMainFrame)
       .subscribe((e: HashChangeEvent) => {
-        if (this.delayPageRefresh(e)) return;
-
         logger.info(`WebView: Received redirect request from ${e.oldURL} to ${e.newURL}.`);
         this.props.onRedirect!(e);
       })
@@ -201,6 +230,10 @@ export class WebViewContext extends Component<WebViewContextProps, WebViewContex
 
   public get WebView(): Electron.WebviewTag {
     return this.webViewElement;
+  }
+
+  public get loadedWhileHidden(): boolean {
+    return !!this.state.loadedWhileHidden;
   }
 
   /**
@@ -283,36 +316,6 @@ export class WebViewContext extends Component<WebViewContextProps, WebViewContex
         style={{ width: '100%', height: '100%' }}
       />
     );
-  }
-
-  /**
-   * A dirty workaround to prevent white screens when the embedded page
-   * refreshes itself. This navigation happens before did-start-loading, which
-   * means the webview is still hidden and we fall into
-   * https://github.com/electron/electron/issues/8505.
-   *
-   * @param {HashChangeEvent} e   The redirect event
-   * @returns {Boolean}           True if we handled the event, false otherwise
-   */
-  private delayPageRefresh(e: HashChangeEvent): boolean {
-    if (e.oldURL && e.newURL) {
-      // Trim slashes at the end of URLs before checking equality
-      const oldURL = e.oldURL.endsWith('/') ? e.oldURL.slice(0, -1) : e.oldURL;
-      const newURL = e.newURL.endsWith('/') ? e.newURL.slice(0, -1) : e.newURL;
-
-      // They're the same; this must be a page refresh
-      if (oldURL === newURL) {
-        logger.fatal('WebView: Delaying page refresh');
-        e.preventDefault();
-
-        // Set the webview to visible before doing any navigation
-        this.setState(() => ({ isLoading: true }));
-        requestAnimationFrame(() => this.webViewElement.loadURL(newURL));
-        return true;
-      }
-    }
-
-    return false;
   }
 
   /**

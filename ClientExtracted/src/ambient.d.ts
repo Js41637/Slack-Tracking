@@ -28,6 +28,7 @@ declare module 'devtron';
 declare module 'node-mac-notifier';
 declare module 'node-fetch';
 declare module 'jsdom';
+declare module 'keyboard-layout';
 
 //https://github.com/Microsoft/TypeScript/wiki/What's-new-in-TypeScript#wildcard-character-in-module-name
 declare module '*/package.json';

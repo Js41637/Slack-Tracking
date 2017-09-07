@@ -7,6 +7,7 @@ import { notificationActions } from '../actions/notification-actions';
 import { logger } from '../logger';
 import { nativeInterop } from '../native-interop';
 import { settingStore } from '../stores/setting-store';
+import { shouldDisplayNotifications } from '../utils/windows-notification-state';
 
 let getIsQuietHours = () => false;
 try {
@@ -22,7 +23,15 @@ export class NotificationIntegration {
    * @param {NotifyNotificationOptions} args
    */
   public notify(args: NotifyNotificationOptions): void {
-    if (nativeInterop.isWindows10OrHigher(true) || nativeInterop.shouldDisplayNotifications()) {
+    // This ensures that users can configure Windows 10 to use Slack's
+    // custom HTML notifications and still have presentation mode
+    // respected
+    const notificationMethod = settingStore.getSetting('notificationMethod');
+    const isUsingToastNotifications = nativeInterop.isWindows10OrHigher(true)
+      && (notificationMethod === 'winrt' || !notificationMethod);
+    const isNotWindowsOrHasState = process.platform !== 'win32' || shouldDisplayNotifications();
+
+    if (isUsingToastNotifications || isNotWindowsOrHasState) {
       const interactive = window.TS && window.TS.boot_data && window.TS.boot_data.feature_interactive_win_notifs;
       const options = { ...args, interactive, teamId: window.teamId };
       notificationActions.newNotification(options);
@@ -52,13 +61,14 @@ export class NotificationIntegration {
    * @return {Bool}  True if sound need to be attached
    */
   public shouldAttachSoundToNotification(): boolean {
-    if (process.platform === 'darwin') {
+    const notificationPlayback = settingStore.getSetting('notificationPlayback');
+
+    if (process.platform === 'darwin' && notificationPlayback !== 'webapp') {
       return true;
     }
 
-    if (nativeInterop.isWindows10OrHigher()) {
-      const notificationMethod = settingStore.getSetting('notificationMethod');
-      return !(notificationMethod && notificationMethod !== 'winrt');
+    if (notificationPlayback === 'native') {
+      return true;
     }
 
     return false;

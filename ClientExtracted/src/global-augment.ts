@@ -76,6 +76,7 @@ declare global {
 
     //define globally patched TSSSB interface
     TSSSB: {
+      teamSelectionChanged(selectedTeamId: string): void;
       updateDownloadsView(downloads?: DownloadsList): void;
       canUrlBeOpenedInSSBWindow(url: string): boolean;
       getThemeValues(): any;

@@ -22,7 +22,7 @@ import { LOCALE_NAMESPACE, localeNamespaceType } from './locale-namespace';
 
 type stringFormatterFunction = (...args: Array<any>) => string;
 
-export type localeType = 'jp' | 'en-US';
+export type localeType = 'ja-JP' | 'en-US' | 'es-ES' | 'fr-FR' | 'de-DE';
 export const LOCALE = {
   JP: 'jp' as localeType,
   US: 'en-US' as localeType
@@ -50,19 +50,26 @@ class TranslationLookup {
    * it need to be explicitly reloaded.
    *
    * @param {String} locale language code to apply for further string lookup
+   * @return {boolean} True if new locale is applied, different to current locale. False otherwise.
    */
-  public applyLocale(locale: string): void {
-    //default namespace table (English) won't be cleared once generated
-    this.stringFormatterTable = {};
-    this.localeResourceTable = {};
-
+  public applyLocale(locale: string): boolean {
     if (!locale || locale.length < 2) {
       throw new Error(`Invalid locale code ${locale} specified`);
     }
 
     //we do not apply region codes yet into translated strings, stripping it out
-    this.locale = locale.substring(0, 2);
+    const newLocale = locale.substring(0, 2);
+    if (newLocale === this.locale) {
+      return false;
+    }
+
+    //default namespace table (English) won't be cleared once generated
+    this.stringFormatterTable = {};
+    this.localeResourceTable = {};
+
+    this.locale = newLocale;
     logger.info(`TranslationLookup: locale set to ${locale} for ${process.type}`);
+    return true;
   }
 
   /**
@@ -81,8 +88,25 @@ class TranslationLookup {
       return cachedFormatter;
     }
 
-    const translatedStringValue = this.translate(namespace, key) || value;
-    const formatter = new MessageFormat(this.locale, translatedStringValue).format;
+    const formatter = (...args: Array<any>) => {
+      try {
+        const translatedStringValue = this.translate(namespace, key) || value;
+        return new MessageFormat(this.locale, translatedStringValue).format(...args);
+      } catch (err) {
+        if (process.defaultApp) {
+          throw new Error(`TranslationLookup: Error: localized string is invalid
+  See string ${key} at ${namespace} for locale '${this.locale}'.
+
+${err.message}`);
+        }
+
+        logger.error(`TranslationLookup: Error: localized string is invalid.
+  See string ${key} at ${namespace} for locale '${this.locale}'
+  Falling back to default locale.`);
+        return new MessageFormat(TranslationLookup.defaultLocale, value).format(...args);
+      }
+    };
+
     this.updateFormatter(namespace, key, formatter);
     return formatter;
   }

@@ -93,7 +93,7 @@ export class ConnectionTrouble extends Component<ConnectionTroubleProps> {
         <h1>{$intl.t('For some reason, Slack couldn’t load ', LOCALE_NAMESPACE.RENDERER)()}<span title="'Face With Cold Sweat' emoji">😓</span></h1>
         <p>{checkServerStatusElement}</p>
 
-        <h3>Troubleshooting</h3>
+        <h3>{$intl.t('Troubleshooting', LOCALE_NAMESPACE.RENDERER)()}</h3>
 
         <div className='trouble_loading_content'>
           <p>{$intl.t('A few things to try:', LOCALE_NAMESPACE.RENDERER)()}</p>

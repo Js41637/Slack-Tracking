@@ -119,7 +119,7 @@ const interactiveTemplate = (headerElement: string, audioElement: string, ...ele
  * @returns {string}
  */
 export function createAudioElement(args: Partial<NativeNotificationOptions>): string {
-  if (args.soundName) {
+  if (args.soundName && settingStore.getSetting('notificationPlayback') === 'native') {
     return `<audio src="file:///${path.join(process.resourcesPath!, args.soundName)}.mp3" />`;
   }
 

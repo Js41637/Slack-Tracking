@@ -90,6 +90,7 @@ export interface SlackAppState {
   isWin10: boolean;
   isMaximized?: boolean;
   wasConnected?: boolean;
+  locale: string;
 }
 
 export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
@@ -148,7 +149,8 @@ export class SlackApp extends Component<SlackAppProps, Partial<SlackAppState>> {
       reportIssueEvent: eventStore.getEvent('reportIssue'),
       reportIssueOnStartup: settingStore.getSetting<boolean>('reportIssueOnStartup'),
 
-      isWin10: settingStore.getSetting<boolean>('isWin10')
+      isWin10: settingStore.getSetting<boolean>('isWin10'),
+      locale: settingStore.getSetting<string>('locale')
     };
   }
 

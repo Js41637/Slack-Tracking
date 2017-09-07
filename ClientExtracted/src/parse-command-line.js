@@ -12,8 +12,6 @@ const { version } = require('../package.json');
 // them.
 const thingsIDontLike = [
   /disable-web-security/i,
-  /proxy-server/i,
-  /proxy-pac-url/i,
   /allow-running-insecure-content/i
 ];
 

@@ -44,7 +44,6 @@ export class Locale {
 
   private get systemLocale(): string {
     const main = app || remote.app;
-
     if (!!main) {
       if (main.isReady()) {
         return main.getLocale();

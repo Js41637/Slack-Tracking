@@ -11,6 +11,7 @@ import { eventActions } from '../../actions/event-actions';
 import { LOCALE_NAMESPACE, intl as $intl } from '../../i18n/intl';
 import { Component } from '../../lib/component';
 import { appStore } from '../../stores/app-store';
+import { settingStore } from '../../stores/setting-store';
 import { LastError, networkStatusType } from '../../utils/shared-constants';
 import { ConnectionTrouble } from './connection-trouble';
 
@@ -22,6 +23,7 @@ export interface LoadingScreenProps {
 export interface LoadingScreenState {
   networkStatus: networkStatusType;
   lastError: LastError | null;
+  locale: string;
 }
 
 export class LoadingScreen extends Component<LoadingScreenProps, LoadingScreenState> {
@@ -40,7 +42,8 @@ export class LoadingScreen extends Component<LoadingScreenProps, LoadingScreenSt
   public syncState(): Partial<LoadingScreenState> {
     return {
       networkStatus: appStore.getNetworkStatus(),
-      lastError: appStore.getLastError()
+      lastError: appStore.getLastError(),
+      locale: settingStore.getSetting<string>('locale')
     };
   }
 

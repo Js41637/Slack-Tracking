@@ -7,9 +7,53 @@ import { ContextMenuListener } from '../context-menu-listener';
 import { ipc } from '../ipc-rx';
 import { logger } from '../logger';
 import { settingStore } from '../stores/setting-store';
+import { CHROME_BDICTS } from '../utils/chrome-bdicts';
+import { Language, getLanguageNames, removeUnneccessaryRegions } from '../utils/iso639';
 
 export class SpellCheckingHelper {
+  /**
+   * Returns the available dictionaries on this device.
+   *
+   * @static
+   * @returns {Array<Language>}
+   */
+  public static getDictionaries(): Array<Language> {
+    try {
+      // This is a direct way to @paulcbetts/node-spellchecker with the
+      // configuration passed in by electron-spellchecker. It's also
+      // our way to find which dictionaries it has available.
+      const spellchecker = require('electron-spellchecker').SpellChecker;
+      const dictionaries: Array<string> = spellchecker.getAvailableDictionaries();
+      const selectedLanguage = settingStore.getSetting('spellcheckerLanguage');
+
+      // On Windows and Linux, we use Hunspell. It always returns []
+      if (process.platform !== 'darwin') {
+        dictionaries.push(...CHROME_BDICTS);
+      }
+
+      const namedLanguages = dictionaries.map((language) => {
+        const namedLanguage = getLanguageNames(language, {
+          includeEnglishNames: false
+        });
+
+        if (selectedLanguage && namedLanguage.key === selectedLanguage) {
+          namedLanguage.selected = true;
+        }
+
+        return namedLanguage;
+      });
+
+      return removeUnneccessaryRegions(namedLanguages);
+    } catch (error) {
+      logger.error('SpellChecker: Tried to fetch available dictionaries, but failed', error);
+
+      return [];
+    }
+  }
+
+
   public spellCheckHandler: any;
+  public getDictionaries = SpellCheckingHelper.getDictionaries;
   private contextMenuListener: any;
 
   constructor() {
@@ -36,7 +80,7 @@ export class SpellCheckingHelper {
 
       this.spellCheckHandler.automaticallyIdentifyLanguages = !!language;
     } catch (error) {
-      logger.warn(`Tried to update spellchecker language, but failed`, error);
+      logger.warn(`Spellchecker: Tried to update spellchecker language, but failed`, { error });
     }
   }
 
@@ -57,7 +101,7 @@ export class SpellCheckingHelper {
         this.spellCheckHandler.switchLanguage(language);
       }
     } catch (error) {
-      logger.warn(`We tried to setup the spellchecker, but failed`, error);
+      logger.warn(`Spellchecker: We tried to setup the spellchecker, but failed`, { error });
     }
   }
 

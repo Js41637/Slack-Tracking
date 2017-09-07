@@ -54,6 +54,7 @@ export interface TrayHandlerState {
   releaseChannel: string;
   isDevMode: boolean;
   disableUpdateCheck: boolean;
+  locale: string;
 }
 
 export class TrayHandler extends ReduxComponent<TrayHandlerState> {
@@ -72,6 +73,7 @@ export class TrayHandler extends ReduxComponent<TrayHandlerState> {
 
     return {
       icon, tooltip, badge, devEnv,
+      locale: settingStore.getSetting<string>('locale'),
       lastBalloon: dialogStore.getLastBalloon(),
       hasRunApp: settingStore.getSetting<boolean>('hasRunApp'),
       teams: teamStore.teams,
@@ -83,7 +85,7 @@ export class TrayHandler extends ReduxComponent<TrayHandlerState> {
     };
   }
 
-  public update(prevState: Partial<TrayHandlerState>= {}): void {
+  public update(prevState: Partial<TrayHandlerState> = {}): void {
     const { icon, tooltip, badge, lastBalloon, hasRunApp, teamsByIndex,
       updateStatus, releaseChannel } = this.state;
 
@@ -107,6 +109,10 @@ export class TrayHandler extends ReduxComponent<TrayHandlerState> {
       const didTeamsChange = !isEqual(prevState.teamsByIndex, teamsByIndex);
       const didUpdateStatusChange = updateStatus !== prevState.updateStatus;
       if (didTeamsChange || didUpdateStatusChange) this.createTrayMenu();
+
+      if (prevState.locale !== this.state.locale) {
+        this.createTrayMenu();
+      }
     }
 
     if (!isLinux && prevState.releaseChannel && releaseChannel !== prevState.releaseChannel) {
@@ -347,7 +353,7 @@ export class TrayHandler extends ReduxComponent<TrayHandlerState> {
    * @param  {String} content     The message content to display
    * @param  {NativeImage} icon}  The icon to display; defaults to the app icon
    */
-  private showBalloon({ title, content, icon }: {title: string, content: string, icon?: Electron.NativeImage}): void {
+  private showBalloon({ title, content, icon }: { title: string, content: string, icon?: Electron.NativeImage }): void {
     if (!this.tray) {
       logger.warn(`Tray Handler: Attempted to show a balloon before the tray icon exists.`);
       return;

@@ -3,6 +3,7 @@
  */ /** for typedoc */
 
 import * as NodeMacNotifier from 'node-mac-notifier';
+import { logger } from '../../logger';
 import { NativeNotificationOptions } from './interfaces';
 import { NotificationBase } from './native-base-notification';
 
@@ -37,6 +38,13 @@ export class NativeMacNotification extends NotificationBase {
    * @param  {Object} options Arguments to create the notification
    */
   private createNotification(title: string, options: NativeNotificationOptions) {
+    logger.info(`Creating new macOS notification.`);
+    logger.debug(`Notification is being created with:`, { ...options, title });
+
+    if (!options.soundName) {
+      logger.warn(`macOS notification created, but no sound attached!`);
+    }
+
     const toast = new NodeMacNotifier(title, options);
 
     toast.addEventListener('close', () => this.emit('close'));

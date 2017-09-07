@@ -1,0 +1,75 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1121062925" : {
+    "translation" : "{unreads,plural,=1{# mensaje sin leer}other{# mensajes sin leer}}",
+    "notes" : ""
+  },
+  "2243997838" : {
+    "translation" : "Slack Alpha",
+    "notes" : ""
+  },
+  "2359727256" : {
+    "translation" : "¡Te damos la bienvenida a Slack!",
+    "notes" : ""
+  },
+  "2507268860" : {
+    "translation" : "¡Ya estás en Slack Alpha! Tu app recibirá actualizaciones cuando estén disponibles.",
+    "notes" : ""
+  },
+  "2531415917" : {
+    "translation" : "{unreadHighlights,plural,=1{# mención sin leer}other{# menciones sin leer}}",
+    "notes" : ""
+  },
+  "2560021664" : {
+    "translation" : "Este icono mostrará un punto azul para los mensajes sin leer, y uno rojo para las notificaciones. Si prefieres que Slack se muestre siempre, arrastra el icono fuera del área de desbordamiento.",
+    "notes" : ""
+  },
+  "2691950950" : {
+    "translation" : "Tienes mensajes sin leer",
+    "notes" : ""
+  },
+  "2817997211" : {
+    "translation" : "Slack está configurado para avisarte cuando recibas notificaciones. Para cambiarlo, visita Preferencias > Notificaciones.",
+    "notes" : ""
+  },
+  "2961127628" : {
+    "translation" : "¡Ya estás en Slack Beta! Tu app recibirá actualizaciones cuando estén disponibles.",
+    "notes" : ""
+  },
+  "3379982589" : {
+    "translation" : "Acerca de Slack",
+    "notes" : ""
+  },
+  "3397546176" : {
+    "translation" : "Slack Beta",
+    "notes" : ""
+  },
+  "4163153666" : {
+    "translation" : "¿Por qué no se ha cerrado Slack?",
+    "notes" : ""
+  },
+  "485203098" : {
+    "translation" : "¡Ya estás en Slack! Tu app recibirá actualizaciones cuando estén disponibles.",
+    "notes" : ""
+  },
+  "847616947" : {
+    "translation" : "{unreadHighlights,plural,=1{{unreadHighlights} mención sin leer}other{{unreadHighlights} menciones sin leer}}",
+    "notes" : ""
+  },
+  "850658910" : {
+    "translation" : "Ningún mensaje sin leer",
+    "notes" : ""
+  },
+  "982478753" : {
+    "translation" : "Slack está configurado para ejecutarse en el área de notificaciones. Para cambiarlo, visita Preferencias > App {platform}.",
+    "notes" : ""
+  }
+}

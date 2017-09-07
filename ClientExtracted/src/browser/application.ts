@@ -45,8 +45,8 @@ import { TrayHandler } from './tray-handler';
 import { WebContentsMediator } from './web-contents-mediator';
 import { windowCreator } from './window-creator';
 
-import { EVENTS } from '../actions';
-import { LOCALE_NAMESPACE, intl as $intl } from '../i18n/intl';
+import { localSettings } from '../browser/local-storage';
+import { LOCALE_NAMESPACE, intl as $intl, localeType } from '../i18n/intl';
 import { TELEMETRY_EVENT, flushTelemetry, track } from '../telemetry';
 
 const pmkdirp = promisify(mkdirp);
@@ -54,6 +54,7 @@ const primraf = promisify(rimraf);
 
 export interface ApplicationState {
   appVersion: string;
+  locale: localeType;
   releaseChannel: string;
   resourcePath: string;
   versionName: string;
@@ -155,12 +156,10 @@ export class Application extends ReduxComponent<ApplicationState> {
     }
 
     this.mainWindow = windowCreator.createMainWindow(options);
-    this.mainWindow.once('show', () => {
-      Store.dispatch({ type: EVENTS.APP_STARTED });
-      track(TELEMETRY_EVENT.DESKTOP_CLIENT_LAUNCH, {
-        hasRunApp,
-        launchTeamsNum: this.state.numTeams
-      });
+
+    track(TELEMETRY_EVENT.DESKTOP_CLIENT_LAUNCH, {
+      hasRunApp,
+      launchTeamsNum: this.state.numTeams
     });
 
     this.basicAuthHandler = new BasicAuthHandler();
@@ -181,6 +180,7 @@ export class Application extends ReduxComponent<ApplicationState> {
   public syncState(): ApplicationState {
     return {
       appVersion: settingStore.getSetting<string>('appVersion'),
+      locale: settingStore.getSetting<localeType>('locale'),
       releaseChannel: settingStore.getSetting<string>('releaseChannel'),
       resourcePath: settingStore.getSetting<string>('resourcePath'),
       versionName: settingStore.getSetting<string>('versionName'),
@@ -243,7 +243,8 @@ export class Application extends ReduxComponent<ApplicationState> {
   }
 
   public showReleaseNotesEvent(): void {
-    const releaseNotesUrl = getReleaseNotesUrl(this.state.releaseChannel === 'beta');
+    const { locale } = this.state;
+    const releaseNotesUrl = getReleaseNotesUrl(this.state.releaseChannel === 'beta', locale);
     shell.openExternal(releaseNotesUrl);
   }
 
@@ -293,7 +294,7 @@ export class Application extends ReduxComponent<ApplicationState> {
       title: $intl.t('Reset Slack?', LOCALE_NAMESPACE.MESSAGEBOX)(),
       buttons: [$intl.t('Cancel', LOCALE_NAMESPACE.GENERAL)(), $intl.t('Yes', LOCALE_NAMESPACE.GENERAL)()],
       message: $intl.t('Are you sure?', LOCALE_NAMESPACE.MESSAGEBOX)(),
-      detail: $intl.t('This will sign you out from all of your teams, reset the app to its original state, and restart it.',
+      detail: $intl.t('This will sign you out from all of your workspaces, reset the app to its original state, and restart it.',
         LOCALE_NAMESPACE.MESSAGEBOX)(),
       noLink: true
     };
@@ -308,6 +309,7 @@ export class Application extends ReduxComponent<ApplicationState> {
       logger.warn('App: User chose to clear all app data, say goodbye!');
 
       track(TELEMETRY_EVENT.DESKTOP_CLIENT_RESET, { resetScope: 'all' });
+      localSettings.setItem('lastKnownLocale', null);
       await flushTelemetry();
       await this.clearCacheAndStorage();
       await (Store as any).resetStore();

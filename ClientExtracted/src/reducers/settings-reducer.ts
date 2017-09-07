@@ -7,9 +7,13 @@ import * as url from 'url';
 import { channel } from '../../package.json';
 import { Action } from '../actions/action';
 import { nativeInterop } from '../native-interop';
+import { NotifyPosition } from '../renderer/notifications/interfaces';
 import { ReleaseChannel } from '../utils/shared-constants';
 
 import { EVENTS, MIGRATIONS, SETTINGS } from '../actions';
+
+import { localSettings } from '../browser/local-storage';
+import { locale } from '../i18n/locale';
 
 export interface SettingsState {
   appVersion: string;
@@ -50,9 +54,12 @@ export interface SettingsState {
   clearNotificationsOnExit?: boolean;
   useHwAcceleration?: boolean;
   notificationMethod?: 'html' | 'winrt' | 'window' | null;
+  notificationPlayback?: 'native' | 'webapp' | null;
+  notifyPosition?: NotifyPosition;
   os?: boolean;
   release?: boolean;
   desktopEnvironment?: boolean;
+  locale: string;
 }
 
 // The default settings differ between OS's so we specify it here and return
@@ -105,6 +112,10 @@ export const defaultSettings = {
 
     // Notifications
     notificationMethod: null,
+    notificationPlayback: null,
+    notifyPosition: { corner: 'bottom_right', display: 'same_as_app' },
+
+    locale: localSettings.getItem('lastKnownLocale') || locale.currentLocale.systemLocale
   },
 
   // Settings specific to Windows 10
@@ -113,7 +124,7 @@ export const defaultSettings = {
     isAeroGlassEnabled: true,
     windowFlashBehavior: 'idle',
     hasExplainedWindowFlash: false,
-    clearNotificationsOnExit: false
+    clearNotificationsOnExit: false,
   },
 
   // Settings specific to Windows 7 / 8

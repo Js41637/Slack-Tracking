@@ -16,7 +16,11 @@ import { StoreEvent, eventStore } from '../../stores/event-store';
 import { notificationStore } from '../../stores/notification-store';
 import { settingStore } from '../../stores/setting-store';
 import { teamStore } from '../../stores/team-store';
-import { NativeNotificationOptions, WebappNotificationOptions } from '../notifications/interfaces';
+import {
+  NativeNotificationOptions,
+  NotifyPosition,
+  WebappNotificationOptions
+} from '../notifications/interfaces';
 import { NodeRTNotificationHelpers } from '../notifications/node-rt-notification-helpers';
 
 let NativeNotification: NativeNotificationCtor;
@@ -30,6 +34,7 @@ export interface NativeNotificationManagerState {
   isWindows: boolean;
   newNotificationEvent: NotificationEvent;
   handleReplyLinkEvent: StoreEvent;
+  notifyPosition: NotifyPosition;
 }
 
 export interface NotificationUserData {
@@ -53,6 +58,7 @@ export class NativeNotificationManager extends ReduxComponent<NativeNotification
       isWindows: settingStore.isWindows(),
       newNotificationEvent: notificationStore.getNewNotificationEvent(),
       handleReplyLinkEvent: eventStore.getEvent('handleReplyLink'),
+      notifyPosition: settingStore.getSetting<NotifyPosition>('notifyPosition')
     };
 
     return state;
@@ -179,8 +185,9 @@ export class NativeNotificationManager extends ReduxComponent<NativeNotification
     const canReply = !!args.channel;
     const body = args.content;
     const { channel, id } = args;
+    const screenPosition = this.state.notifyPosition;
 
-    const options = { id, channel, teamId, icon, body, soundName, canReply };
+    const options = { id, channel, teamId, icon, body, soundName, canReply, screenPosition };
 
     if (this.state.isWindows) {
      assignIn(options, {

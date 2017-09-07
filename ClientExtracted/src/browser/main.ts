@@ -15,7 +15,8 @@ import { Observable } from 'rxjs/Observable';
 
 import { channel } from '../../package.json';
 import { p } from '../get-path';
-import { applyLocale } from '../i18n/apply-locale';
+import { intl as $intl } from '../i18n/intl';
+import { locale } from '../i18n/locale';
 import { logger } from '../logger';
 import { getMemoryUsage } from '../memory-usage';
 import { parseCommandLine } from '../parse-command-line';
@@ -219,10 +220,7 @@ async function waitForAppReady(args: any): Promise<any> {
   global.getMemoryUsage = getMemoryUsage;
 
   traceRecorder.initializeListener();
-  await new Promise((res) => app.once('ready', (e: any) => {
-    applyLocale();
-    res(e);
-  }));
+  await new Promise((res) => app.once('ready', res));
 }
 
 /**
@@ -350,6 +348,16 @@ function createSlackApplication(args: any) {
     let Application = null;
 
     setupCrashReporter(args);
+
+    /**
+     * Set main process's locale as earlist possible to last known locale
+     * to construct elements with correct locale (i.e, app menu).
+     *
+     */
+    const lastLocale = localSettings.getItem('lastKnownLocale') || locale.currentLocale.systemLocale;
+    if (!!lastLocale) {
+      $intl.applyLocale(lastLocale);
+    }
 
     if (args.devMode) {
       Application = require(path.join(args.resourcePath, 'src', 'browser', 'application')).Application;

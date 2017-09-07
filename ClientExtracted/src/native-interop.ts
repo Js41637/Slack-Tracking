@@ -14,7 +14,6 @@ let win10OrHigher: boolean | null = null;
 let getIdleTime: any = null;
 
 export interface NativeInterop {
-  shouldDisplayNotifications: () => boolean;
   getIdleTimeInMs: () => number;
   getOSVersion: () => {
     major: string;
@@ -27,30 +26,6 @@ export interface NativeInterop {
 
 export const interops = {
   win32: {
-    shouldDisplayNotifications: () => {
-      let notificationState = null;
-
-      try {
-        const { getNotificationState } = require('windows-notification-state');
-        notificationState = getNotificationState();
-      } catch (error) {
-        logger.error('Tried to query notification state, but failed', error);
-        return true;
-      }
-
-      // NB: The call can succeed but return an empty state.
-      if (notificationState === '') return true;
-      // Screensaver is running or machine is locked, who cares?
-      if (notificationState === 'QUNS_NOT_PRESENT') return true;
-      // All's good under the hood, boss
-      if (notificationState === 'QUNS_ACCEPTS_NOTIFICATIONS') return true;
-      // Windows Store app is running, who cares?
-      if (notificationState === 'QUNS_APP') return true;
-
-      logger.info(`Suppressing notification due to Presentation Mode: ${notificationState}`);
-      return false;
-    },
-
     getIdleTimeInMs: () => {
       getIdleTime = getIdleTime || require('@paulcbetts/system-idle-time').getIdleTime;
       return getIdleTime!();
@@ -105,10 +80,6 @@ export const interops = {
   },
 
   darwin: {
-    // NB: The concept of presentation mode is not the same on OS X, and is
-    // also quite a bit trickier to detect. We're just going to punt for now.
-    shouldDisplayNotifications: () => true,
-
     getIdleTimeInMs: () => {
       getIdleTime = getIdleTime || require('@paulcbetts/system-idle-time').getIdleTime;
       return getIdleTime!();
@@ -146,10 +117,6 @@ export const interops = {
   },
 
   linux: {
-    shouldDisplayNotifications: () => {
-      return true;
-    },
-
     getIdleTimeInMs: () => {
       getIdleTime = getIdleTime || require('@paulcbetts/system-idle-time').getIdleTime;
       return getIdleTime!();

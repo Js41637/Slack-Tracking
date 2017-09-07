@@ -4,7 +4,9 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import '../rx-operators';
 
-import { applyLocale } from '../i18n/apply-locale';
+import { localSettings } from '../browser/local-storage';
+import { intl as $intl } from '../i18n/intl';
+import { locale } from '../i18n/locale';
 import { WebappSharedMainModule } from '../webapp-shared/main';
 import { SlackApp } from './components/slack-app';
 import { Reporter } from './metrics-reporter';
@@ -24,9 +26,9 @@ EventEmitter.defaultMaxListeners = 100;
 const toDelete = Object.keys(localStorage).filter((x) => x.match(/^deviceStorage_/)) || [];
 toDelete.forEach((x) => localStorage.removeItem(x));
 
-//apply locale into main window before initialize react,
+//apply locale into component window before initialize react,
 //let each component looks up locale based on applied one
-applyLocale();
+$intl.applyLocale(localSettings.getItem('lastKnownLocale') || locale.currentLocale.systemLocale);
 
 // Rendering directly into document.body is discouraged due to third-party scripts
 // and browser extensions frequently manipulating it

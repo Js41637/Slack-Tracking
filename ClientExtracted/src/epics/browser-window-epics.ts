@@ -6,9 +6,11 @@ import { BrowserWindow, webContents } from 'electron';
 import { MiddlewareAPI } from 'redux';
 import { ActionsObservable, Epic } from 'redux-observable';
 
-import { APP, EVENTS, NOTIFICATIONS } from '../actions';
+import { APP, EVENTS, NOTIFICATIONS, SELECTED_TEAM_ACTION, SETTINGS, TEAMS } from '../actions';
 import { Action } from '../actions/action';
+import { localSettings } from '../browser/local-storage';
 import { completeAction } from '../custom-operators';
+import { intl as $intl } from '../i18n/intl';
 import { logger } from '../logger';
 import { RootState } from '../reducers';
 import { NodeRTNotificationHelpers } from '../renderer/notifications/node-rt-notification-helpers';
@@ -16,6 +18,7 @@ import { getWindows } from '../stores/window-store-helper';
 import { flushTelemetry } from '../telemetry';
 import { IS_WINDOWS_STORE, WINDOW_TYPES } from '../utils/shared-constants';
 import { OverlayIPCArg, focusMainWindow, getMainBrowserWindow, handleOverlayIcon } from './focus-main-window';
+import { pickLocale } from './pick-locale';
 
 const CHILD_WINDOWS = [WINDOW_TYPES.WEBAPP];
 
@@ -183,10 +186,25 @@ const focusMainWindowEpic: Epic<Action<any>, any> = (
     .let(completeAction);
 };
 
+const applyLocaleEpic: Epic<Action<any>, RootState> =
+  (actionObservable: ActionsObservable<Action<any>>, store: MiddlewareAPI<RootState>) =>
+    actionObservable.ofType(...SELECTED_TEAM_ACTION, TEAMS.UPDATE_TEAM_LOCALE, TEAMS.REMOVE_TEAM, TEAMS.REMOVE_TEAMS)
+      .map(() => pickLocale(store))
+      .filter((locale) => !!locale)
+      .distinctUntilChanged()
+      .do((locale) => $intl.applyLocale(locale!))
+      .do((locale) => localSettings.setItem('lastKnownLocale', locale))
+      .map((locale) => ({
+        type: SETTINGS.UPDATE_SETTINGS,
+        data: { locale },
+        meta: undefined
+      }));
+
 const browserWindowEpics = [
   quitApplicationEpic,
   openDevToolsEpic,
-  focusMainWindowEpic
+  focusMainWindowEpic,
+  applyLocaleEpic
 ];
 
 export {

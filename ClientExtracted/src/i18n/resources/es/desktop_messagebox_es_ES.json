@@ -1,0 +1,79 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1114262255" : {
+    "translation" : "No te preocupes",
+    "notes" : ""
+  },
+  "1195334581" : {
+    "translation" : "No pudimos buscar actualizaciones",
+    "notes" : ""
+  },
+  "120966588" : {
+    "translation" : "¡Hay una nueva versión de Slack!",
+    "notes" : ""
+  },
+  "1294172317" : {
+    "translation" : "Por favor confirma que quieres seguir adelante.",
+    "notes" : ""
+  },
+  "1567656214" : {
+    "translation" : "Te desconectarás de todos tus espacios de trabajo, restablecerás la app a su estado original y se reiniciará.",
+    "notes" : ""
+  },
+  "1588876707" : {
+    "translation" : "Si continúa el problema, informa sobre la incidencia o contacta con nosotros en feedback@slack.com.",
+    "notes" : ""
+  },
+  "1704747187" : {
+    "translation" : "Comprueba la conexión a internet y contacta con Ayuda si continúa el problema.",
+    "notes" : ""
+  },
+  "194011383" : {
+    "translation" : "Hay una actualización",
+    "notes" : ""
+  },
+  "2896655900" : {
+    "translation" : "Reiniciar e informar de incidencia",
+    "notes" : "double ampersand is for windows platform. if translated string does not need ampersand can ignore it."
+  },
+  "3526497016" : {
+    "translation" : "Reiniciar e informar de incidencia",
+    "notes" : ""
+  },
+  "3783833534" : {
+    "translation" : "Novedades",
+    "notes" : ""
+  },
+  "3805691147" : {
+    "translation" : "Slack se ha bloqueado",
+    "notes" : ""
+  },
+  "3843442431" : {
+    "translation" : "Actualizar ya",
+    "notes" : ""
+  },
+  "3940220280" : {
+    "translation" : "Lo sentimos muchísimo, pero se ha producido un error y hay que reiniciar Slack.",
+    "notes" : ""
+  },
+  "563969361" : {
+    "translation" : "Tienes la última versión de Slack; gracias por estar pendiente.",
+    "notes" : ""
+  },
+  "769875324" : {
+    "translation" : "¿Recargamos Slack y finalizamos llamada?",
+    "notes" : ""
+  },
+  "867210976" : {
+    "translation" : "¿Restablecemos Slack?",
+    "notes" : ""
+  }
+}

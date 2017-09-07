@@ -1,0 +1,107 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1179112694" : {
+    "translation" : "Se ha actualizado tu configuración. Reinicia Slack para que se hagan efectivos los cambios.",
+    "notes" : ""
+  },
+  "1343450128" : {
+    "translation" : "Abrir enlace",
+    "notes" : ""
+  },
+  "1789338757" : {
+    "translation" : "No maximizar",
+    "notes" : ""
+  },
+  "1946414326" : {
+    "translation" : "Nombre de usuario",
+    "notes" : ""
+  },
+  "2147486172" : {
+    "translation" : "Aceptar",
+    "notes" : ""
+  },
+  "2147572423" : {
+    "translation" : "Sí",
+    "notes" : ""
+  },
+  "2212687320" : {
+    "translation" : "Cerrar",
+    "notes" : ""
+  },
+  "2220908756" : {
+    "translation" : "Linux",
+    "notes" : ""
+  },
+  "2227449712" : {
+    "translation" : "Slack",
+    "notes" : ""
+  },
+  "2629256940" : {
+    "translation" : "Maximizar",
+    "notes" : ""
+  },
+  "296709561" : {
+    "translation" : "Volver a cargar",
+    "notes" : ""
+  },
+  "3028657111" : {
+    "translation" : "Parece que el servicio de Slack no está disponible. Revisa status.slack.com.",
+    "notes" : ""
+  },
+  "3108624819" : {
+    "translation" : "Vuelve a cargar Slack o incluso reinicia la app.",
+    "notes" : ""
+  },
+  "3110580365" : {
+    "translation" : "¡Atención! Si vuelves a cargar Slack, te desconectarás de la llamada en la que estás. ¿Seguro que quieres volver a cargar?",
+    "notes" : ""
+  },
+  "3397585530" : {
+    "translation" : "Slack Corp",
+    "notes" : ""
+  },
+  "339815480" : {
+    "translation" : "Enviar",
+    "notes" : ""
+  },
+  "3429113531" : {
+    "translation" : "Contraseña",
+    "notes" : ""
+  },
+  "3540450348" : {
+    "translation" : "Lo sentimos mucho. Antes de intentar solucionar el problema, revisa el estado de nuestros servidores.",
+    "notes" : ""
+  },
+  "4158593690" : {
+    "translation" : "Cancelar",
+    "notes" : ""
+  },
+  "4258369885" : {
+    "translation" : "Slack - {teamName}",
+    "notes" : "Do not translate between {}"
+  },
+  "614675951" : {
+    "translation" : "Reiniciar",
+    "notes" : ""
+  },
+  "824085699" : {
+    "translation" : "Revisa la consola o los registros de la app por si hay errores, o escríbenos si necesitas ayuda.",
+    "notes" : ""
+  },
+  "853060286" : {
+    "translation" : "Minimizar",
+    "notes" : ""
+  },
+  "866663011" : {
+    "translation" : "Windows",
+    "notes" : ""
+  }
+}

@@ -28,6 +28,7 @@ export interface AboutBoxState {
   isMac: boolean;
   isWindows: boolean;
   showTooltip: boolean;
+  locale: string;
 }
 
 export class AboutBox extends Component<AboutBoxProps, Partial<AboutBoxState>> {
@@ -45,12 +46,16 @@ export class AboutBox extends Component<AboutBoxProps, Partial<AboutBoxState>> {
   };
 
   public syncState(): Partial<AboutBoxState> {
+    const commit = packageJson.commit || '';
+    const branch = packageJson.branch || '';
+
     return {
+      locale: settingStore.getSetting<string>('locale'),
       appVersion: settingStore.getSetting<string>('appVersion'),
       versionName: settingStore.getSetting<string>('versionName'),
       copyright: packageJson.copyright,
-      commit: packageJson.commit,
-      branch: packageJson.branch,
+      commit,
+      branch,
       releaseChannel: settingStore.getSetting<string>('releaseChannel'),
       isMac: settingStore.isMac(),
       isWindows: settingStore.isWindows()
@@ -136,7 +141,8 @@ export class AboutBox extends Component<AboutBoxProps, Partial<AboutBoxState>> {
   }
 
   private getVersionString(): string {
-    const { appVersion, releaseChannel, isMac, isWindows, commit, branch } = this.state;
+    const { appVersion, releaseChannel, isMac, isWindows, branch } = this.state;
+    const commit = this.state.commit || '';
 
     let arch = process.arch === 'x64' ? ' 64-bit' : ' 32-bit';
     if (isMac) arch = '';

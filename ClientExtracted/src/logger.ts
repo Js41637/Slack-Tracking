@@ -200,8 +200,9 @@ export class Logger {
    * Returns a pretty timestamp in the current timezone.
    * @returns {string}
    */
-  public getTimestamp(): string {
+  public getTimestamp(params: Object = {}): string {
     const options = {
+      ...params,
       hour12: false,
       hour: 'numeric',
       minute: 'numeric',
@@ -214,7 +215,16 @@ export class Logger {
     let ms: string | number = date.getMilliseconds();
     ms = ms < 999 ? `00${ms}`.slice(-3) : ms;
 
-    return `${date.toLocaleString('en-US', options)}:${ms}`;
+    try {
+      return `${date.toLocaleString('en-US', options)}:${ms}`;
+    } catch (err) {
+      const validOptions = {
+        ...options,
+        timeZone: 'UTC',
+      };
+
+      return `${date.toLocaleString('en-US', validOptions)}:${ms}`;
+    }
   }
 
   /**

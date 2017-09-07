@@ -12,6 +12,11 @@ export interface NotifyNotificationOptions {
   title: string;
 }
 
+export interface NotifyPosition {
+  corner: string;
+  display: string;
+}
+
 export interface WebappNotificationOptions extends NotifyNotificationOptions {
   interactive?: boolean;
   teamId: string;

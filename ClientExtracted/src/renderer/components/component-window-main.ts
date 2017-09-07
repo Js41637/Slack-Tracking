@@ -3,14 +3,15 @@
  */ /** for typedoc */
 
 import * as ReactDOM from 'react-dom';
+import { localSettings } from '../../browser/local-storage';
+import { intl as $intl } from '../../i18n/intl';
+import { locale } from '../../i18n/locale';
 import { logger } from '../../logger';
-
 import * as React from 'react'; // tslint:disable-line
-import { applyLocale } from '../../i18n/apply-locale';
 
 //apply locale into component window before initialize react,
 //let each component looks up locale based on applied one
-applyLocale();
+$intl.applyLocale(localSettings.getItem('lastKnownLocale') || locale.currentLocale.systemLocale);
 
 const component = React.createElement(getComponent()!);
 const host = global.document.createElement('span');

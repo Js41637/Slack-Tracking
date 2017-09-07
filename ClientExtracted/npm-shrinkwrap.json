@@ -265,9 +265,9 @@
           "version": "6.6.0"
         }
       },
-      "from": "@slack/calls-core@2.5.4",
-      "resolved": "https://registry.npmjs.org/@slack/calls-core/-/calls-core-2.5.4.tgz",
-      "version": "2.5.4"
+      "from": "@slack/calls-core@2.6.1",
+      "resolved": "https://registry.npmjs.org/@slack/calls-core/-/calls-core-2.6.1.tgz",
+      "version": "2.6.1"
     },
     "@slack/macgap-pref-reader": {
       "from": "@slack/macgap-pref-reader@0.0.6",
@@ -276,9 +276,9 @@
       "version": "0.0.6"
     },
     "@slack/slack-calls": {
-      "from": "@slack/slack-calls@2.5.4",
-      "resolved": "https://registry.npmjs.org/@slack/slack-calls/-/slack-calls-2.5.4.tgz",
-      "version": "2.5.4"
+      "from": "@slack/slack-calls@2.6.1",
+      "resolved": "https://registry.npmjs.org/@slack/slack-calls/-/slack-calls-2.6.1.tgz",
+      "version": "2.6.1"
     },
     "@types/archiver": {
       "dev": true,
@@ -2668,9 +2668,9 @@
       "dependencies": {
         "electron": {
           "dev": true,
-          "from": "electron@1.6.11",
-          "resolved": "https://registry.npmjs.org/electron/-/electron-1.6.11.tgz",
-          "version": "1.6.11"
+          "from": "electron@1.6.12",
+          "resolved": "https://registry.npmjs.org/electron/-/electron-1.6.12.tgz",
+          "version": "1.6.12"
         },
         "electron-download": {
           "dev": true,
@@ -2704,9 +2704,9 @@
         }
       },
       "dev": true,
-      "from": "electron-prebuilt-compile@1.6.11",
-      "resolved": "https://registry.npmjs.org/electron-prebuilt-compile/-/electron-prebuilt-compile-1.6.11.tgz",
-      "version": "1.6.11"
+      "from": "electron-prebuilt-compile@1.6.12",
+      "resolved": "https://registry.npmjs.org/electron-prebuilt-compile/-/electron-prebuilt-compile-1.6.12.tgz",
+      "version": "1.6.12"
     },
     "electron-rebuild": {
       "dependencies": {
@@ -2734,9 +2734,9 @@
       "version": "1.1.2"
     },
     "electron-spellchecker": {
-      "from": "electron-spellchecker@1.1.0",
-      "resolved": "https://registry.npmjs.org/electron-spellchecker/-/electron-spellchecker-1.1.0.tgz",
-      "version": "1.1.0"
+      "from": "electron-spellchecker@1.2.0",
+      "resolved": "https://registry.npmjs.org/electron-spellchecker/-/electron-spellchecker-1.2.0.tgz",
+      "version": "1.2.0"
     },
     "electron-text-substitutions": {
       "from": "electron-text-substitutions@1.4.13",
@@ -7487,9 +7487,9 @@
       "dependencies": {
         "electron": {
           "dev": true,
-          "from": "electron@^1.4.15",
-          "resolved": "https://registry.npmjs.org/electron/-/electron-1.6.11.tgz",
-          "version": "1.6.11"
+          "from": "electron@1.6.12",
+          "resolved": "https://registry.npmjs.org/electron/-/electron-1.6.12.tgz",
+          "version": "1.6.12"
         },
         "electron-download": {
           "dev": true,

@@ -78,7 +78,7 @@ const tickleMessageServerEpic: WebViewLifeCycleEpic<Action<any>, RootState, WebV
 const teamSwitchTelemetryEpic: Epic<Action<any>, RootState> =
   (actionObservable: ActionsObservable<Action<any>>, store: MiddlewareAPI<RootState>) =>
     actionObservable.ofType(...SELECTED_TEAM_ACTION)
-      .filter((x) => !!x.data.updated)
+      .filter((x) => !!x.data && !!x.data.updated)
       .timeInterval()
       .subscribeOn(idle)
       .do((x) => track(TELEMETRY_EVENT.DESKTOP_TEAM_SWITCH, {
@@ -94,7 +94,7 @@ const teamSwitchTelemetryEpic: Epic<Action<any>, RootState> =
 const clickNotificationEpic: WebViewLifeCycleEpic<Action<any>, RootState, WebViewLifeCycleBase> =
   (actionObservable: ActionsObservable<Action<any>>, _store: MiddlewareAPI<RootState>, state: WebViewLifeCycleBase) =>
     actionObservable.ofType(NOTIFICATIONS.CLICK_NOTIFICATION)
-      .filter((x) => !!x.data.updated)
+      .filter((x) => !!x.data && !!x.data.updated)
       .map((action) => pickActionData<NotificationClickArgs>(action.data))
       .map((notificationArgs) => serializeNotificationClickCode(notificationArgs, state))
       .flatMap((args) => executeJavaScriptOnWebViewObservable(args).mapTo(args.id))
@@ -106,7 +106,7 @@ const clickNotificationEpic: WebViewLifeCycleEpic<Action<any>, RootState, WebVie
 const replyNotificationEpic: WebViewLifeCycleEpic<Action<any>, RootState, WebViewLifeCycleBase> =
   (actionObservable: ActionsObservable<Action<any>>, _store: MiddlewareAPI<RootState>, state: WebViewLifeCycleBase) =>
     actionObservable.ofType(NOTIFICATIONS.REPLY_TO_NOTIFICATION)
-      .filter((x) => !!x.data.updated)
+      .filter((x) => !!x.data && !!x.data.updated)
       .map((action) => pickActionData<NotificationReplyArgs>(action.data))
       .map((replyArgs) => serializeNotificationReplyCode(replyArgs, state))
       .let(executeJavaScriptOnWebView)

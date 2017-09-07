@@ -61,6 +61,7 @@ export interface TeamViewState {
   reloadEvent: StoreEvent;
   isWebViewLoaded?: boolean;
   hasConnectionTrouble?: boolean;
+  locale: string;
 }
 
 export class TeamView extends Component<TeamViewProps, TeamViewState> {
@@ -104,7 +105,8 @@ export class TeamView extends Component<TeamViewProps, TeamViewState> {
       editingCommandEvent: eventStore.getEvent('editingCommand'),
       refreshTeamEvent: eventStore.getEvent('refreshTeam'),
       refreshTeamsEvent: eventStore.getEvent('refreshTeams'),
-      reloadEvent: eventStore.getEvent('reload')
+      reloadEvent: eventStore.getEvent('reload'),
+      locale: settingStore.getSetting<string>('locale')
     };
   }
 
@@ -119,6 +121,69 @@ export class TeamView extends Component<TeamViewProps, TeamViewState> {
     if (selectedTeamId === this.props.teamId) {
       this.setBugsnagMetadata(team);
       eventActions.mainWindowFocused();
+    }
+  }
+
+  /**
+   * XXX: Workaround for https://github.com/electron/electron/issues/8505
+   *
+   * On Mac, if a webview does any navigation while visibility:hidden,
+   * then it will fail to paint when it is later made visible.
+   * `did-start-loading` and `will-navigate` are too late to set visibility,
+   * and deferring loadURL and such until after setting visibility won't work
+   * for cases where the webapp or something internal initiates navigation.
+   *
+   * This is an extremely gross hack to detect the case and try to recover.
+   * Called before the webview is about to be shown, this method waits
+   * for the webview to paint, and if this doesn't happen it issues a reload.
+   */
+  public ensureWebViewPaintOrReload(): void {
+    try {
+      if (this.webViewElement && this.webViewElement.WebView && this.webViewElement.WebView.getWebContents) {
+        const webView = this.webViewElement.WebView;
+        const webContents = webView.getWebContents();
+        const teamId = this.props.teamId;
+
+        // If the webview didn't notice any navigation events while hidden then
+        // no need to perform the (somewhat expensive) paint check
+        if (!this.webViewElement.loadedWhileHidden) {
+          logger.info('No indication that the webview loaded while hidden, so no need to check for painting');
+          return;
+        }
+
+        // Painting will only occur if transitioning from hidden to visible
+        if (window.getComputedStyle(webView).visibility !== 'hidden') {
+          logger.info('Team webview is already visible, no need to check for painting');
+          return;
+        }
+
+        logger.warn('About to select hidden team. Applying hack to make sure it paints.', { teamId });
+
+        // If we don't see the webview paint within 3 seconds, assume this is
+        // because it navigated while hidden
+        let seenPaint = false;
+        webContents.endFrameSubscription();
+        webContents.beginFrameSubscription(() => {
+          webContents.endFrameSubscription();
+          logger.info('Received paint event for team', { teamId });
+          seenPaint = true;
+        });
+        setTimeout(() => {
+          if (!seenPaint) {
+            logger.warn('No paint after delay. Issuing reload.', { teamId });
+            try {
+              webContents.endFrameSubscription();
+              this.webViewElement.reload();
+            } catch (error) {
+              logger.error('Unable to reload webview', { error, teamId });
+            }
+          }
+        }, 3000);
+      } else {
+        logger.warn('Unable to apply paint monitor hack. WebView isn\'t ready');
+      }
+    } catch (error) {
+      logger.error('Error applying webview paint hack', { error });
     }
   }
 

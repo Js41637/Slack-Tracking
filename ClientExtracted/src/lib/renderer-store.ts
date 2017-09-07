@@ -97,7 +97,8 @@ export class RendererStore extends BaseStore {
         notifications: true,
         settings: {
           zoomLevel: true,
-          isDevMode: true
+          isDevMode: true,
+          notifyPosition: true
         },
         teams: true,
         windows: true,

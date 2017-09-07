@@ -49,6 +49,7 @@ export interface TeamsDisplayState {
   devEnv: string;
   handleDeepLinkEvent: StoreEvent;
   handleSettingsLinkEvent: StoreEvent;
+  locale: string;
 }
 
 export class TeamsDisplay extends Component<TeamsDisplayProps, Partial<TeamsDisplayState>> {
@@ -69,7 +70,8 @@ export class TeamsDisplay extends Component<TeamsDisplayProps, Partial<TeamsDisp
       devEnv: settingStore.getSetting<string>('devEnv'),
 
       handleDeepLinkEvent: eventStore.getEvent('handleDeepLink'),
-      handleSettingsLinkEvent: eventStore.getEvent('handleSettingsLink')
+      handleSettingsLinkEvent: eventStore.getEvent('handleSettingsLink'),
+      locale: settingStore.getSetting<string>('locale')
     };
   }
 
@@ -83,6 +85,20 @@ export class TeamsDisplay extends Component<TeamsDisplayProps, Partial<TeamsDisp
     if (this.state.launchedWithLink) {
       logger.info('TeamsDisplay: App launched with link, now immediately handling (mount phase).');
       this.handleLaunchedWithLink(this.state.launchedWithLink);
+    }
+  }
+
+  public componentWillUpdate(nextProps: Partial<TeamsDisplayProps>, nextState: Partial<TeamsDisplayState>) {
+    super.componentWillUpdate(nextProps, nextState);
+
+    // XXX: When switching teams on Mac, make sure the webview actually shows up
+    // This is a temporary workaround for https://github.com/electron/electron/issues/8505
+    // We have to do this in TeamsDisplay because `componentWillUpdate` inside
+    // TeamView is too late, and at that point the WebView is already visible.
+    if (process.platform === 'darwin' && nextState.selectedTeamId &&
+        this.state.selectedTeamId !== nextState.selectedTeamId &&
+        this.teamElements[nextState.selectedTeamId]) {
+      this.teamElements[nextState.selectedTeamId].ensureWebViewPaintOrReload();
     }
   }
 

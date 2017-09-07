@@ -7,23 +7,11 @@ import { executeJavaScriptMethod } from 'electron-remote';
 import { WindowSetting } from '../browser/behaviors/window-behavior';
 
 import { Observable } from 'rxjs/Observable';
-import { locale } from '../i18n/locale';
 import { logger } from '../logger';
 import { CombinedStats, getMemoryUsage } from '../memory-usage';
 import { windowFrameStore } from '../stores/window-frame-store';
 import { StopTraceResponse, TRACE_RECORD_CHANNEL, TraceRecordOptions, TraceResponse, defaultTraceCategories } from '../utils/shared-constants';
 import { getInstanceUuid, getSessionId } from '../uuid';
-
-export interface TelemetryId {
-  instanceUid: string;
-}
-
-interface LocaleInformation {
-  systemLocale: string;
-  systemRegion: string;
-  keyboardLayouts: Array<string>;
-  inputMethods: Array<string>;
-}
 
 /**
  * Provides interfaces to webapp for desktop-application specific data, as well as
@@ -106,20 +94,6 @@ export class Stats {
     const windowFrame = windowFrameStore.getWindowSettings();
 
     return { displays, windowFrame };
-  }
-
-  /**
-   * Returns an object containing information about current system's locale.
-   */
-  public getLocaleInformation(): TelemetryId & LocaleInformation {
-    const localeInfo = locale.currentLocale;
-
-    const ret = {...localeInfo,
-      instanceUid: getInstanceUuid(),
-      keyboardLayouts: [],
-      inputMethods: []};
-
-    return ret;
   }
 
   /**

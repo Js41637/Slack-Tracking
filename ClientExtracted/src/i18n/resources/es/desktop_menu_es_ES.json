@@ -1,0 +1,307 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1021037578" : {
+    "translation" : "Alternar &Electron DevTools",
+    "notes" : ""
+  },
+  "1214870726" : {
+    "translation" : "Siempre mostrar barra de &menú",
+    "notes" : ""
+  },
+  "1262042250" : {
+    "translation" : "H&istorial",
+    "notes" : ""
+  },
+  "1296539210" : {
+    "translation" : "Selecciona espacio de trabajo &siguiente",
+    "notes" : ""
+  },
+  "1302783429" : {
+    "translation" : "Copiar enlace",
+    "notes" : ""
+  },
+  "1308584820" : {
+    "translation" : "&Preferencias…",
+    "notes" : ""
+  },
+  "1343450128" : {
+    "translation" : "Abrir enlace",
+    "notes" : ""
+  },
+  "1393286243" : {
+    "translation" : "Alternar &pantalla completa",
+    "notes" : ""
+  },
+  "1448793429" : {
+    "translation" : "Ale&jarse",
+    "notes" : ""
+  },
+  "1450597088" : {
+    "translation" : "Pegar con el mismo estilo",
+    "notes" : ""
+  },
+  "1496618861" : {
+    "translation" : "&Tamaño actual",
+    "notes" : ""
+  },
+  "1728916720" : {
+    "translation" : "Copiar imagen",
+    "notes" : ""
+  },
+  "1871709694" : {
+    "translation" : "Mostrar todos",
+    "notes" : ""
+  },
+  "1948703567" : {
+    "translation" : "Reiniciar para aplicar actualización",
+    "notes" : ""
+  },
+  "2005111589" : {
+    "translation" : "&Cerrar Slack",
+    "notes" : ""
+  },
+  "2023105981" : {
+    "translation" : "&Conectarse a otro espacio de trabajo...",
+    "notes" : ""
+  },
+  "2027485457" : {
+    "translation" : "&Buscar actualizaciones...",
+    "notes" : ""
+  },
+  "2073584593" : {
+    "translation" : "Traer todo adelante",
+    "notes" : ""
+  },
+  "2120422130" : {
+    "translation" : "&Preferencias",
+    "notes" : ""
+  },
+  "213310159" : {
+    "translation" : "&Limpiar caché y reiniciar",
+    "notes" : ""
+  },
+  "2147551778" : {
+    "translation" : "Cortar",
+    "notes" : ""
+  },
+  "2149589909" : {
+    "translation" : "Copiar",
+    "notes" : ""
+  },
+  "2149638698" : {
+    "translation" : "Editar",
+    "notes" : ""
+  },
+  "2149673433" : {
+    "translation" : "Buscar",
+    "notes" : ""
+  },
+  "2150026782" : {
+    "translation" : "Rehacer",
+    "notes" : ""
+  },
+  "2150124804" : {
+    "translation" : "Deshacer",
+    "notes" : ""
+  },
+  "2150275059" : {
+    "translation" : "Zoom",
+    "notes" : ""
+  },
+  "2184640045" : {
+    "translation" : "At&rás",
+    "notes" : ""
+  },
+  "2184767170" : {
+    "translation" : "&Archivo",
+    "notes" : ""
+  },
+  "2184822919" : {
+    "translation" : "&Ayuda",
+    "notes" : ""
+  },
+  "2185106325" : {
+    "translation" : "&Salir",
+    "notes" : ""
+  },
+  "2185243627" : {
+    "translation" : "&Ver",
+    "notes" : ""
+  },
+  "2192055093" : {
+    "translation" : "&Conectarse a otro espacio de trabajo...",
+    "notes" : ""
+  },
+  "2212687320" : {
+    "translation" : "Cerrar",
+    "notes" : ""
+  },
+  "2215375213" : {
+    "translation" : "Buscar...",
+    "notes" : ""
+  },
+  "2224369267" : {
+    "translation" : "Pegar",
+    "notes" : ""
+  },
+  "228491096" : {
+    "translation" : "Cerrar ventana",
+    "notes" : ""
+  },
+  "2292279374" : {
+    "translation" : "Seleccionar espacio de trabajo &anterior",
+    "notes" : ""
+  },
+  "2447182367" : {
+    "translation" : "Copiar URL de imagen",
+    "notes" : ""
+  },
+  "2483404925" : {
+    "translation" : "Seleccionar todo",
+    "notes" : ""
+  },
+  "2545826024" : {
+    "translation" : "Restablecer &datos de app...",
+    "notes" : ""
+  },
+  "2652013301" : {
+    "translation" : "&Conectarse a otro espacio de trabajo...",
+    "notes" : ""
+  },
+  "2652726896" : {
+    "translation" : "&Eliminar {teamName}",
+    "notes" : "Do not translate between {}"
+  },
+  "2684062346" : {
+    "translation" : "&Novedades...",
+    "notes" : ""
+  },
+  "2737665025" : {
+    "translation" : "Ocultar Otros",
+    "notes" : ""
+  },
+  "2779400347" : {
+    "translation" : "Buscar con Google",
+    "notes" : ""
+  },
+  "290920624" : {
+    "translation" : "Inspeccionar elemento",
+    "notes" : ""
+  },
+  "3001254706" : {
+    "translation" : "Ocultar Slack",
+    "notes" : ""
+  },
+  "3065272838" : {
+    "translation" : "Buscando actualización",
+    "notes" : ""
+  },
+  "3094776382" : {
+    "translation" : "A&cercarse",
+    "notes" : ""
+  },
+  "3096707126" : {
+    "translation" : "Mostrar &Registros en Gestor de archivos",
+    "notes" : ""
+  },
+  "3192269939" : {
+    "translation" : "&Informar de incidencia...",
+    "notes" : ""
+  },
+  "3303282951" : {
+    "translation" : "&Buscar...",
+    "notes" : ""
+  },
+  "3379982589" : {
+    "translation" : "Acerca de Slack",
+    "notes" : ""
+  },
+  "3522008669" : {
+    "translation" : "Usar selección para buscar",
+    "notes" : ""
+  },
+  "3591337086" : {
+    "translation" : "Servicios",
+    "notes" : ""
+  },
+  "3603967375" : {
+    "translation" : "Descargando actualización",
+    "notes" : ""
+  },
+  "3615595735" : {
+    "translation" : "Hay una actualización",
+    "notes" : ""
+  },
+  "3688565260" : {
+    "translation" : "Mostrar &Registros en Explorer",
+    "notes" : ""
+  },
+  "3748068388" : {
+    "translation" : "Abrir centro de &ayuda",
+    "notes" : ""
+  },
+  "3791924890" : {
+    "translation" : "Ata&jos de teclado",
+    "notes" : ""
+  },
+  "3826983308" : {
+    "translation" : "Buscar \"{word}\"",
+    "notes" : "Do not translate between {}"
+  },
+  "3870983220" : {
+    "translation" : "&Recargar todo",
+    "notes" : ""
+  },
+  "39370111" : {
+    "translation" : "Alternar &Webapp DevTools",
+    "notes" : ""
+  },
+  "3957078367" : {
+    "translation" : "&Recargar",
+    "notes" : ""
+  },
+  "4090050867" : {
+    "translation" : "Mostrar &Registros en Finder",
+    "notes" : ""
+  },
+  "4103967670" : {
+    "translation" : "V&entana",
+    "notes" : ""
+  },
+  "4190859723" : {
+    "translation" : "Eliminar",
+    "notes" : ""
+  },
+  "614784485" : {
+    "translation" : "Copiar dirección de correo",
+    "notes" : ""
+  },
+  "642307007" : {
+    "translation" : "Ade&lante",
+    "notes" : ""
+  },
+  "79648571" : {
+    "translation" : "Salir de pantalla completa",
+    "notes" : ""
+  },
+  "83757596" : {
+    "translation" : "Añadir a diccionario",
+    "notes" : ""
+  },
+  "853060286" : {
+    "translation" : "Minimizar",
+    "notes" : ""
+  },
+  "898224708" : {
+    "translation" : "&Desarrollador",
+    "notes" : ""
+  }
+}

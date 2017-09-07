@@ -1,0 +1,147 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1163917428" : {
+    "translation" : "Es scheint, als ob du gerade keine Internetverbindung hast.",
+    "notes" : ""
+  },
+  "1232096808" : {
+    "translation" : "Um dich mit Slack zu verbinden, musst du einen Benutzernamen und ein Passwort für den Server eingeben ",
+    "notes" : ""
+  },
+  "1430913379" : {
+    "translation" : "Du wurdest aus der Beta entfernt. Zurück zu deinem regulär geplanten Programm...",
+    "notes" : ""
+  },
+  "1760198367" : {
+    "translation" : "Direkter Download",
+    "notes" : ""
+  },
+  "1769100289" : {
+    "translation" : "Alpha-Channel",
+    "notes" : ""
+  },
+  "1770559555" : {
+    "translation" : "⌘ {idx}",
+    "notes" : ""
+  },
+  "1799453982" : {
+    "translation" : "Der letzte von uns erkannte Fehler hatte den Code",
+    "notes" : ""
+  },
+  "2147584373" : {
+    "translation" : "esc",
+    "notes" : ""
+  },
+  "2149589909" : {
+    "translation" : "Kopieren",
+    "notes" : ""
+  },
+  "2150499559" : {
+    "translation" : "zurück",
+    "notes" : ""
+  },
+  "2180558037" : {
+    "translation" : "Du wurdest zur Beta hinzugefügt! 🎉 Deine App erhält jetzt Beta-Updates, sobald diese verfügbar werden.",
+    "notes" : ""
+  },
+  "2180567387" : {
+    "translation" : "Strg+{idx}",
+    "notes" : ""
+  },
+  "2222000475" : {
+    "translation" : "In einem anderen Workspace anmelden …",
+    "notes" : ""
+  },
+  "2265579820" : {
+    "translation" : "Link zur App öffnen",
+    "notes" : ""
+  },
+  "2378984742" : {
+    "translation" : "Verbindung wird aufgebaut...",
+    "notes" : ""
+  },
+  "2762353363" : {
+    "translation" : "Beta-Channel",
+    "notes" : ""
+  },
+  "2764913361" : {
+    "translation" : "Jetzt testen",
+    "notes" : ""
+  },
+  "2875270439" : {
+    "translation" : "Um dich mit Slack zu verbinden, musst du einen Benutzernamen und ein Passwort für den Proxy eingeben ",
+    "notes" : ""
+  },
+  "2944450756" : {
+    "translation" : "Windows Store",
+    "notes" : ""
+  },
+  "3013915013" : {
+    "translation" : "Du wurdest aus der Alpha entfernt. Zurück zu deinem regulär geplanten Programm...",
+    "notes" : ""
+  },
+  "3051370728" : {
+    "translation" : "Slack wird versuchen, sich automatisch erneut zu verbinden.",
+    "notes" : ""
+  },
+  "3399652912" : {
+    "translation" : "😔 Um der Beta beizutreten, installiere Slack bitte direkt über slack.com/download.",
+    "notes" : ""
+  },
+  "3671115087" : {
+    "translation" : "Dieser Link öffnet eine App, keine Website. Falls du das erwartest, klicke ruhig darauf. Ansonsten gehe bitte sicher, dass es sich um einen Link handelt, dem du vertraust.",
+    "notes" : ""
+  },
+  "3675156611" : {
+    "translation" : "Links zu {protocol}// immer öffnen",
+    "notes" : ""
+  },
+  "389485451" : {
+    "translation" : "Du wurdest zur Alpha hinzugefügt! 🎉 Deine App erhält jetzt Alpha-Updates, sobald diese verfügbar werden.",
+    "notes" : ""
+  },
+  "412256135" : {
+    "translation" : "Mitteilungen und Bestätigungen",
+    "notes" : ""
+  },
+  "4160805346" : {
+    "translation" : "App Store",
+    "notes" : ""
+  },
+  "4259611323" : {
+    "translation" : "Vergewissere dich bitte, dass deine Sicherheitssoftware Slack nicht blockiert.",
+    "notes" : ""
+  },
+  "470219197" : {
+    "translation" : "Kopiert!",
+    "notes" : ""
+  },
+  "574976044" : {
+    "translation" : "😔 Um der Alpha beizutreten, installiere Slack bitte direkt über slack.com/download.",
+    "notes" : ""
+  },
+  "658381336" : {
+    "translation" : "Irgendetwas funktioniert nicht",
+    "notes" : ""
+  },
+  "818505023" : {
+    "translation" : "Aus irgendeinem Grund konnte Slack nicht geladen werden ",
+    "notes" : ""
+  },
+  "834244254" : {
+    "translation" : "Slack konnte nicht hochfahren und wir wissen nicht, warum. Vielleicht versuchst du es mit einem Neustart der App. Oder schreibe uns eine kurze Nachricht: ",
+    "notes" : ""
+  },
+  "952470608" : {
+    "translation" : "Hier sind ein paar Dinge, die du versuchen kannst:",
+    "notes" : ""
+  }
+}

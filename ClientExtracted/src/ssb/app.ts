@@ -9,11 +9,14 @@ import * as path from 'path';
 import { Subscription } from 'rxjs/Subscription';
 
 import { channel, version } from '../../package.json';
+import { locale } from '../i18n/locale';
 import { logger } from '../logger';
 import '../rx-operators';
 import { createZipArchiver, domFileFromPath } from '../utils/file-helpers';
 import * as profiler from '../utils/profiler';
+import { safeRequire } from '../utils/safe-require';
 import { IS_WINDOWS_STORE } from '../utils/shared-constants';
+import { getInstanceUuid } from '../uuid';
 
 import { appActions } from '../actions/app-actions';
 import { eventActions } from '../actions/event-actions';
@@ -27,7 +30,10 @@ const globalProcess = (window as any).process;
 const isDarwin = globalProcess.platform === 'darwin';
 const isWin32 = globalProcess.platform === 'win32';
 
+// Deferred safe requires
 let dialog: Electron.Dialog;
+let keyboardLayout: any;
+
 let performTextSubstitution: (input: HTMLElement) => Subscription;
 const textSubstitutionSubscriptions: { [input: string]: Subscription; } = {};
 
@@ -45,6 +51,23 @@ const safeProcess = safeProcessKeys.reduce((acc, k) => {
   acc[k] = (...args: Array<any>) => process[k](...args);
   return acc;
 }, {});
+
+export interface TelemetryId {
+  instanceUid: string;
+}
+
+interface LocaleInformation {
+  systemLocale: string;
+  systemRegion: string;
+  keyboardLayouts: Array<string>;
+  inputMethods: Array<string>;
+}
+
+type KeyboardLayoutCallback = (layout: string) => void;
+
+interface Disposable {
+  dispose: () => void;
+}
 
 export interface TextSubstitution {
   replace: string;
@@ -515,5 +538,46 @@ export class AppIntegration {
    */
   public zoomReset(): void {
     settingActions.resetZoom();
+  }
+
+
+  /**
+   * Returns an object containing information about current system's locale.
+   */
+  public getLocaleInformation(): TelemetryId & LocaleInformation {
+    keyboardLayout = keyboardLayout || safeRequire('keyboard-layout');
+
+    const localeInfo = locale.currentLocale;
+    const currentKeyboardLayout = keyboardLayout.getCurrentKeyboardLayout();
+
+    const ret = {
+      ...localeInfo,
+      instanceUid: getInstanceUuid(),
+      currentKeyboardLayout,
+      keyboardLayouts: [
+        currentKeyboardLayout
+      ],
+      inputMethods: []
+    };
+
+    return ret;
+  }
+
+  /**
+   * Subscribes to changes to the user's current keyboard layout.
+   * Callback gets invoked anytime the current keyboard layout changes.
+   *
+   * This won't pick up on changes to IME input state.
+   * It's also currently broken on Windows.
+   *
+   * @param {KeyboardLayoutCallback} callback A function that gets called with the string
+   *                                identifier of the current layout based on the
+   *                                value returned by the OS.
+   * @returns {Disposable}
+   */
+  public onDidChangeKeyboardLayout(callback: KeyboardLayoutCallback) {
+    keyboardLayout = keyboardLayout || safeRequire('keyboard-layout');
+
+    return keyboardLayout.onDidChangeCurrentKeyboardLayout(callback) as Disposable;
   }
 }

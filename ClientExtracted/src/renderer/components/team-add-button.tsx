@@ -33,7 +33,7 @@ export function TeamAddButton(props: TeamAddButtonProps): JSX.Element {
       <div
         className='TeamSidebar-addButton'
         onClick={props.handleAddClick}
-        title={$intl.t('Sign in to another team…', LOCALE_NAMESPACE.RENDERER)()}
+        title={$intl.t('Sign in to another workspace…', LOCALE_NAMESPACE.RENDERER)()}
         style={{
           backgroundColor: props.textColor,
           borderRadius

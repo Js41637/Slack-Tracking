@@ -51,7 +51,7 @@ export function processMagicLoginLink({ teamId, token }: {teamId: string, token:
     .map((response) => teamFromLoginMagicResponse(response))
     .subscribe(
       (team: Team) => {
-        teamActions.addTeam(team, false);
+        teamActions.addTeam(team, true);
         dialogActions.hideLoginDialog();
       },
       (err) => {

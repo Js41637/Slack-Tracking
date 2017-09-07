@@ -8,6 +8,7 @@ import { BehaviorSubject } from 'rxjs/BehaviorSubject';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
+import { intl as $intl } from '../i18n/intl';
 import { logger } from '../logger';
 import { settingStore } from '../stores/setting-store';
 import { shallowEqual } from '../utils/shallow-equal';
@@ -42,6 +43,18 @@ export class Component<P, S = {}> extends React.Component<P, S> implements Compo
    */
   public shouldComponentUpdate(nextProps: P, nextState: S): boolean {
     return !shallowEqual(this.props, nextProps) || !shallowEqual(this.state, nextState);
+  }
+
+  /**
+   * Apply new locale state before `render` is being called to load correct locale strings.
+   * Any component have strings and need to apply correct locales should include
+   * `store.settings.locale` in its state to trigger render() accordingly.
+   *
+   */
+  public componentWillUpdate(_nextProps: any, nextState: any, _nextContext?: any): void {
+    if (!!nextState.locale) {
+      $intl.applyLocale(nextState.locale);
+    }
   }
 
   public componentWillMount(): void {

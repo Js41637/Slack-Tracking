@@ -18,9 +18,10 @@ import { StoreEvent, eventStore } from '../stores/event-store';
 import { settingStore } from '../stores/setting-store';
 import { teamStore } from '../stores/team-store';
 
-import { LOCALE_NAMESPACE, intl as $intl } from '../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl, localeType } from '../i18n/intl';
 import { logger } from '../logger';
 import { IS_STORE_BUILD, MenuItemsMap, StringMap, updateStatusType } from '../utils/shared-constants';
+import { getHelpCenterURL } from '../utils/url-utils';
 import { MENU_ITEM_ID, MENU_PARENT_ID, menuParentIdType } from './app-menu-ids';
 import { getMenuItemForUpdateStatus } from './updater-utils';
 
@@ -44,6 +45,7 @@ export interface AppMenuState {
   isDevMode: boolean;
   isWin10: boolean;
   isStoreBuild: boolean;
+  locale: localeType;
 }
 
 export class AppMenu extends ReduxComponent<AppMenuState> {
@@ -59,13 +61,17 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
    */
   constructor(private readonly associatedWindow?: Electron.BrowserWindow) {
     super();
+
     this.buildMenu();
   }
 
   public syncState(): AppMenuState {
     const selectedTeamId = appTeamsStore.getSelectedTeamId();
+    const teams = teamStore.teams;
+
     return {
-      teams: teamStore.teams,
+      teams,
+      locale: settingStore.getSetting<localeType>('locale'),
       teamsByIndex: appTeamsStore.getTeamsByIndex(),
       selectedTeamId,
       customMenuItems: appStore.getCustomMenuItems(selectedTeamId),
@@ -105,6 +111,10 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
 
     if (changedKeys.size > 0) {
       this.buildMenu([...changedKeys]);
+    }
+
+    if (prevState.locale !== this.state.locale) {
+      this.buildMenu();
     }
   }
 
@@ -242,18 +252,22 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
         type: 'separator'
       }, {
         id: MENU_ITEM_ID.SERVICES,
+        label: $intl.t('Services', LOCALE_NAMESPACE.MENU)(),
         role: 'services',
         submenu: []
       }, {
         type: 'separator'
       }, {
         id: MENU_ITEM_ID.HIDE_SLACK,
+        label: $intl.t('Hide Slack', LOCALE_NAMESPACE.MENU)(),
         role: 'hide'
       }, {
         id: MENU_ITEM_ID.HIDE_OTHERS,
+        label: $intl.t('Hide Others', LOCALE_NAMESPACE.MENU)(),
         role: 'hideothers'
       }, {
         id: MENU_ITEM_ID.SHOW_ALL,
+        label: $intl.t('Show All', LOCALE_NAMESPACE.MENU)(),
         role: 'unhide'
       }, {
         type: 'separator'
@@ -439,14 +453,14 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
         () => ({ type: 'separator' });
 
       menu.submenu.push(...[getSeparator(), {
-        label: $intl.t('Select &Next Team', LOCALE_NAMESPACE.MENU)(),
+        label: $intl.t('Select &Next Workspace', LOCALE_NAMESPACE.MENU)(),
         id: MENU_ITEM_ID.SELECT_NEXT_TEAM,
         click: appTeamsActions.selectNextTeam,
         accelerator: isDarwin ?
           'Command+}' :
           'Control+Tab'
       }, {
-        label: $intl.t('Select &Previous Team', LOCALE_NAMESPACE.MENU)(),
+        label: $intl.t('Select &Previous Workspace', LOCALE_NAMESPACE.MENU)(),
         id: MENU_ITEM_ID.SELECT_PREV_TEAM,
         click: appTeamsActions.selectPreviousTeam,
         accelerator: isDarwin ?
@@ -465,6 +479,8 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
       $intl.t('Show &Logs in Explorer', LOCALE_NAMESPACE.MENU)() :
       $intl.t('Show &Logs in File Manager', LOCALE_NAMESPACE.MENU)();
 
+    const { locale } = this.state;
+
     const menu = {
       label: $intl.t('&Help', LOCALE_NAMESPACE.MENU)(),
       id: MENU_PARENT_ID.HELP,
@@ -473,11 +489,10 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
         label: $intl.t('&Keyboard Shortcuts', LOCALE_NAMESPACE.MENU)(),
         id: MENU_ITEM_ID.KEYBOARD_SHORTCUT,
         click: () => eventActions.showWebappDialog('shortcuts'),
-        accelerator: 'CmdOrCtrl+/'
       }, {
         label: $intl.t('Open &Help Center', LOCALE_NAMESPACE.MENU)(),
         id: MENU_ITEM_ID.OPEN_HELP_CENTER,
-        click: () => shell.openExternal('https://get.slack.help'),
+        click: () => shell.openExternal(getHelpCenterURL(locale)),
       }, {
         type: 'separator'
       }, {
@@ -575,7 +590,7 @@ export class AppMenu extends ReduxComponent<AppMenuState> {
 
   private buildSigninToTeamMenuItem(): Electron.MenuItemConstructorOptions {
     return {
-      label: $intl.t('&Sign in to Another Team...', LOCALE_NAMESPACE.MENU)(),
+      label: $intl.t('&Sign in to Another Workspace...', LOCALE_NAMESPACE.MENU)(),
       id: MENU_ITEM_ID.SIGN_IN,
       click: dialogActions.showLoginDialog
     };

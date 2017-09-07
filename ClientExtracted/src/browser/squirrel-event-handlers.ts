@@ -26,6 +26,8 @@ export async function onInstall(locations: string, enableAutoLaunch: boolean = t
     autoLaunch.enable();
   }
 
+  copyVisualManifests();
+
   const target = path.basename(process.execPath);
   const updateDotExe = path.resolve(path.dirname(process.execPath), '..', 'update.exe');
 
@@ -118,4 +120,22 @@ function removeStartMenuFolder(): void {
       logger.error('Failed to check "Slack Technologies" folder: ', e);
     }
   }
+}
+
+/**
+ * Copies in a VisualElementsManifest.xml, which helps Windows figure out how our
+ * win32 app would like stuff to be displayed in the WinRT world. The files roughly
+ * map to https://docs.microsoft.com/en-us/uwp/schemas/appxpackage/appxmanifestschema/element-visualelements,
+ * although no guaruntees are made.
+ */
+function copyVisualManifests(): void {
+  const execDirName = path.dirname(process.execPath);
+
+  const manifestSource = path.resolve(process.resourcesPath, 'VisualElementsManifest.xml');
+  const manifestTarget = path.resolve(execDirName, '..', 'VisualElementsManifest.xml');
+  copySmallFileSync(manifestSource, manifestTarget);
+
+  const namedManifestSource = path.resolve(process.resourcesPath, 'slack.VisualElementsManifest.xml');
+  const namedManifestTarget = path.resolve(execDirName, '..', 'slack.VisualElementsManifest.xml');
+  copySmallFileSync(namedManifestSource, namedManifestTarget);
 }

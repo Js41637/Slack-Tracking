@@ -50,8 +50,10 @@ export class SettingStore {
     // We will show html notifications if:
     // • You're on Windows 7, 8, 8.1 - and hardware acceleration is enabled
     //   and you haven't chosen something else
-    // • You selected html notifications (notificationMethod)
-    return (isWin && isHW && !isWin10 && !isRejected) || isPreferred;
+    // • You selected html notifications (notificationMethod) and transparent
+    //   windows are available to you (either because you have hardware or
+    //   because you're running something else than Windows)
+    return (isWin && isHW && !isWin10 && !isRejected) || (isPreferred && (isHW || !isWin));
   }
 }
 

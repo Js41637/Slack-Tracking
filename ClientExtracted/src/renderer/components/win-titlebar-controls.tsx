@@ -9,6 +9,7 @@ import 'rxjs/add/operator/merge';
 import 'rxjs/add/operator/takeUntil';
 import { Component } from '../../lib/component';
 import { logger } from '../../logger';
+import { settingStore } from '../../stores/setting-store';
 
 import { LOCALE_NAMESPACE, intl as $intl } from '../../i18n/intl';
 
@@ -20,6 +21,7 @@ export interface WinWindowControlsProps {
 
 export interface WinWindowControlsState {
   isMaximized: boolean;
+  locale: string;
 }
 
 export class WinWindowControls extends Component<WinWindowControlsProps, WinWindowControlsState> {
@@ -57,7 +59,7 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
       .subscribe(() => {
         if (this.window) {
           if (this.window.isMaximized()) {
-            this.state = { isMaximized: true };
+            this.state = { ...this.state, isMaximized: true };
           }
 
           this.disposables.add(Observable.merge(
@@ -75,6 +77,12 @@ export class WinWindowControls extends Component<WinWindowControlsProps, WinWind
           logger.warn('WinTitleBar: Titlebar could not find window object');
         }
       });
+  }
+
+  public syncState(): Partial<WinWindowControlsState> {
+    return {
+      locale: settingStore.getSetting<string>('locale')
+    };
   }
 
   public render(): JSX.Element | null {

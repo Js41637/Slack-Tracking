@@ -6,6 +6,7 @@ import * as Color from 'color';
 import { TeamBase } from '../../actions/team-actions';
 import { Component } from '../../lib/component';
 import { appTeamsStore } from '../../stores/app-teams-store';
+import { settingStore } from '../../stores/setting-store';
 import { teamStore } from '../../stores/team-store';
 import { getSidebarColor, getTextColor } from '../../utils/color';
 import { RazerChroma } from './razer-chroma';
@@ -27,6 +28,7 @@ export interface WinTitlebarProps {
 export interface WinTitlebarState {
   selectedTeamId: string | null;
   selectedTeam: TeamBase | null;
+  locale: string;
 }
 
 export class WinTitlebar extends Component<WinTitlebarProps, WinTitlebarState> {
@@ -42,6 +44,7 @@ export class WinTitlebar extends Component<WinTitlebarProps, WinTitlebarState> {
     const selectedTeam = selectedTeamId ? teamStore.getTeam(selectedTeamId) : null;
 
     return {
+      locale: settingStore.getSetting<string>('locale'),
       selectedTeamId,
       selectedTeam
     };

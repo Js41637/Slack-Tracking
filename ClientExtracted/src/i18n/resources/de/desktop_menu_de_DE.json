@@ -1,0 +1,307 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1021037578" : {
+    "translation" : "&Electron DevTools ein- und ausschalten",
+    "notes" : ""
+  },
+  "1214870726" : {
+    "translation" : "&Menüleiste immer anzeigen",
+    "notes" : ""
+  },
+  "1262042250" : {
+    "translation" : "V&erlauf",
+    "notes" : ""
+  },
+  "1296539210" : {
+    "translation" : "&Nächsten Workspace auswählen",
+    "notes" : ""
+  },
+  "1302783429" : {
+    "translation" : "Link kopieren",
+    "notes" : ""
+  },
+  "1308584820" : {
+    "translation" : "&Persönliche Einstellungen...",
+    "notes" : ""
+  },
+  "1343450128" : {
+    "translation" : "Link öffnen",
+    "notes" : ""
+  },
+  "1393286243" : {
+    "translation" : "&Vollbildmodus ein/aus",
+    "notes" : ""
+  },
+  "1448793429" : {
+    "translation" : "&Herauszoomen",
+    "notes" : ""
+  },
+  "1450597088" : {
+    "translation" : "Einfügen und Stil anpassen",
+    "notes" : ""
+  },
+  "1496618861" : {
+    "translation" : "&Originalgröße",
+    "notes" : ""
+  },
+  "1728916720" : {
+    "translation" : "Bild kopieren",
+    "notes" : ""
+  },
+  "1871709694" : {
+    "translation" : "Alle einblenden",
+    "notes" : ""
+  },
+  "1948703567" : {
+    "translation" : "Neustart zum Anwenden des Updates",
+    "notes" : ""
+  },
+  "2005111589" : {
+    "translation" : "&Slack beenden",
+    "notes" : ""
+  },
+  "2023105981" : {
+    "translation" : "&In anderem Workspace anmelden ...",
+    "notes" : ""
+  },
+  "2027485457" : {
+    "translation" : "&Nach Updates suchen…",
+    "notes" : ""
+  },
+  "2073584593" : {
+    "translation" : "Alle nach vorn bringen",
+    "notes" : ""
+  },
+  "2120422130" : {
+    "translation" : "&Persönliche Einstellungen...",
+    "notes" : ""
+  },
+  "213310159" : {
+    "translation" : "&Cache löschen und neu starten",
+    "notes" : ""
+  },
+  "2147551778" : {
+    "translation" : "Ausschneiden",
+    "notes" : ""
+  },
+  "2149589909" : {
+    "translation" : "Kopieren",
+    "notes" : ""
+  },
+  "2149638698" : {
+    "translation" : "Bearbeiten",
+    "notes" : ""
+  },
+  "2149673433" : {
+    "translation" : "Suchen",
+    "notes" : ""
+  },
+  "2150026782" : {
+    "translation" : "Wiederherstellen",
+    "notes" : ""
+  },
+  "2150124804" : {
+    "translation" : "Rückgängig",
+    "notes" : ""
+  },
+  "2150275059" : {
+    "translation" : "Zoomen",
+    "notes" : ""
+  },
+  "2184640045" : {
+    "translation" : "&Zurück",
+    "notes" : ""
+  },
+  "2184767170" : {
+    "translation" : "&Datei",
+    "notes" : ""
+  },
+  "2184822919" : {
+    "translation" : "&Hilfe",
+    "notes" : ""
+  },
+  "2185106325" : {
+    "translation" : "&Beenden",
+    "notes" : ""
+  },
+  "2185243627" : {
+    "translation" : "&Anzeigen",
+    "notes" : ""
+  },
+  "2192055093" : {
+    "translation" : "&In anderem Workspace anmelden ...",
+    "notes" : ""
+  },
+  "2212687320" : {
+    "translation" : "Schließen",
+    "notes" : ""
+  },
+  "2215375213" : {
+    "translation" : "Suchen...",
+    "notes" : ""
+  },
+  "2224369267" : {
+    "translation" : "Einfügen",
+    "notes" : ""
+  },
+  "228491096" : {
+    "translation" : "Fenster schließen",
+    "notes" : ""
+  },
+  "2292279374" : {
+    "translation" : "&Vorigen Workspace auswählen",
+    "notes" : ""
+  },
+  "2447182367" : {
+    "translation" : "Bild-URL kopieren",
+    "notes" : ""
+  },
+  "2483404925" : {
+    "translation" : "Alles auswählen",
+    "notes" : ""
+  },
+  "2545826024" : {
+    "translation" : "&App-Daten zurücksetzen…",
+    "notes" : ""
+  },
+  "2652013301" : {
+    "translation" : "&In anderem Workspace anmelden ...",
+    "notes" : ""
+  },
+  "2652726896" : {
+    "translation" : "{teamName} &entfernen",
+    "notes" : "Do not translate between {}"
+  },
+  "2684062346" : {
+    "translation" : "Was gibt's &Neues...",
+    "notes" : ""
+  },
+  "2737665025" : {
+    "translation" : "Andere verbergen",
+    "notes" : ""
+  },
+  "2779400347" : {
+    "translation" : "Mit Google suchen",
+    "notes" : ""
+  },
+  "290920624" : {
+    "translation" : "Element untersuchen",
+    "notes" : ""
+  },
+  "3001254706" : {
+    "translation" : "Slack verbergen",
+    "notes" : ""
+  },
+  "3065272838" : {
+    "translation" : "Update wird gesucht",
+    "notes" : ""
+  },
+  "3094776382" : {
+    "translation" : "&Heranzoomen",
+    "notes" : ""
+  },
+  "3096707126" : {
+    "translation" : "&Protokolle in Datei-Manager anzeigen",
+    "notes" : ""
+  },
+  "3192269939" : {
+    "translation" : "&Problem melden…",
+    "notes" : ""
+  },
+  "3303282951" : {
+    "translation" : "&Suchen...",
+    "notes" : ""
+  },
+  "3379982589" : {
+    "translation" : "Über Slack",
+    "notes" : ""
+  },
+  "3522008669" : {
+    "translation" : "Auswahl für Suche benutzen",
+    "notes" : ""
+  },
+  "3591337086" : {
+    "translation" : "Services",
+    "notes" : ""
+  },
+  "3603967375" : {
+    "translation" : "Update wird heruntergeladen",
+    "notes" : ""
+  },
+  "3615595735" : {
+    "translation" : "Ein Update ist verfügbar",
+    "notes" : ""
+  },
+  "3688565260" : {
+    "translation" : "&Protokolle in Explorer anzeigen",
+    "notes" : ""
+  },
+  "3748068388" : {
+    "translation" : "&Support-Center öffnen",
+    "notes" : ""
+  },
+  "3791924890" : {
+    "translation" : "&Tastaturkürzel",
+    "notes" : ""
+  },
+  "3826983308" : {
+    "translation" : "Nach „{word}“ suchen",
+    "notes" : "Do not translate between {}"
+  },
+  "3870983220" : {
+    "translation" : "&Alles neu laden",
+    "notes" : ""
+  },
+  "39370111" : {
+    "translation" : "&Webapp DevTools ein- und ausschalten",
+    "notes" : ""
+  },
+  "3957078367" : {
+    "translation" : "&Neu laden",
+    "notes" : ""
+  },
+  "4090050867" : {
+    "translation" : "&Protokolle in Finder anzeigen",
+    "notes" : ""
+  },
+  "4103967670" : {
+    "translation" : "&Fenster",
+    "notes" : ""
+  },
+  "4190859723" : {
+    "translation" : "Löschen",
+    "notes" : ""
+  },
+  "614784485" : {
+    "translation" : "E-Mail-Adresse kopieren",
+    "notes" : ""
+  },
+  "642307007" : {
+    "translation" : "&Vorwärts",
+    "notes" : ""
+  },
+  "79648571" : {
+    "translation" : "Vollbildmodus beenden",
+    "notes" : ""
+  },
+  "83757596" : {
+    "translation" : "Zum Wörterbuch hinzufügen",
+    "notes" : ""
+  },
+  "853060286" : {
+    "translation" : "Minimieren",
+    "notes" : ""
+  },
+  "898224708" : {
+    "translation" : "&Entwickler",
+    "notes" : ""
+  }
+}

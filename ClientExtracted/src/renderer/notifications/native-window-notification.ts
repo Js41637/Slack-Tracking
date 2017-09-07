@@ -2,6 +2,7 @@
  * @module Notifications
  */ /** for typedoc */
 
+import { logger } from '../../logger';
 import { NativeNotificationOptions } from './interfaces';
 import { NotificationBase } from './native-base-notification';
 
@@ -26,7 +27,13 @@ export class NativeWindowNotification extends NotificationBase {
   constructor(title: string, options: NativeNotificationOptions) {
     super();
 
-    this.toast = new window.Notification(title, options);
+    logger.info(`Creating new window notification.`);
+    logger.debug(`Notification is being created with:`, { ...options, title });
+
+    this.toast = new window.Notification(title, {
+      ...options,
+      silent: !options.soundName
+    });
     this.toast.onclick = (event: MouseEvent) => this.emit('click', event);
     this.toast.onclose = (event: CloseEvent) => this.emit('close', event);
     this.toast.onerror = (error: Error) => this.emit('error', error);

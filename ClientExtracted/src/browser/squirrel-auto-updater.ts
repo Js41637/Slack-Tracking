@@ -8,7 +8,7 @@ import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 
 import { appActions } from '../actions/app-actions';
-import { LOCALE_NAMESPACE, intl as $intl } from '../i18n/intl';
+import { LOCALE_NAMESPACE, intl as $intl, localeType } from '../i18n/intl';
 import { ReduxComponent } from '../lib/redux-component';
 import { logger } from '../logger';
 import { appStore } from '../stores/app-store';
@@ -37,6 +37,7 @@ export interface SquirrelAutoUpdaterState {
   credentials: Credentials | null;
   updateStatus: updateStatusType;
   mainWindow: WindowMetadata;
+  locale: localeType;
 }
 
 export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState> {
@@ -63,6 +64,7 @@ export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState
     return {
       appVersion: settingStore.getSetting<string>('appVersion'),
       isDevMode: settingStore.getSetting<boolean>('isDevMode'),
+      locale: settingStore.getSetting<localeType>('locale'),
       releaseChannel: settingStore.getSetting<ReleaseChannel>('releaseChannel'),
       credentials: dialogStore.getAuthCredentials(),
       updateStatus: appStore.getUpdateStatus(),
@@ -126,8 +128,10 @@ export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState
       return;
     }
 
+    const { locale } = this.state as SquirrelAutoUpdaterState;
+
     const updater = this.getUpdaterForCurrentPlatform();
-    const releaseNotesUrl = getReleaseNotesUrl(this.state.releaseChannel !== 'prod');
+    const releaseNotesUrl = getReleaseNotesUrl(this.state.releaseChannel !== 'prod', locale);
     const browserWindow = BrowserWindow.fromId(this.state.mainWindow.id);
 
     const hasAnUpdate = (updateInfo: UpdateInformation) => {
@@ -164,6 +168,7 @@ export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState
       dialog.showMessageBox(browserWindow, {
         title: $intl.t('You’re all good', LOCALE_NAMESPACE.MESSAGEBOX)(),
         buttons: [$intl.t('OK', LOCALE_NAMESPACE.GENERAL)()],
+        noLink: true,
         message: $intl.t('You’ve got the latest version of Slack; thanks for staying on the ball.', LOCALE_NAMESPACE.MESSAGEBOX)()
       });
     };
@@ -174,6 +179,7 @@ export class SquirrelAutoUpdater extends ReduxComponent<SquirrelAutoUpdaterState
       dialog.showMessageBox(browserWindow, {
         title: $intl.t('We couldn’t check for updates', LOCALE_NAMESPACE.MESSAGEBOX)(),
         buttons: [$intl.t('OK', LOCALE_NAMESPACE.GENERAL)()],
+        noLink: true,
         message: $intl.t('Check your Internet connection, and contact support if this issue persists.', LOCALE_NAMESPACE.MESSAGEBOX)(),
         detail: process.platform === 'darwin' ? errorMessage : undefined
       });

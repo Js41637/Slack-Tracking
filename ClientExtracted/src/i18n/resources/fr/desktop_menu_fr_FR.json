@@ -1,0 +1,307 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1021037578" : {
+    "translation" : "Basculer vers Electron (outil pour les développeurs)",
+    "notes" : ""
+  },
+  "1214870726" : {
+    "translation" : "Toujours montrer la barre de menus",
+    "notes" : ""
+  },
+  "1262042250" : {
+    "translation" : "H&istorique",
+    "notes" : ""
+  },
+  "1296539210" : {
+    "translation" : "Sélectionnez l'espace de travail &suivant",
+    "notes" : ""
+  },
+  "1302783429" : {
+    "translation" : "Copier le lien",
+    "notes" : ""
+  },
+  "1308584820" : {
+    "translation" : "&Préférences...",
+    "notes" : ""
+  },
+  "1343450128" : {
+    "translation" : "Ouvrir le lien",
+    "notes" : ""
+  },
+  "1393286243" : {
+    "translation" : "Plein écran",
+    "notes" : ""
+  },
+  "1448793429" : {
+    "translation" : "&Réduire",
+    "notes" : ""
+  },
+  "1450597088" : {
+    "translation" : "Coller et adapter le style",
+    "notes" : ""
+  },
+  "1496618861" : {
+    "translation" : "Taille réelle",
+    "notes" : ""
+  },
+  "1728916720" : {
+    "translation" : "Copier l'image",
+    "notes" : ""
+  },
+  "1871709694" : {
+    "translation" : "Tout afficher",
+    "notes" : ""
+  },
+  "1948703567" : {
+    "translation" : "Redémarrer pour appliquer la mise à jour",
+    "notes" : ""
+  },
+  "2005111589" : {
+    "translation" : "&Quitter Slack",
+    "notes" : ""
+  },
+  "2023105981" : {
+    "translation" : "&Se connecter à un autre espace de travail...",
+    "notes" : ""
+  },
+  "2027485457" : {
+    "translation" : "&Vérifier les mises à jour...",
+    "notes" : ""
+  },
+  "2073584593" : {
+    "translation" : "Tout ramener au premier plan",
+    "notes" : ""
+  },
+  "2120422130" : {
+    "translation" : "&Préférences",
+    "notes" : ""
+  },
+  "213310159" : {
+    "translation" : "Effacer le cache et redémarrer",
+    "notes" : ""
+  },
+  "2147551778" : {
+    "translation" : "Couper",
+    "notes" : ""
+  },
+  "2149589909" : {
+    "translation" : "Copier",
+    "notes" : ""
+  },
+  "2149638698" : {
+    "translation" : "Modifier",
+    "notes" : ""
+  },
+  "2149673433" : {
+    "translation" : "Rechercher",
+    "notes" : ""
+  },
+  "2150026782" : {
+    "translation" : "Rétablir",
+    "notes" : ""
+  },
+  "2150124804" : {
+    "translation" : "Annuler",
+    "notes" : ""
+  },
+  "2150275059" : {
+    "translation" : "Agrandir/réduire",
+    "notes" : ""
+  },
+  "2184640045" : {
+    "translation" : "Retour",
+    "notes" : ""
+  },
+  "2184767170" : {
+    "translation" : "Fichier",
+    "notes" : ""
+  },
+  "2184822919" : {
+    "translation" : "&Aide",
+    "notes" : ""
+  },
+  "2185106325" : {
+    "translation" : "Quitter",
+    "notes" : ""
+  },
+  "2185243627" : {
+    "translation" : "&Présentation",
+    "notes" : ""
+  },
+  "2192055093" : {
+    "translation" : "&Se connecter à un autre espace de travail...",
+    "notes" : ""
+  },
+  "2212687320" : {
+    "translation" : "Fermer",
+    "notes" : ""
+  },
+  "2215375213" : {
+    "translation" : "Rechercher...",
+    "notes" : ""
+  },
+  "2224369267" : {
+    "translation" : "Coller",
+    "notes" : ""
+  },
+  "228491096" : {
+    "translation" : "Fermer la fenêtre",
+    "notes" : ""
+  },
+  "2292279374" : {
+    "translation" : "Sélectionner l'espace de travail &précédent",
+    "notes" : ""
+  },
+  "2447182367" : {
+    "translation" : "Copier l'URL de l'image",
+    "notes" : ""
+  },
+  "2483404925" : {
+    "translation" : "Tout sélectionner",
+    "notes" : ""
+  },
+  "2545826024" : {
+    "translation" : "Réinitialiser &les données de l’application...",
+    "notes" : ""
+  },
+  "2652013301" : {
+    "translation" : "&Se connecter à un autre espace de travail...",
+    "notes" : ""
+  },
+  "2652726896" : {
+    "translation" : "Supprimer {teamName}",
+    "notes" : "Do not translate between {}"
+  },
+  "2684062346" : {
+    "translation" : "&Nouveautés...",
+    "notes" : ""
+  },
+  "2737665025" : {
+    "translation" : "Masquer Autres",
+    "notes" : ""
+  },
+  "2779400347" : {
+    "translation" : "Rechercher avec Google",
+    "notes" : ""
+  },
+  "290920624" : {
+    "translation" : "Inspecter l'élément",
+    "notes" : ""
+  },
+  "3001254706" : {
+    "translation" : "Masquer Slack",
+    "notes" : ""
+  },
+  "3065272838" : {
+    "translation" : "Vérification des mises à jour...",
+    "notes" : ""
+  },
+  "3094776382" : {
+    "translation" : "&Agrandir",
+    "notes" : ""
+  },
+  "3096707126" : {
+    "translation" : "Afficher &les journaux dans le Gestionnaire des fichiers",
+    "notes" : ""
+  },
+  "3192269939" : {
+    "translation" : "&Signaler un problème...",
+    "notes" : ""
+  },
+  "3303282951" : {
+    "translation" : "Rechercher",
+    "notes" : ""
+  },
+  "3379982589" : {
+    "translation" : "À propos de Slack",
+    "notes" : ""
+  },
+  "3522008669" : {
+    "translation" : "Rechercher la sélection",
+    "notes" : ""
+  },
+  "3591337086" : {
+    "translation" : "Services",
+    "notes" : ""
+  },
+  "3603967375" : {
+    "translation" : "Téléchargement de la mise à jour...",
+    "notes" : ""
+  },
+  "3615595735" : {
+    "translation" : "Une mise à jour est disponible",
+    "notes" : ""
+  },
+  "3688565260" : {
+    "translation" : "Afficher &les journaux dans Explorer",
+    "notes" : ""
+  },
+  "3748068388" : {
+    "translation" : "Ouvrir le centre d'assistance",
+    "notes" : ""
+  },
+  "3791924890" : {
+    "translation" : "Raccourcis clavier",
+    "notes" : ""
+  },
+  "3826983308" : {
+    "translation" : "Rechercher « {word} »",
+    "notes" : "Do not translate between {}"
+  },
+  "3870983220" : {
+    "translation" : "Recharger tout",
+    "notes" : ""
+  },
+  "39370111" : {
+    "translation" : "Basculer vers Webapp (outil pour les développeurs)",
+    "notes" : ""
+  },
+  "3957078367" : {
+    "translation" : "Recharger",
+    "notes" : ""
+  },
+  "4090050867" : {
+    "translation" : "Afficher &les journaux dans le Finder",
+    "notes" : ""
+  },
+  "4103967670" : {
+    "translation" : "Fenêtre",
+    "notes" : ""
+  },
+  "4190859723" : {
+    "translation" : "Supprimer",
+    "notes" : ""
+  },
+  "614784485" : {
+    "translation" : "Copier l'adresse e-mail",
+    "notes" : ""
+  },
+  "642307007" : {
+    "translation" : "Suivant",
+    "notes" : ""
+  },
+  "79648571" : {
+    "translation" : "Quitter le plein écran",
+    "notes" : ""
+  },
+  "83757596" : {
+    "translation" : "Ajouter au dictionnaire",
+    "notes" : ""
+  },
+  "853060286" : {
+    "translation" : "Placer dans le dock",
+    "notes" : ""
+  },
+  "898224708" : {
+    "translation" : "Développeur",
+    "notes" : ""
+  }
+}

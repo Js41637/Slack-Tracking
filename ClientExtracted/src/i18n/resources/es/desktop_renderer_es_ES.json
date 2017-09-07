@@ -1,0 +1,147 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1163917428" : {
+    "translation" : "Parece que ahora mismo no tienes conexión a internet.",
+    "notes" : ""
+  },
+  "1232096808" : {
+    "translation" : "Para conectarte a Slack, tienes que introducir un nombre y una contraseña para el servidor ",
+    "notes" : ""
+  },
+  "1430913379" : {
+    "translation" : "Te hemos quitado de la beta. De vuelta a tu programación habitual...",
+    "notes" : ""
+  },
+  "1760198367" : {
+    "translation" : "Descarga directa",
+    "notes" : ""
+  },
+  "1769100289" : {
+    "translation" : "Canal Alpha",
+    "notes" : ""
+  },
+  "1770559555" : {
+    "translation" : "⌘{idx}",
+    "notes" : ""
+  },
+  "1799453982" : {
+    "translation" : "El último error detectado tenía el código",
+    "notes" : ""
+  },
+  "2147584373" : {
+    "translation" : "esc",
+    "notes" : ""
+  },
+  "2149589909" : {
+    "translation" : "Copiar",
+    "notes" : ""
+  },
+  "2150499559" : {
+    "translation" : "back",
+    "notes" : ""
+  },
+  "2180558037" : {
+    "translation" : "¡Te hemos añadido a la beta! 🎉Tu app recibirá actualizaciones cuando estén disponibles.",
+    "notes" : ""
+  },
+  "2180567387" : {
+    "translation" : "Ctrl+{idx}",
+    "notes" : ""
+  },
+  "2222000475" : {
+    "translation" : "Conectarse a otro espacio de trabajo...",
+    "notes" : ""
+  },
+  "2265579820" : {
+    "translation" : "Abrir enlace a app",
+    "notes" : ""
+  },
+  "2378984742" : {
+    "translation" : "Conectando...",
+    "notes" : ""
+  },
+  "2762353363" : {
+    "translation" : "Canal Beta",
+    "notes" : ""
+  },
+  "2764913361" : {
+    "translation" : "Probar",
+    "notes" : ""
+  },
+  "2875270439" : {
+    "translation" : "Para conectarte a Slack, tienes que introducir un nombre y una contraseña para el proxy ",
+    "notes" : ""
+  },
+  "2944450756" : {
+    "translation" : "Windows Store",
+    "notes" : ""
+  },
+  "3013915013" : {
+    "translation" : "Te hemos quitado del alpha. De vuelta a tu programación habitual...",
+    "notes" : ""
+  },
+  "3051370728" : {
+    "translation" : "Slack intentará reconectar automáticamente.",
+    "notes" : ""
+  },
+  "3399652912" : {
+    "translation" : "😔 Para unirte a la beta, instala Slack directamente desde slack.com/download.",
+    "notes" : ""
+  },
+  "3671115087" : {
+    "translation" : "Este enlace abre una app, no una página web. Si es lo que esperas, haz clic. De lo contrario, asegúrate de que sea un enlace de confianza.",
+    "notes" : ""
+  },
+  "3675156611" : {
+    "translation" : "Abrir siempre enlaces a {protocol}//",
+    "notes" : ""
+  },
+  "389485451" : {
+    "translation" : "¡Te hemos añadido al alpha! 🎉 Tu app recibirá actualizaciones alpha cuando estén disponibles.",
+    "notes" : ""
+  },
+  "412256135" : {
+    "translation" : "Avisos y reconocimientos",
+    "notes" : ""
+  },
+  "4160805346" : {
+    "translation" : "App Store",
+    "notes" : ""
+  },
+  "4259611323" : {
+    "translation" : "Asegúrate de que tu software de seguridad no bloquea Slack.",
+    "notes" : ""
+  },
+  "470219197" : {
+    "translation" : "¡Copiado!",
+    "notes" : ""
+  },
+  "574976044" : {
+    "translation" : "😔 Para unirte al alpha, instala Slack directamente desde slack.com/download.",
+    "notes" : ""
+  },
+  "658381336" : {
+    "translation" : "Algo no funciona",
+    "notes" : ""
+  },
+  "818505023" : {
+    "translation" : "Por alguna razón, Slack no se ha cargado ",
+    "notes" : ""
+  },
+  "834244254" : {
+    "translation" : "No se ha podido iniciar Slack, y no estamos seguros del motivo. Puedes probar a reiniciar la aplicación, o escríbenos unas líneas: ",
+    "notes" : ""
+  },
+  "952470608" : {
+    "translation" : "Prueba a hacer lo siguiente:",
+    "notes" : ""
+  }
+}

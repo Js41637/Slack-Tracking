@@ -20,6 +20,7 @@ import * as React from 'react'; // tslint:disable-line
 
 export interface UrlSchemeModalState {
   whitelistedUrlSchemes: Array<string>;
+  locale: string;
 }
 
 export class UrlSchemeModal extends Component<UrlScheme, UrlSchemeModalState> {
@@ -44,6 +45,7 @@ export class UrlSchemeModal extends Component<UrlScheme, UrlSchemeModalState> {
 
   public syncState(): UrlSchemeModalState {
     return {
+      locale: settingStore.getSetting<string>('locale'),
       whitelistedUrlSchemes: settingStore.getSetting<Array<string>>('whitelistedUrlSchemes')
     };
   }

@@ -1,0 +1,79 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1114262255" : {
+    "translation" : "Vous êtes tout bon",
+    "notes" : ""
+  },
+  "1195334581" : {
+    "translation" : "Nous n'avons pas pu vérifier les mises à jour",
+    "notes" : ""
+  },
+  "120966588" : {
+    "translation" : "Une nouvelle version de Slack est disponible !",
+    "notes" : ""
+  },
+  "1294172317" : {
+    "translation" : "Êtes-vous sûr(e) ?",
+    "notes" : ""
+  },
+  "1567656214" : {
+    "translation" : "Ceci aura pour effet de vous déconnecter de tous vos espaces de travail, de restaurer l'application vers son état d'origine et de redémarrer.",
+    "notes" : ""
+  },
+  "1588876707" : {
+    "translation" : "Si le problème persiste, vous pouvez nous signaler le problème ou simplement nous contacter à l'adresse feedback@slack.com",
+    "notes" : ""
+  },
+  "1704747187" : {
+    "translation" : "Vérifiez votre connexion Internet. Si le problème persiste, contactez notre service d'assistance.",
+    "notes" : ""
+  },
+  "194011383" : {
+    "translation" : "Une mise à jour est disponible.",
+    "notes" : ""
+  },
+  "2896655900" : {
+    "translation" : "Redémarrer et signaler le problème",
+    "notes" : "double ampersand is for windows platform. if translated string does not need ampersand can ignore it."
+  },
+  "3526497016" : {
+    "translation" : "Redémarrer et signaler le problème",
+    "notes" : ""
+  },
+  "3783833534" : {
+    "translation" : "Nouveautés",
+    "notes" : ""
+  },
+  "3805691147" : {
+    "translation" : "Slack a planté !",
+    "notes" : ""
+  },
+  "3843442431" : {
+    "translation" : "Mettre à jour maintenant",
+    "notes" : ""
+  },
+  "3940220280" : {
+    "translation" : "Nous sommes vraiment désolés, mais nous rencontrons des difficultés et Slack doit être redémarré.",
+    "notes" : ""
+  },
+  "563969361" : {
+    "translation" : "Vous possédez la dernière version de Slack, merci pour votre fidélité.",
+    "notes" : ""
+  },
+  "769875324" : {
+    "translation" : "Recharger Slack et terminer l'appel ?",
+    "notes" : ""
+  },
+  "867210976" : {
+    "translation" : "Réinitialiser Slack ?",
+    "notes" : ""
+  }
+}

@@ -1,0 +1,107 @@
+{
+  "smartling" : {
+    "translate_paths" : {
+      "path" : "*/translation",
+      "key" : "{*}/translation",
+      "instruction" : "/*/notes"
+    },
+    "placeholder_format_custom" : ["$a"],
+    "placeholder_format" : "NONE"
+  },
+  "1179112694" : {
+    "translation" : "Vos paramètres ont été mis à jour. Redémarrez Slack pour que ces modifications prennent effet.",
+    "notes" : ""
+  },
+  "1343450128" : {
+    "translation" : "Ouvrir le lien",
+    "notes" : ""
+  },
+  "1789338757" : {
+    "translation" : "Annuler l'agrandissement",
+    "notes" : ""
+  },
+  "1946414326" : {
+    "translation" : "Nom d’utilisateur",
+    "notes" : ""
+  },
+  "2147486172" : {
+    "translation" : "OK",
+    "notes" : ""
+  },
+  "2147572423" : {
+    "translation" : "Oui",
+    "notes" : ""
+  },
+  "2212687320" : {
+    "translation" : "Fermer",
+    "notes" : ""
+  },
+  "2220908756" : {
+    "translation" : "Linux",
+    "notes" : ""
+  },
+  "2227449712" : {
+    "translation" : "Slack",
+    "notes" : ""
+  },
+  "2629256940" : {
+    "translation" : "Agrandir",
+    "notes" : ""
+  },
+  "296709561" : {
+    "translation" : "Recharger",
+    "notes" : ""
+  },
+  "3028657111" : {
+    "translation" : "Il semble que le service Slack ne soit pas disponible. Veuillez consulter les informations à l'adresse status.slack.com.",
+    "notes" : ""
+  },
+  "3108624819" : {
+    "translation" : "Rechargez Slack, ou même redémarrez l'application.",
+    "notes" : ""
+  },
+  "3110580365" : {
+    "translation" : "Attention ! Recharger Slack aura aussi pour effet de vous déconnecter de l'appel en cours. Voulez-vous vraiment recharger Slack ?",
+    "notes" : ""
+  },
+  "3397585530" : {
+    "translation" : "Slack Corp",
+    "notes" : ""
+  },
+  "339815480" : {
+    "translation" : "Soumettre",
+    "notes" : ""
+  },
+  "3429113531" : {
+    "translation" : "Mot de passe",
+    "notes" : ""
+  },
+  "3540450348" : {
+    "translation" : "Nous sommes en sommes désolés ! Avant d'essayer de résoudre les problèmes, veuillez vérifier le statut de nos serveurs.",
+    "notes" : ""
+  },
+  "4158593690" : {
+    "translation" : "Annuler",
+    "notes" : ""
+  },
+  "4258369885" : {
+    "translation" : "Slack - {teamName}",
+    "notes" : "Do not translate between {}"
+  },
+  "614675951" : {
+    "translation" : "Redémarrer",
+    "notes" : ""
+  },
+  "824085699" : {
+    "translation" : "Recherchez d'éventuelles erreurs dans votre console ou dans les journaux de votre application, puis envoyez-nous un message pour obtenir de l'aide.",
+    "notes" : ""
+  },
+  "853060286" : {
+    "translation" : "Placer dans le dock",
+    "notes" : ""
+  },
+  "866663011" : {
+    "translation" : "Windows",
+    "notes" : ""
+  }
+}

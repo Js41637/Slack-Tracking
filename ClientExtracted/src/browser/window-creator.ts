@@ -35,6 +35,7 @@ import { WindowFlashNotificationManager } from './window-flash-notification-mana
 import { SIDEBAR_WIDTH, SLACK_PROTOCOL, WINDOW_TYPES } from '../utils/shared-constants';
 import { WindowCreatorBase } from './window-creator-base';
 
+import { EVENTS } from '../actions';
 import { LOCALE_NAMESPACE, intl as $intl } from '../i18n/intl';
 import { Store } from '../lib/store';
 import { getUserAgent } from '../ssb-user-agent';
@@ -283,6 +284,8 @@ export class WindowCreator extends ReduxComponent<WindowCreatorState> implements
     } else {
       mainWindow.show();
     }
+
+    Store.dispatch({ type: EVENTS.APP_STARTED });
 
     if (options.openDevToolsOnStart) {
       eventActions.toggleDevTools(true /* forAllWebContents */);
