@@ -2,6 +2,86 @@
 
 <div id="prefs_sidebar">
 
+  {{#feature flag='feature_sidebar_settings_button'}}
+  <h2 id="prefs_channel_list" class="inline_block small_bottom_margin">{{#t}}Sidebar{{/t}}</h2>
+  <p>{{#t}}Customize the appearance and functionality of your sidebar.{{/t}}</p>
+
+  <h4>{{#t}}Select channels to display{{/t}}</h4>
+  <p {{#or show_sidebar_sort_pref show_separate_shared_channels_pref}}class="large_bottom_margin"{{/or}}>
+    <label class="radio">
+      <input name="pr_sidebar" type="radio" value="" checked="checked" data-inline-saver="#prefs_channel_list">
+      <strong>{{#t}}Show me everything{{/t}}</strong><br>
+      {{#if is_app_space_enabled}}
+        <span class='normal greigh'>{{#t}}All of your channels, direct messages and apps.{{/t}}</span>
+      {{else}}
+        <span class='normal greigh'>{{#t}}All of your channels and direct messages.{{/t}}</span>
+      {{/if}}
+    </label>
+    <label class="radio">
+      <input name="pr_sidebar" type="radio" value="hide_read_channels_unless_starred" data-inline-saver="#prefs_channel_list">
+      <strong>{{#t}}Show me my unreads and my starred channels{{/t}}</strong><br>
+      <span class='normal greigh'>{{#t}}Your unread channels and direct messages along with channels you've starred.{{/t}}</span>
+    </label>
+    <label class="radio">
+      <input name="pr_sidebar" type="radio" value="hide_read_channels" data-inline-saver="#prefs_channel_list">
+      <strong>{{#t}}Show me my unreads{{/t}}</strong><br>
+      {{#if is_app_space_enabled}}
+        <span class='normal greigh'>{{#t}}Only your unread channels, direct messages and apps.{{/t}}</span>
+      {{else}}
+        <span class='normal greigh'>{{#t}}Only your unread channels and direct messges.{{/t}}</span>
+      {{/if}}
+    </label>
+  </p>
+  {{#if show_sidebar_sort_pref}}
+  {{#feature flag='feature_sli_channel_priority'}}
+    <h4>{{#t}}Sorting and grouping{{/t}}</h4>
+    <p class="large_bottom_margin">
+      <label class="select small inline_block">
+        <select id="channel_sort_select" class="small" data-inline-saver="#prefs_channel_list">
+          {{! Options wil be added in by `TS.ui.prefs_dialog` }}
+        </select>
+      </label>
+  {{/feature}}
+  {{else}}
+    {{#if show_separate_shared_channels_pref}}
+      <h4>{{#t}}Group channels{{/t}}</h4>
+    {{/if}}
+    <p class="large_bottom_margin">
+  {{/if}}
+    <label for="separate_private_channels_cb" class="checkbox no_margin">
+      <input id="separate_private_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
+      {{#t}}List private channels separately{{/t}}
+    </label>
+    {{#if show_separate_shared_channels_pref}}
+      <label for="separate_shared_channels_cb" class="checkbox no_margin">
+        <input id="separate_shared_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
+        {{#t}}List shared channels separately{{/t}}
+      </label>
+    {{/if}}
+  </p>
+
+  <h4>{{#t}}Additional Options{{/t}}</h4>
+  <p>
+    <label class="checkbox nor_margin">
+      <input id="enable_unread_view" checked="" type="checkbox" data-inline-saver="#prefs_channel_list">
+      {{#t}}Show All Unreads{{/t}}<br>
+      <span class="normal greigh">{{#t}}This collects all the messages you\u2019ve missed in one handy place.{{/t}}</span>
+    </label>
+    <label class="checkbox">
+      <input id="no_omnibox_in_channels_cb" checked="checked" type="checkbox" data-inline-saver="#prefs_channel_list">
+      {{#t}}Show the Quick Switcher{{/t}}<br>
+      <span class="normal greigh">
+        {{#t}}This lets you jump to specific channels and conversations in a snap.{{/t}}<br>
+        {{#t cmd_key_label=cmd_key_label cmd_key=cmd_key keyboard_shortcut_label='k'}}(You can also use <span class="c-keyboard_key" aria-label="{cmd_key_label}">{cmd_key}</span><span class="c-keyboard_key">{keyboard_shortcut_label}</span>){{/t}}
+      </span>
+    </label>
+  </p>
+
+  <hr class="large_top_margin large_bottom_margin">
+
+  <h2 id="prefs_sidebar_theme" class="inline_block">{{#t}}Theme{{/t}}</h2>
+
+  {{else}}
   <h2 id="prefs_channel_list" class="inline_block small_bottom_margin">{{#t}}Sidebar{{/t}}</h2>
   <h4>{{#t}}In the sidebar, show:{{/t}}</h4>
   <p class="large_bottom_margin">
@@ -71,6 +151,8 @@
   <hr class="large_top_margin large_bottom_margin">
 
   <h2 id="prefs_sidebar_theme" class="inline_block">{{#t}}Sidebar Theme{{/t}}</h2>
+
+  {{/feature}}
 
   {{#feature flag="feature_teams_to_workspaces"}}
     <p>{{#t team_name=(currentTeamName)}}Customize the look of the <strong>{team_name}</strong> workspace. Only you will see this.{{/t}}</p>

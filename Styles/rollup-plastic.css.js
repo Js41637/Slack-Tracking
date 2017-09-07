@@ -10679,7 +10679,6 @@ html.fs_modal_active {
   bottom: 0;
   left: 0;
   z-index: 1041;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 18px;
   height: 100%;
   line-height: 1.5rem;
