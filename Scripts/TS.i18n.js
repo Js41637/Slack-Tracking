@@ -1,5 +1,5 @@
 webpackJsonp([413], {
-  8555: function(e, r) {
+  10056: function(e, r) {
     (function() {
       "use strict";
       TS.registerModule("i18n", {
@@ -318,12 +318,12 @@ webpackJsonp([413], {
         });
       };
       var v = function e() {
+        if (!TS.boot_data.feature_localization) o = "en-US";
         if (!o)
-          if (!TS.boot_data.feature_i18n_keyboards) o = "en-US";
-          else if (TS.i18n.canAutoGetKeyboard()) {
-          o = y(desktop.app.getLocaleInformation().currentKeyboardLayout);
-          desktop.app.onDidChangeKeyboardLayout(E);
-        } else if (TS.prefs.prefs_loaded) o = TS.prefs.getPref("keyboard") || "en-US";
+          if (TS.i18n.canAutoGetKeyboard()) {
+            o = y(desktop.app.getLocaleInformation().currentKeyboardLayout);
+            desktop.app.onDidChangeKeyboardLayout(E);
+          } else if (TS.prefs.prefs_loaded) o = TS.prefs.getPref("keyboard") || "en-US";
         else return "en-US";
         return o;
       };
@@ -667,4 +667,4 @@ webpackJsonp([413], {
       };
     })();
   }
-}, [8555]);
+}, [10056]);

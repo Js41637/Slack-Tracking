@@ -8291,6 +8291,7 @@ html.no_touch .plastic_row:hover .chevron {
   margin-bottom: -1px
 }
 
+.account_tab_set a,
 .admin_tabs a,
 .customize_tab_set a {
   padding: 12px 22px 11px
