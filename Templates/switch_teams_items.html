@@ -52,8 +52,8 @@
   <li class="divider"></li>
 
   {{#feature flag="feature_teams_to_workspaces"}}
-    <li id="add_team" role="menuitem"><a href="{{signin_url}}"> {{#t}}Sign in to another workspace &hellip;{{/t}}</a></li>
+    <li id="add_team" role="menuitem"><a href="{{signin_url}}" target="_blank" rel="noopener noreferrer"> {{#t}}Sign in to another workspace &hellip;{{/t}}</a></li>
   {{else}}
-    <li id="add_team" role="menuitem"><a href="{{signin_url}}"> {{#t}}Sign in to another team &hellip;{{/t}}</a></li>
+    <li id="add_team" role="menuitem"><a href="{{signin_url}}" target="_blank" rel="noopener noreferrer"> {{#t}}Sign in to another team &hellip;{{/t}}</a></li>
   {{/feature}}
 {{/if}}
