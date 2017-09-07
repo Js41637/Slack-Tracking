@@ -5818,7 +5818,8 @@ html.no_touch .alert_page a:hover {
 }
 
 .highlight_yellow_bg {
-  background-color: #FFFCE0!important
+  background-color: #FFFCE0!important;
+  box-shadow: inset 1px 0 0 0 #E8E8E8
 }
 
 .highlight_red_bg {
@@ -10663,6 +10664,13 @@ html.fs_modal_active {
   transition: opacity 250ms cubic-bezier(.2, .8, .5, 1), top 0s linear 0s, left 250ms ease-in-out
 }
 
+#fs_modal_bg.starting,
+.fs_modal_bg.starting {
+  -webkit-transition: opacity 250ms cubic-bezier(.2, .8, .5, 1), top 0s linear 0s;
+  -moz-transition: opacity 250ms cubic-bezier(.2, .8, .5, 1), top 0s linear 0s;
+  transition: opacity 250ms cubic-bezier(.2, .8, .5, 1), top 0s linear 0s
+}
+
 #fs_modal {
   position: fixed;
   top: 100%;
@@ -10697,6 +10705,12 @@ html.fs_modal_active {
   -moz-transition: opacity 150ms cubic-bezier(.2, .8, .5, 1) .1s, transform 150ms cubic-bezier(.2, .8, .5, 1) .1s, left 250ms ease-in-out;
   transition: opacity 150ms cubic-bezier(.2, .8, .5, 1) .1s, transform 150ms cubic-bezier(.2, .8, .5, 1) .1s, left 250ms ease-in-out;
   -webkit-transition: opacity 150ms cubic-bezier(.2, .8, .5, 1) .1s, -webkit-transform 150ms cubic-bezier(.2, .8, .5, 1) .1s, left 250ms ease-in-out
+}
+
+#fs_modal.starting {
+  -moz-transition: opacity 150ms cubic-bezier(.2, .8, .5, 1) .1s, transform 150ms cubic-bezier(.2, .8, .5, 1) .1s;
+  transition: opacity 150ms cubic-bezier(.2, .8, .5, 1) .1s, transform 150ms cubic-bezier(.2, .8, .5, 1) .1s;
+  -webkit-transition: opacity 150ms cubic-bezier(.2, .8, .5, 1) .1s, -webkit-transform 150ms cubic-bezier(.2, .8, .5, 1) .1s
 }
 
 #fs_modal h1,
@@ -15361,7 +15375,6 @@ body:not(.unify_user) .mpdm_badge .presence {
   padding: 5px 10px 4px;
   background: #FaF8F6;
   color: #7F7F83;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 12px;
   border-bottom: 1px solid rgba(0, 0, 0, .15);
   background-clip: padding-box;
@@ -15582,7 +15595,6 @@ body:not(.unify_user) .tab_complete_ui ul.type_cmds li.tab_complete_ui_item {
   cursor: pointer;
   background: 0 0;
   padding: 0 10px;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 15px;
   line-height: 2;
   overflow: hidden;
@@ -18035,7 +18047,6 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .mention_rxn {
-  font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 15px;
   line-height: 22px;
   position: relative;
