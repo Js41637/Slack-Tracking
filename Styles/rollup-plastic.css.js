@@ -13941,6 +13941,18 @@ body:not(.unify_user) #member_preview_scroller .member_details {
   width: 40%
 }
 
+#member_preview_scroller .member_data_table .channel_link span,
+#member_preview_scroller .member_data_table .group_link span,
+#member_preview_web_container .member_data_table .channel_link span,
+#member_preview_web_container .member_data_table .group_link span,
+#team_list .member_data_table .channel_link span,
+#team_list .member_data_table .group_link span,
+.menu_member_header .member_data_table .channel_link span,
+.menu_member_header .member_data_table .group_link span {
+  display: flex;
+  align-items: baseline
+}
+
 #member_preview_scroller .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link),
 #member_preview_web_container .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link),
 #team_list .member_data_table a:not(.current_status_preset_option):not(.current_status_presets_edit_link):not(.member_details_manage_link),
@@ -14009,16 +14021,13 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 }
 
 #member_preview_scroller .member_data_table .channel_link .ts_icon_lock,
+#member_preview_scroller .member_data_table .group_link .ts_icon_lock,
 #member_preview_web_container .member_data_table .channel_link .ts_icon_lock,
-.menu_member_header .member_data_table .channel_link .ts_icon_lock {
+#member_preview_web_container .member_data_table .group_link .ts_icon_lock,
+.menu_member_header .member_data_table .channel_link .ts_icon_lock,
+.menu_member_header .member_data_table .group_link .ts_icon_lock {
   line-height: 0;
   margin-left: -5px
-}
-
-#member_preview_scroller .member_data_table .shared_channels_profile_field .channel_link span,
-#member_preview_web_container .member_data_table .shared_channels_profile_field .channel_link span,
-.menu_member_header .member_data_table .shared_channels_profile_field .channel_link span {
-  display: flex
 }
 
 #member_preview_scroller .member_details .member_image,
