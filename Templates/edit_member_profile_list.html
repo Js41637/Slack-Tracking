@@ -29,10 +29,20 @@
 <div class="clearfix">
   <p class="col span_2_of_3">
     {{#feature flag="feature_name_tagging_client"}}
-      <label for="display_name_profile_field">{{#t note="For a members profile"}}Display name <span class="normal">(optional)</span>{{/t}}</label>
-      <input type="text" class="no_bottom_margin" name="display_name" value="{{member.profile.display_name}}" placeholder="{{member.profile.real_name}}" id="display_name_profile_field" data-validation data-validation-for="display_name_profile_field_warnings" data-validation-success />
-      <label for="display_name_profile_field_warnings"><span class="validation_message"></span></label>
-      <span class="input_note">{{#t note="Helper note for setting a display name"}}This could be your first name, or a nickname \u2014 however you\u2019d like people to refer to you in Slack.{{/t}}</span>
+      {{#if lock_display_name}}
+        <label for="display_name_profile_field">
+          <ts-icon class="ts_icon_lock sk_light_grey ts_tip ts_tip_top ts_tip_multiline">
+            <span class="ts_tip_tip ts_tip_multiline_inner">{{#t}}Display names are automatically set by your organization.{{/t}}</span>
+          </ts-icon>
+          {{#t note="For a members profile"}}Display name <span class="normal">(optional)</span>{{/t}}
+        </label>
+        <input type="text" class="no_bottom_margin" value="{{member.profile.display_name}}" placeholder="{{member.profile.real_name}}" disabled/>
+      {{else}}
+        <label for="display_name_profile_field">{{#t note="For a members profile"}}Display name <span class="normal">(optional)</span>{{/t}}</label>
+        <input type="text" class="no_bottom_margin" name="display_name" value="{{member.profile.display_name}}" placeholder="{{member.profile.real_name}}" id="display_name_profile_field" data-validation data-validation-for="display_name_profile_field_warnings" data-validation-success />
+        <label for="display_name_profile_field_warnings"><span class="validation_message"></span></label>
+        <span class="input_note">{{#t note="Helper note for setting a display name"}}This could be your first name, or a nickname \u2014 however you\u2019d like people to refer to you in Slack.{{/t}}</span>
+      {{/if}}
     {{else}}
       <label for="last_name_profile_field">{{#t note="For a members profile"}}Last name{{/t}}</label>
       <input type="text" class="no_bottom_margin" name="last_name" value="{{member.profile.last_name}}" placeholder="{{#t note='For a members profile'}}Last name{{/t}}" data-validation="maxlength=35" data-validation-for="last_name_profile_field" id="last_name_profile_field" />

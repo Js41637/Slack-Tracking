@@ -7,9 +7,9 @@ webpackJsonp([413], {
         onStart: function e() {
           g();
           S();
-          k();
+          C();
           if (TS.client && TS.client.login_sig) TS.client.login_sig.add(p);
-          if (TS.prefs) TS.prefs.keyboard_changed_sig.add(m);
+          if (TS.prefs) TS.prefs.keyboard_changed_sig.add(w);
           if (window.signals) TS.i18n.keyboard_changed_sig = new signals.Signal;
           else TS.i18n.keyboard_changed_sig = {
             add: function e() {},
@@ -30,7 +30,7 @@ webpackJsonp([413], {
           return i;
         },
         supportedKeyboards: function e() {
-          return f;
+          return l;
         },
         getDefaultLocale: function e() {
           return TS.i18n.DEFAULT_LOCALE;
@@ -46,7 +46,7 @@ webpackJsonp([413], {
           return r;
         },
         localeOrPseudo: function e() {
-          if (t) return "pseudo";
+          if (a) return "pseudo";
           return TS.i18n.locale();
         },
         isLocaleCJK: function e() {
@@ -69,7 +69,7 @@ webpackJsonp([413], {
           }
           var c = n + ":" + i + ":" + o;
           if (void 0 === u[c]) {
-            if (t || "pseudo" === n) u[c] = new MessageFormat(n, L(o)).format;
+            if (a || "pseudo" === n) u[c] = new MessageFormat(n, F(o)).format;
             else {
               if (r && i && window.sha1 && window.tsTranslations && window.tsTranslations[i]) {
                 o = window.tsTranslations[i][window.sha1(o)] || o;
@@ -77,7 +77,7 @@ webpackJsonp([413], {
               }
               u[c] = new MessageFormat(n, o).format;
             }
-            if (r && a) u[c].toString = w(c, i);
+            if (r && t) u[c].toString = j(c, i);
           }
           return u[c];
         },
@@ -85,40 +85,40 @@ webpackJsonp([413], {
           g();
           return Intl.NumberFormat(n).format(r);
         },
-        percent: function e(r, a) {
+        percent: function e(r, t) {
           g();
           return Intl.NumberFormat(n, {
             style: "percent",
-            maximumFractionDigits: a
+            maximumFractionDigits: t
           }).format(r);
         },
-        sorter: function e(r, a) {
+        sorter: function e(r, t) {
           g();
-          if (!r || !a) return !r ? -1 : 1;
-          if (s) return s.compare(r, a);
-          return r.localeCompare(a);
+          if (!r || !t) return !r ? -1 : 1;
+          if (s) return s.compare(r, t);
+          return r.localeCompare(t);
         },
         mappedSorter: function e(r) {
-          return function(e, a) {
-            if (!e || !a) return !e ? -1 : 1;
-            var t = ("" + r).split(".");
-            if (t.length > 1) t.forEach(function(r) {
+          return function(e, t) {
+            if (!e || !t) return !e ? -1 : 1;
+            var a = ("" + r).split(".");
+            if (a.length > 1) a.forEach(function(r) {
               e = e[r];
-              a = a[r];
+              t = t[r];
             });
             else {
               e = e[r];
-              a = a[r];
+              t = t[r];
             }
-            return TS.i18n.sorter(e, a);
+            return TS.i18n.sorter(e, t);
           };
         },
         possessive: function e(r) {
           g();
           switch (TS.i18n.locale()) {
             case "fr-FR":
-              var a = _.deburr(r);
-              return a.match(/^[aeiouy]/i) ? "d’" : "de ";
+              var t = _.deburr(r);
+              return t.match(/^[aeiouy]/i) ? "d’" : "de ";
             case "es-ES":
               return "de ";
             case "de-DE":
@@ -139,64 +139,64 @@ webpackJsonp([413], {
               return r + TS.i18n.possessive(r);
           }
         },
-        listify: function e(r, a) {
+        listify: function e(r, t) {
           g();
-          var t;
+          var a;
           var o = [];
           var i = r.length;
-          var s = a && "or" === a.conj ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
+          var s = t && "or" === t.conj ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
           var u = i > 2 ? "," : "";
-          var c = a && a.strong ? "<strong>" : "";
-          var l = a && a.strong ? "</strong>" : "";
-          var f = a && a.no_escape;
-          var d = a && a.item_prefix ? a.item_prefix : "";
+          var c = t && t.strong ? "<strong>" : "";
+          var f = t && t.strong ? "</strong>" : "";
+          var l = t && t.no_escape;
+          var d = t && t.item_prefix ? t.item_prefix : "";
           switch (n) {
             case "ja-JP":
-              t = ", ";
+              a = ", ";
               break;
             case "en-US":
-              t = u + " " + s + " ";
+              a = u + " " + s + " ";
               break;
             default:
-              t = " " + s + " ";
+              a = " " + s + " ";
           }
           r.forEach(function(e, r) {
-            if (!f) e = _.escape(e);
-            o.push(c + d + e + l);
+            if (!l) e = _.escape(e);
+            o.push(c + d + e + f);
             if (r < i - 2) o.push(", ");
-            else if (r < i - 1) o.push(t);
+            else if (r < i - 1) o.push(a);
           });
           return o;
         },
         deburr: function e(r) {
           r = _.deburr(r);
-          r = U(r);
-          r = F(r);
+          r = A(r);
+          r = O(r);
           return r;
         },
-        getStaticTranslation: function e(r, a) {
-          if (!E()) return null;
-          var t = TS.storage.fetchStaticTranslations();
-          var n = _.get(t, "data." + a);
+        getStaticTranslation: function e(r, t) {
+          if (!U()) return null;
+          var a = TS.storage.fetchStaticTranslations();
+          var n = _.get(a, "data." + t);
           if (!n || !n[r]) return null;
           return n[r];
         },
         keyEquivalent: function e(r) {
-          var a = v();
-          if ("en-US" === a) return r;
-          if (b[r] && b[r][a]) return b[r][a];
+          var t = v();
+          if ("en-US" === t) return r;
+          if (k[r] && k[r][t]) return k[r][t];
           return r;
         },
         keyCodeEquivalent: function e(r) {
-          var a = v();
-          if ("en-US" === a) return r;
-          if (y[r] && y[r][a]) return y[r][a];
+          var t = v();
+          if ("en-US" === t) return r;
+          if (L[r] && L[r][t]) return L[r][t];
           return r;
         },
         keyCodeEquivalentReverse: function e(r) {
-          var a = v();
-          if ("en-US" === a) return r;
-          if (l[a] && l[a][r]) return l[a][r];
+          var t = v();
+          if ("en-US" === t) return r;
+          if (f[t] && f[t][r]) return f[t][r];
           return r;
         },
         start_of_the_week: {
@@ -270,16 +270,16 @@ webpackJsonp([413], {
       });
       var e;
       var r;
-      var a;
       var t;
+      var a;
       var n;
       var o;
       var i;
       var s;
       var u = {};
       var c;
-      var l = {};
-      var f = {
+      var f = {};
+      var l = {
         de: "Deutsch",
         "en-US": "English (US)",
         es: "Español",
@@ -289,11 +289,11 @@ webpackJsonp([413], {
       var g = function o() {
         if (e) return;
         r = location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
-        a = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
+        t = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
         var i = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
         if (i) n = i[1];
         if (!n) n = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE;
-        if ("pseudo" === n) t = true;
+        if ("pseudo" === n) a = true;
         if (Intl.Collator) s = Intl.Collator(n);
         else s = null;
         e = true;
@@ -303,7 +303,7 @@ webpackJsonp([413], {
       };
       var p = function e() {
         if (!TS.boot_data.feature_localization || TS.i18n.locale() === TS.i18n.DEFAULT_LOCALE) return;
-        if (!E()) TS.api.call("i18n.translations.get").then(function(e) {
+        if (!U()) TS.api.call("i18n.translations.get").then(function(e) {
           var r = e.data;
           if (!r || !r.ok) {
             TS.error("Failed to fetch static i18n translations, recieved this response: ", e);
@@ -321,36 +321,34 @@ webpackJsonp([413], {
         if (!o)
           if (!TS.boot_data.feature_i18n_keyboards) o = "en-US";
           else if (TS.i18n.canAutoGetKeyboard()) {
-          o = T(desktop.app.getLocaleInformation().currentKeyboardLayout);
-          desktop.app.onDidChangeKeyboardLayout(h);
+          o = y(desktop.app.getLocaleInformation().currentKeyboardLayout);
+          desktop.app.onDidChangeKeyboardLayout(E);
         } else if (TS.prefs.prefs_loaded) o = TS.prefs.getPref("keyboard") || "en-US";
         else return "en-US";
         return o;
       };
-      var T = function e(r) {
-        switch (r) {
-          case "com.apple.keylayout.German":
-            return "de";
-          case "com.apple.keylayout.Spanish-ISO":
-            return "es";
-          case "com.apple.keylayout.French":
-            return "fr";
-          case "com.apple.keylayout.US":
-          default:
-            return "en-US";
-        }
+      var T = /german/;
+      var h = /french/;
+      var m = /spanish/;
+      var b = /iso/;
+      var y = function e(r) {
+        var t = r.toLowerCase();
+        if (T.test(t)) return "de";
+        else if (h.test(t)) return "fr";
+        else if (m.test(t) && b.test(t)) return "es";
+        return "en-US";
       };
-      var h = function e(r) {
-        o = T(r);
+      var E = function e(r) {
+        o = y(r);
         TS.i18n.keyboard_changed_sig.dispatch();
       };
-      var m = function e() {
+      var w = function e() {
         if (!TS.model.is_our_app) {
           o = TS.prefs.getPref("keyboard");
           TS.i18n.keyboard_changed_sig.dispatch();
         }
       };
-      var b = {
+      var k = {
         "`": {
           es: "º",
           fr: "@",
@@ -375,7 +373,7 @@ webpackJsonp([413], {
           fr: ";"
         }
       };
-      var y = {
+      var L = {
         190: {
           fr: 186
         },
@@ -389,48 +387,48 @@ webpackJsonp([413], {
           de: 221
         }
       };
-      var k = function e() {
-        Object.keys(y).forEach(function(e) {
-          Object.keys(y[e]).forEach(function(r) {
-            l[r] = l[r] || {};
-            l[r][y[e][r]] = parseInt(e, 10);
+      var C = function e() {
+        Object.keys(L).forEach(function(e) {
+          Object.keys(L[e]).forEach(function(r) {
+            f[r] = f[r] || {};
+            f[r][L[e][r]] = parseInt(e, 10);
           });
         });
       };
-      var E = function e() {
+      var U = function e() {
         var r = TS.storage.fetchStaticTranslations();
         if (!r) return false;
         if (TS.model.static_translations_cache_ts !== r.cache_ts) return false;
         if (TS.i18n.locale() !== r.locale) return false;
         return true;
       };
-      var w = function e(r, a) {
+      var j = function e(r, t) {
         return function() {
-          var e = a + "." + r;
+          var e = t + "." + r;
           if (d.indexOf(e) >= 0) return;
           d.push(e);
-          var t = "TS.i18n.t(" + JSON.stringify(r) + ", " + JSON.stringify(a) + ")";
-          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + t + " when you meant to do " + t + "()");
-          alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + a + "\nString: " + r);
+          var a = "TS.i18n.t(" + JSON.stringify(r) + ", " + JSON.stringify(t) + ")";
+          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + a + " when you meant to do " + a + "()");
+          alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + t + "\nString: " + r);
           return "";
         };
       };
-      var L = function e(r) {
-        var a = false;
+      var F = function e(r) {
+        var t = false;
         if (r.endsWith(":")) {
-          a = true;
+          t = true;
           r = r.substr(0, r.length - 1);
         }
-        var t = /(<[^>]+>)|(&\w+;)/gi;
-        var n = r.match(t) || [];
-        r = r.replace(t, "<>");
+        var a = /(<[^>]+>)|(&\w+;)/gi;
+        var n = r.match(a) || [];
+        r = r.replace(a, "<>");
         var o = parseMessageFormatString(r);
         if (o.error) TS.error(o.error);
         var i;
         r = o.tokens.map(function(e) {
           if ("text" === e[0]) {
             i = e[1];
-            _.forOwn(C, function(e) {
+            _.forOwn(D, function(e) {
               i = i.replace(e[0], e[1]);
             });
             return i.split(" ").map(function(e) {
@@ -443,10 +441,10 @@ webpackJsonp([413], {
         r = r.split("<>").map(function(e, r) {
           return e + (n[r] || "");
         }).join("");
-        if (a) r += ":";
+        if (t) r += ":";
         return r;
       };
-      var C = {
+      var D = {
         a: [/a/g, "á"],
         b: [/b/g, "β"],
         c: [/c/g, "ç"],
@@ -484,11 +482,11 @@ webpackJsonp([413], {
         U: [/U/g, "Û"],
         Y: [/Y/g, "Ý"]
       };
-      var U = function e(r) {
-        return r && r.replace(/([\u3000-\u301f\u30a0-\u30ff\uff00-\uffef])/g, j);
+      var A = function e(r) {
+        return r && r.replace(/([\u3000-\u301f\u30a0-\u30ff\uff00-\uffef])/g, J);
       };
-      var j = function e(r) {
-        var a = {
+      var J = function e(r) {
+        var t = {
           "ガ": "ｶﾞ",
           "ギ": "ｷﾞ",
           "グ": "ｸﾞ",
@@ -587,16 +585,16 @@ webpackJsonp([413], {
           "￥": "¥",
           "￦": "₩"
         };
-        var t = r.charCodeAt(0);
-        if (r in a) return a[r];
-        else if (t >= 65280 && t <= 65374) return String.fromCharCode(t - 65248);
+        var a = r.charCodeAt(0);
+        if (r in t) return t[r];
+        else if (a >= 65280 && a <= 65374) return String.fromCharCode(a - 65248);
         return r;
       };
-      var F = function e(r) {
-        return r && r.replace(/([\u0400-\u04ff])/g, D);
+      var O = function e(r) {
+        return r && r.replace(/([\u0400-\u04ff])/g, P);
       };
-      var D = function e(r) {
-        var a = {
+      var P = function e(r) {
+        var t = {
           "А": "A",
           "Б": "B",
           "В": "V",
@@ -664,7 +662,7 @@ webpackJsonp([413], {
           "ю": "ju",
           "я": "ja"
         };
-        if (r in a) return a[r];
+        if (r in t) return t[r];
         return r;
       };
     })();
