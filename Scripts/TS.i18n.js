@@ -8,7 +8,6 @@ webpackJsonp([413], {
           g();
           S();
           C();
-          if (TS.client && TS.client.login_sig) TS.client.login_sig.add(p);
           if (TS.prefs) TS.prefs.keyboard_changed_sig.add(w);
           if (window.signals) TS.i18n.keyboard_changed_sig = new signals.Signal;
           else TS.i18n.keyboard_changed_sig = {
@@ -174,6 +173,9 @@ webpackJsonp([413], {
           r = O(r);
           return r;
         },
+        setUpStaticTranslations: function e() {
+          return p();
+        },
         getStaticTranslation: function e(r, t) {
           if (!U()) return null;
           var a = TS.storage.fetchStaticTranslations();
@@ -303,7 +305,8 @@ webpackJsonp([413], {
       };
       var p = function e() {
         if (!TS.boot_data.feature_localization || TS.i18n.locale() === TS.i18n.DEFAULT_LOCALE) return;
-        if (!U()) TS.api.call("i18n.translations.get").then(function(e) {
+        if (U()) return Promise.resolve();
+        return TS.api.call("i18n.translations.get").then(function(e) {
           var r = e.data;
           if (!r || !r.ok) {
             TS.error("Failed to fetch static i18n translations, recieved this response: ", e);
@@ -327,14 +330,14 @@ webpackJsonp([413], {
         else return "en-US";
         return o;
       };
-      var T = /german/;
-      var h = /french/;
+      var h = /german/;
+      var T = /french/;
       var m = /spanish/;
       var b = /iso/;
       var y = function e(r) {
         var t = r.toLowerCase();
-        if (T.test(t)) return "de";
-        else if (h.test(t)) return "fr";
+        if (h.test(t)) return "de";
+        else if (T.test(t)) return "fr";
         else if (m.test(t) && b.test(t)) return "es";
         return "en-US";
       };

@@ -104,8 +104,13 @@
                 (You can set additional channels in the next step.){{/t}}
             {{else}}
                 {{#t}}You can set the channels for this multi-channel guest in the next step.{{/t}}
-            {{/if}}
-            {{#if enabling}}{{else}}<p>{{#t}}This change will take effect immediately.{{/t}}</p>{{/if}}
+        {{/if}}
+                {{#if enabling}}
+                {{else}}
+                        <p>{{#feature flag="feature_downgrade_user"}}
+                                {{#t}}Converting a user to a guest will disable any of the apps/integrations they have configured.{{/t}}
+                {{/feature}}{{#t}}This change will take effect immediately.{{/t}}</p>
+                {{/if}}
         </p>
 
         {{#if show_ra_channel_picker}}
@@ -182,7 +187,12 @@
             </label>
         </p>
 
-        {{#if enabling}}{{else}}<p>{{#t}}This change will take effect immediately.{{/t}}</p>{{/if}}
+        {{#if enabling}}
+        {{else}}
+                <p>{{#feature flag="feature_downgrade_user"}}{{#t}}Converting a user to a guest will disable any of the apps/integrations they have configured.{{/t}}
+                {{/feature}}
+                {{#t}}This change will take effect immediately.{{/t}}</p>
+        {{/if}}
 
         <p class="error_message moscow_red hidden">{{#t}}Oops! There was an error performing your action.{{/t}}</p>
 
