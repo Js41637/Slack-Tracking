@@ -20,11 +20,11 @@
         <select multiple="multiple" id="defaultchannelsmulti" name="defaultchannels[]" class="hidden">
           {{#each channels}}
             {{#isChannelRequired this}}{{else}}
-              <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else if this.is_shared}}data-ts-icon="ts_icon_shared_channels"{{/if}} value="{{this.id}}" {{#if this.is_default}}selected{{/if}} {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
+              <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else}}{{#isModelObExtShared this}}data-ts-icon="ts_icon_shared_channels"{{/isModelObExtShared}}{{/if}} value="{{this.id}}" {{#if this.is_default}}selected{{/if}} {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
             {{/isChannelRequired}}
           {{/each}}
           {{#each groups}}
-            <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else if this.is_shared}}data-ts-icon="ts_icon_shared_channels"{{/if}} value="{{this.id}}">{{this.name}}</option>
+            <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else}}{{#isModelObExtShared this}}data-ts-icon="ts_icon_shared_channels"{{/isModelObExtShared}}{{/if}} value="{{this.id}}">{{this.name}}</option>
           {{/each}}
         </select>
         <span>
@@ -45,10 +45,10 @@
       <div class="full_width">
         <select multiple="multiple" id="defaultchannelsmulti" name="defaultchannels[]" data-placeholder="{{#t}}Choose one or more channels ...{{/t}}">
           {{#each channels}}
-            <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else if this.is_shared}}data-ts-icon="ts_icon_shared_channels"{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
+            <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else}}{{#isModelObExtShared this}}data-ts-icon="ts_icon_shared_channels"{{/isModelObExtShared}}{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
           {{/each}}
           {{#each groups}}
-            <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else if this.is_shared}}data-ts-icon="ts_icon_shared_channels"{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
+            <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else}}{{#isModelObExtShared this}}data-ts-icon="ts_icon_shared_channels"{{/isModelObExtShared}}{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
           {{/each}}
         </select>
       </div>
@@ -66,14 +66,14 @@
           {{#if channels}}
             <optgroup label="{{#t}}Channels{{/t}}">
               {{#each channels}}
-                <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else if this.is_shared}}data-ts-icon="ts_icon_shared_channels"{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
+                <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else}}{{#isModelObExtShared this}}data-ts-icon="ts_icon_shared_channels"{{/isModelObExtShared}}{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>#{{this.name}}</option>
               {{/each}}
             </optgroup>
           {{/if}}
           {{#if groups}}
             <optgroup label="{{#t}}Private Channels{{/t}}">
               {{#each groups}}
-                <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else if this.is_shared}}data-ts-icon="ts_icon_shared_channels"{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
+                <option {{#if this.is_org_shared}}data-ts-icon="ts_icon_shared_channel"{{else}}{{#isModelObExtShared this}}data-ts-icon="ts_icon_shared_channels"{{/isModelObExtShared}}{{/if}} value="{{this.id}}" {{#if_equal this.id compare=../initial_channel_id}}selected{{/if_equal}}>{{this.name}}</option>
               {{/each}}
             </optgroup>
           {{/if}}

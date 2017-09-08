@@ -8,3 +8,10 @@
 [lang=ja-JP] body {
   font-family: NotoSansJP, Slack-Lato, appleLogo, sans-serif
 }
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit
+}
