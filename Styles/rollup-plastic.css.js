@@ -14215,6 +14215,11 @@ body:not(.unify_user) #member_preview_scroller .member_details {
   margin-top: .5rem
 }
 
+#member_preview_scroller .member_details .member_name_and_presence {
+  width: 100%;
+  text-align: center
+}
+
 #member_preview_web_container .member_details {
   max-width: 540px;
   margin: 0 auto
@@ -17168,7 +17173,9 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 
 .lazy_filter_select .lfs_input_container {
   border: 1px solid #A0A0A2;
-  font: 400 1rem Slack-Lato, appleLogo, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: normal;
   position: relative;
   border-radius: .25rem;
   display: block;
@@ -17600,6 +17607,12 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
 .lazy_filter_select.channel_browser_sort .lfs_value,
 .lazy_filter_select.show_which_channels_selector .lfs_value {
   padding: .45rem 2.5rem .55rem 8px
+}
+
+[lang=ja-JP] .lazy_filter_select.channel_browser_sort .lfs_value,
+[lang=ja-JP] .lazy_filter_select.show_which_channels_selector .lfs_value {
+  padding-top: .35rem;
+  padding-bottom: .35rem
 }
 
 .lazy_filter_select.channel_browser_sort input.lfs_input,

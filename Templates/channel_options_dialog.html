@@ -27,11 +27,20 @@
 
         <p class="channel_option_item__copy subtle_silver no_bottom_margin">{{#t}}Shared channels link two workspaces together. People from both sides can send messages, share files, and search the channel\u2019s history.{{/t}}</p>
 
-        {{#if disable_show_share_channel_btn}}
+        {{#if pending_team_name}}
           <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
             {{#t fallback_hash="71f45a79c68bd0a853e36fe6b35007277362517b"}}<strong>{pending_team_name}</strong> was already invited to this channel.{{/t}}
           </div>
         {{/if}}
+
+        {{! Remove this flag check once the strings are translated }}
+        {{#feature flag="feature_shared_channels_new_strings"}}
+          {{#if model_ob.unlinked}}
+            <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
+              {{#t}}This channel was previously shared with another workspace and can\u2019t be shared again.{{/t}}
+            </div>
+          {{/if}}
+        {{/feature}}
 
         {{! Temporarily hidden, while we figure out a way to cancel a pending invitation using the channel ID }}
         <a class="hidden">
