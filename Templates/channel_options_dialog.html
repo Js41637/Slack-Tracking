@@ -21,28 +21,17 @@
   {{! External Shared Channels button }}
   {{#feature flag="feature_shared_channels_client"}}
     {{#if show_share_channel_btn}}
-      <div class="channel_option_item top_padding bottom_padding {{#if disable_show_share_channel_btn}}channel_option_item--disabled{{/if}}"  {{#unless disable_show_share_channel_btn}}data-action="share_channel_btn"{{/unless}}>
-        {{#feature flag="feature_teams_to_workspaces"}}
-          <div class="title bold small_bottom_margin">{{#t}}Share this channel with another workspace{{/t}}</div>
+      {{! TODO - refactor the --disabled styles to be more Slack Kit compliant }}
+      <div class="channel_option_item top_padding bottom_padding {{#if disable_show_share_channel_btn}}channel_option_item--disabled{{/if}}" {{#unless disable_show_share_channel_btn}}data-action="share_channel_btn"{{/unless}}>
+        <div class="title channel_option_item__title bold small_bottom_margin">{{#t}}Share this channel with another workspace{{/t}}</div>
 
-          <p class="subtle_silver no_bottom_margin">{{#t}}Shared channels link two workspaces together. People from both sides can send messages, share files, and search the channel\u2019s history.{{/t}}</p>
-        {{else}}
-          <div class="title bold small_bottom_margin">{{#t}}Share this channel with another team{{/t}}</div>
+        <p class="channel_option_item__copy subtle_silver no_bottom_margin">{{#t}}Shared channels link two workspaces together. People from both sides can send messages, share files, and search the channel\u2019s history.{{/t}}</p>
 
-          <p class="subtle_silver no_bottom_margin">{{#t}}Shared channels link two teams together. People from both sides can send messages, share files, and search the channel\u2019s history.{{/t}}</p>
-        {{/feature}}
-
-        {{! Temporary, while we figure out what the exact design should look like }}
         {{#if disable_show_share_channel_btn}}
-        <div class="link bold greigh small small_top_margin">
-          {{#t}}Another team has been invited to join this channel.{{/t}}
-        </div>
+          <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
+            {{#t fallback_hash="71f45a79c68bd0a853e36fe6b35007277362517b"}}<strong>{pending_team_name}</strong> was already invited to this channel.{{/t}}
+          </div>
         {{/if}}
-
-        {{! Temporarily hidden, while we're waiting on BE to get us the other team's name here }}
-        <div class="hidden">
-          {{#t}}{pending_team_name} was already invited to this channel.{{/t}}
-        </div>
 
         {{! Temporarily hidden, while we figure out a way to cancel a pending invitation using the channel ID }}
         <a class="hidden">
