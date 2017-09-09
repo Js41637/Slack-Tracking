@@ -6,20 +6,6 @@
       data-drag-meta='{{makeFileDragData file}}'
     {{/feature}}>
 
-  {{#sliFileSearchIsEnabled}}
-  {{#feature flag="feature_sli_file_search"}}
-    {{#if show_channel_name}}
-      {{#if_equal file.channels.length compare="1"}}
-        <div class="file_list_item__channel black">{{#t rough-draft="true"}}File in {channel_name}{{/t}}</div>
-      {{else}}
-        {{#if file.channels.length}}
-          <div class="file_list_item__channel black">{{#t rough-draft="true" count=file.channels.length}}File in {channel_name} and {count, plural, =1 {# other channel} other {# other channels}}{{/t}}</div>
-        {{/if}}
-      {{/if_equal}}
-    {{/if}}
-  {{/feature}}
-  {{/sliFileSearchIsEnabled}}
-
   {{#if for_files_list}}
 
     <div class="actions">
