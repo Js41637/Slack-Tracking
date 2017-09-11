@@ -7,7 +7,6 @@
 .btn {
   background: #2ab27b;
   color: #fff;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   line-height: 1.2rem;
   font-weight: 900;
   -webkit-user-select: none;
@@ -183,7 +182,6 @@ a.btn {
 }
 
 .btn_unstyle {
-  font-family: Slack-Lato, appleLogo, sans-serif;
   background: 0 0;
   border: none;
   padding: 0;
@@ -197,7 +195,6 @@ a.btn {
 }
 
 .btn_basic {
-  font-family: Slack-Lato, appleLogo, sans-serif;
   background: 0 0;
   border: none;
   padding: 0;
@@ -217,7 +214,6 @@ a.btn {
 }
 
 .btn_link {
-  font-family: Slack-Lato, appleLogo, sans-serif;
   background: 0 0;
   border: none;
   padding: 0;

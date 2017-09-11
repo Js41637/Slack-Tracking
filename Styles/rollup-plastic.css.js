@@ -4269,8 +4269,7 @@ html.no_touch .alert_page a:hover {
 .ts_tip {
   display: inline-block;
   position: relative;
-  z-index: 1;
-  font-family: Slack-Lato, appleLogo, sans-serif!important
+  z-index: 1
 }
 
 .ts_tip.ts_tip_multiline .ts_tip_tip {
@@ -6674,7 +6673,6 @@ only screen and (min-resolution:2dppx) {
 .loading_hash_animation {
   text-align: center;
   color: #999;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: .9rem;
   margin: 9rem 0
 }
@@ -8878,7 +8876,6 @@ section {
 .btn {
   background: #2ab27b;
   color: #fff;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   line-height: 1.2rem;
   font-weight: 900;
   -webkit-user-select: none;
@@ -9054,7 +9051,6 @@ a.btn {
 }
 
 .btn_unstyle {
-  font-family: Slack-Lato, appleLogo, sans-serif;
   background: 0 0;
   border: none;
   padding: 0;
@@ -9068,7 +9064,6 @@ a.btn {
 }
 
 .btn_basic {
-  font-family: Slack-Lato, appleLogo, sans-serif;
   background: 0 0;
   border: none;
   padding: 0;
@@ -9088,7 +9083,6 @@ a.btn {
 }
 
 .btn_link {
-  font-family: Slack-Lato, appleLogo, sans-serif;
   background: 0 0;
   border: none;
   padding: 0;
@@ -9546,7 +9540,6 @@ textarea {
   color: #555459;
   width: 100%;
   max-width: 100%;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   margin: 0 0 .5rem;
   font-variant-ligatures: none;
   -webkit-transition: box-shadow 70ms ease-out, border-color 70ms ease-out;
@@ -10047,7 +10040,6 @@ textarea.validation_warning:focus {
 .modal {
   box-shadow: 0 4px 16px rgba(0, 0, 0, .5);
   border-radius: .5rem;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   border: none
 }
 
@@ -12885,7 +12877,6 @@ a.c-tabs__tab--plastic:focus {
   border: 0;
   padding: 0 0 .75rem;
   font-size: .85rem;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   line-height: 20px;
   color: #9e9ea6;
   display: inline-block;
