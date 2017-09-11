@@ -64,15 +64,15 @@
         </p>
         <p class="user_group_actions small no_bottom_margin">
           {{#if show_toggle}}
-            <button class="user_group_toggle_btn btn_icon btn_outline btn ts_icon ts_icon_disable ts_tip ts_tip_bottom" title="{{#t note="title for button to disable a group"}}Disable{{/t}}" data-action="disable_user_group"><span class="ts_tip_tip">{{#t note="button to disable a group"}}Disable group{{/t}}</span></button>
+            <button class="user_group_toggle_btn btn_icon btn_outline btn ts_icon ts_icon_disable ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline" title="{{#t note="title for button to disable a group"}}Disable{{/t}}" data-action="disable_user_group"><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{#t note="button to disable a group"}}Disable group{{/t}}</span></span></button>
           {{/if}}
 
-          <button class="btn_icon btn_outline btn ts_icon ts_icon_cog_o ts_tip ts_tip_bottom" title="{{#t note="title for button to edit group information"}}Settings{{/t}}" data-action="open_form"><span class="ts_tip_tip">{{#t note="button to edit group information"}}Edit group info{{/t}}</span></button>
+          <button class="btn_icon btn_outline btn ts_icon ts_icon_cog_o ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline" title="{{#t note="title for button to edit group information"}}Settings{{/t}}" data-action="open_form"><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{#t note="button to edit group information"}}Edit group info{{/t}}</span></span></button>
 
           {{#or user_group.auto_type user_group.is_external}}
-            <button class="btn_icon btn_outline btn ts_icon ts_icon_user ts_tip ts_tip_left" title="{{#t note="title for button to show a list of group members"}}Members{{/t}}" data-action="edit_members"><span class="ts_tip_tip">{{#t note="button to show a list of group members"}}View group members{{/t}}</span></button>
+            <button class="btn_icon btn_outline btn ts_icon ts_icon_user ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline" title="{{#t note="title for button to show a list of group members"}}Members{{/t}}" data-action="edit_members"><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{#t note="button to show a list of group members"}}View group members{{/t}}</span></span></button>
           {{else}}
-            <button class="btn_icon btn_outline btn ts_icon ts_icon_user ts_tip ts_tip_left" title="{{#t note="title for button to edit group members"}}Members{{/t}}" data-action="edit_members"><span class="ts_tip_tip">{{#t note="button to edit group members"}}Edit group members{{/t}}</span></button>
+            <button class="btn_icon btn_outline btn ts_icon ts_icon_user ts_tip ts_tip_bottom ts_tip_float ts_tip_multiline" title="{{#t note="title for button to edit group members"}}Members{{/t}}" data-action="edit_members"><span class="ts_tip_tip"><span class="ts_tip_multiline_inner">{{#t note="button to edit group members"}}Edit group members{{/t}}</span></span></button>
           {{/or}}
         </p>
       </div>

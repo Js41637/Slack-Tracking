@@ -431,7 +431,7 @@ a.btn {
   background-color: transparent;
   border: 1px solid rgba(160, 160, 162, .5);
   color: #565759;
-  max-width: 150px;
+  max-width: 220px;
   font-size: 13px;
   font-weight: 700;
   height: 30px;

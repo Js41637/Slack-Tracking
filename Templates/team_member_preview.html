@@ -139,7 +139,7 @@
             {{/if}}
           {{/if}}
           {{#isClient}}
-            {{#if show_call_action}}<a class="btn btn_outline internal_im_call_link" data-member-name="{{member.name}}">{{#t}}Call{{/t}}</a>{{/if}}
+            {{#if show_call_action}}<a class="btn btn_outline internal_im_call_link" data-member-id="{{member.id}}">{{#t}}Call{{/t}}</a>{{/if}}
             {{#feature flag="feature_name_tagging_client"}}
               <a href="/messages/@{{member.id}}" target="/messages/@{{member.id}}" data-member-id="{{member.id}}" class="btn btn_outline internal_im_link">{{#t}}Message{{/t}}</a>
             {{else}}
