@@ -370,7 +370,7 @@ webpackJsonp([413], {
         "\\": {
           es: "¡",
           fr: "`",
-          de: "+"
+          de: "#"
         },
         ".": {
           fr: ";"
@@ -387,7 +387,7 @@ webpackJsonp([413], {
         },
         220: {
           es: 187,
-          de: 221
+          de: 222
         }
       };
       var C = function e() {
