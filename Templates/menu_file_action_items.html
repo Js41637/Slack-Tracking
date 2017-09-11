@@ -19,7 +19,9 @@
 {{/if}}
 
 {{#if actions.comment}}
-  <li id="comment_file" data-file-id="{{file.id}}" role="menuitem"><a>{{#t note="Comment on a file"}}Comment{{/t}}</a></li>
+  {{#unless external_file_author}}
+    <li id="comment_file" data-file-id="{{file.id}}" role="menuitem"><a>{{#t note="Comment on a file"}}Comment{{/t}}</a></li>
+  {{/unless}}
 {{/if}}
 
 {{#if info_pane_visible}}
