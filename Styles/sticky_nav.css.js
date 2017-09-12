@@ -499,7 +499,7 @@ nav.top.apps_nav #mobile_search #mobile_search_close:hover {
 
 #signup_dropdown ul {
   max-height: 340px;
-  width: 260px;
+  width: 360px;
   margin: .25rem
 }
 
@@ -522,7 +522,7 @@ nav.top.apps_nav #mobile_search #mobile_search_close:hover {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  max-width: 190px;
+  max-width: 300px;
   display: inline-block;
   font-weight: 700
 }

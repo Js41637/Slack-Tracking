@@ -7910,7 +7910,7 @@ header #header_team_nav {
   background: #fff;
   list-style: none;
   margin: 0;
-  min-width: 260px;
+  min-width: 330px;
   padding: .25rem;
   border: 1px solid #DDD;
   border-radius: .25rem;
@@ -7933,7 +7933,7 @@ header #header_team_nav li a .team_name {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  max-width: 160px;
+  max-width: 270px;
   display: inline-block
 }
 
@@ -7942,7 +7942,7 @@ header #header_team_nav li a .switcher_label {
   text-overflow: ellipsis;
   overflow: hidden;
   white-space: nowrap;
-  max-width: 185px;
+  max-width: 300px;
   display: inline-block
 }
 
@@ -7959,7 +7959,7 @@ header #header_team_nav li a .active_icon {
 }
 
 header #header_team_nav li a .active_icon~.switcher_label {
-  max-width: 155px
+  max-width: 220px
 }
 
 header #header_team_nav li.active a {
