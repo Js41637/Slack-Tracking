@@ -32,12 +32,14 @@
   {{else}}
     {{#unless member.is_restricted}}
       {{#if member.deleted}}
-        <div class="member_restriction_banner">
-          <span class="overflow_ellipsis lato_black">
-            <i aria-hidden="true" class="ts_icon ts_icon_archived_channel"></i>
-            {{#t note="Refers to deactivated account"}}This account is deactivated{{/t}}
-          </span>
-        </div>
+        {{#unless member.is_external}}
+          <div class="member_restriction_banner">
+            <span class="overflow_ellipsis lato_black">
+              <i aria-hidden="true" class="ts_icon ts_icon_archived_channel"></i>
+              {{#t note="Refers to deactivated account"}}This account is deactivated{{/t}}
+            </span>
+          </div>
+        {{/unless}}
       {{/if}}
     {{/unless}}
   {{/isWeb}}
@@ -47,7 +49,11 @@
   <div class="member_name_and_presence lato">
     {{#feature flag="feature_name_tagging_client"}}
       {{#if member.deleted}}
-        <a href="/team/{{member.id}}" target="{{newWindowName}}" class="member_name">{{getMemberRealName member}}</a>
+        {{#if member.is_external}}
+          <span class="member_name">{{getMemberRealName member}}</a>
+        {{else}}
+          <a href="/team/{{member.id}}" target="{{newWindowName}}" class="member_name">{{getMemberRealName member}}</a>
+        {{/if}}
       {{else}}
         {{#if member.is_self}}
           {{#isClient}}

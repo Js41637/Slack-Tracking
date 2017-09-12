@@ -35,14 +35,11 @@
           </div>
         {{/if}}
 
-        {{! Remove this flag check once the strings are translated }}
-        {{#feature flag="feature_shared_channels_new_strings"}}
-          {{#if model_ob.unlinked}}
-            <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
-              {{#t}}This channel was previously shared with another workspace and can\u2019t be shared again.{{/t}}
-            </div>
-          {{/if}}
-        {{/feature}}
+        {{#if model_ob.unlinked}}
+          <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
+            {{#t}}This channel was previously shared with another workspace and can\u2019t be shared again.{{/t}}
+          </div>
+        {{/if}}
 
         {{! Temporarily hidden, while we figure out a way to cancel a pending invitation using the channel ID }}
         <a class="hidden">
