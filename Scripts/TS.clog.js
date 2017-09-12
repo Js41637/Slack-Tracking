@@ -8,10 +8,10 @@ webpackJsonp([456], {
           var e = 3e4;
           var r = 5e3;
           var o = Math.floor(Math.random() * r);
-          setInterval(g, e + o);
-          $(window).on("beforeunload pagehide", g);
-          $("body").on("click", '[data-clog-click="true"], [data-clog-ui-action="click"], [data-clog-event=WEBSITE_CLICK]', v);
-          p();
+          setInterval(f, e + o);
+          $(window).on("beforeunload pagehide", f);
+          $("body").on("click", '[data-clog-click="true"], [data-clog-ui-action="click"], [data-clog-event=WEBSITE_CLICK]', d);
+          S();
           TS.clog.flush();
         },
         setUser: function t(e) {
@@ -23,31 +23,34 @@ webpackJsonp([456], {
         setEnterprise: function t(e) {
           i = e;
         },
+        setLocale: function t(e) {
+          l = e;
+        },
         toggleDebugMode: function t() {
           s = !s;
           return s;
         },
         track: function t(e, r) {
-          u(e, r);
+          g(e, r);
         },
         trackClick: function t(e, r, a) {
           $(e).on("click", function() {
-            u(r, a);
+            g(r, a);
           });
         },
         trackForm: function t(e, r, a) {
           $(e).on("submit", function() {
-            u(r, a);
+            g(r, a);
           });
         },
         flush: function t() {
-          g();
+          f();
         },
         test: function e() {
           return {
-            createLogURLs: f,
-            sendDataAndEmptyQueue: g,
-            detectClogEndpoint: l,
+            createLogURLs: v,
+            sendDataAndEmptyQueue: f,
+            detectClogEndpoint: u,
             getLogs: function t() {
               return o;
             },
@@ -82,8 +85,9 @@ webpackJsonp([456], {
       var n;
       var i;
       var c;
+      var l;
       var s = false;
-      var l = function e(r) {
+      var u = function e(r) {
         var a = r.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
         var o = r.match(/^([^.]+\.)?(?:enterprise\.)?(qa[0-9]*)\.slack\.com/);
         var n = r.match(/^([^.]+\.)?(?:enterprise\.)?(staging)\.slack\.com/);
@@ -92,33 +96,34 @@ webpackJsonp([456], {
         else if (n) t = "https://staging.slack.com/clog/track/";
         else t = "https://slack.com/clog/track/";
       };
-      var u = function t(e, l) {
+      var g = function t(e, u) {
         if ("string" !== typeof e) return;
-        if (!l) l = null;
-        var u = {
+        if (!u) u = null;
+        var g = {
           tstamp: Date.now(),
           event: e,
-          args: l
+          args: u
         };
-        p();
-        if (n) u.team_id = n;
-        if (i) u.enterprise_id = i;
-        if (c) u.user_id = c;
-        o.push(u);
+        S();
+        if (n) g.team_id = n;
+        if (i) g.enterprise_id = i;
+        if (c) g.user_id = c;
+        if (l) g.i18n_locale = l;
+        o.push(g);
         if (TS.log) {
-          if (s) TS.console.log(r, u);
-          if (TS.has_pri[a]) TS.log(a, "Event called:", e, l);
+          if (s) TS.console.log(r, g);
+          if (TS.has_pri[a]) TS.log(a, "Event called:", e, u);
         } else if (s) try {
-          console.log(u);
+          console.log(g);
         } catch (t) {}
       };
-      var g = function t() {
+      var f = function t() {
         if (0 === o.length) return;
         if (TS.log && TS.has_pri[a]) {
           TS.log(a, "Sending clog data, emptying queue");
           TS.log(a, "Logs: ", o);
         }
-        var e = f(o);
+        var e = v(o);
         var r;
         for (var n = 0; n < e.length; n += 1) {
           r = e[n];
@@ -128,30 +133,30 @@ webpackJsonp([456], {
         }
         o = [];
       };
-      var f = function r(o) {
-        if (!t) l(location.host);
+      var v = function r(o) {
+        if (!t) u(location.host);
         var n = [];
         var i = [];
         var c = "";
-        var s = function e(r) {
+        var l = function e(r) {
           return t + "?logs=" + encodeURIComponent(JSON.stringify(r));
         };
-        var u;
+        var s;
         for (var g = 0; g < o.length; g += 1) {
-          u = o[g];
-          i.push(u);
-          c = s(i);
+          s = o[g];
+          i.push(s);
+          c = l(i);
           if (c.length > e) {
             i.pop();
-            n.push(s(i));
-            i = [u];
+            n.push(l(i));
+            i = [s];
           }
         }
-        n.push(s(i));
+        n.push(l(i));
         if (TS.log && TS.has_pri[a]) TS.log(a, "URLs:", n);
         return n;
       };
-      var v = function t() {
+      var d = function t() {
         var e = this.getAttribute("data-clog-event");
         if (!e) {
           if (TS.warn) TS.warn("Logging clicks with data-clog-click requires a data-clog-event attribute");
@@ -176,10 +181,10 @@ webpackJsonp([456], {
           case "WEBSITE_CLICK":
             a.page_url = location.href;
         }
-        r = d(a, r);
+        r = p(a, r);
         TS.clog.track(e, r);
       };
-      var d = function t(e, r) {
+      var p = function t(e, r) {
         var a = {};
         Object.keys(e).forEach(function(t) {
           a[t] = e[t];
@@ -189,12 +194,13 @@ webpackJsonp([456], {
         });
         return a;
       };
-      var p = function t() {
+      var S = function t() {
         if (TS.model) {
           if (TS.model.enterprise && TS.model.enterprise.id) TS.clog.setEnterprise(TS.model.enterprise.id);
           if (TS.model.team && TS.model.team.id) TS.clog.setTeam(TS.model.team.id);
           if (TS.model.user && TS.model.user.id) TS.clog.setUser(TS.model.user.id);
         }
+        if (TS.i18n) TS.clog.setLocale(TS.i18n.locale());
       };
     })();
   }
