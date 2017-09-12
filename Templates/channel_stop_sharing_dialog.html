@@ -24,7 +24,11 @@
     {{> shared_channels_disconnect_channel_expectations}}
 
     <p class="{{#if full_screen}}large_bottom_margin{{else}}no_bottom_margin{{/if}}">
-      {{#t team_names=(makeTeamNameList model_ob.shared_team_ids strong=true) channel_name=(makeModelObNameForDisplay model_ob inherit_font_size=true)}}Are you sure you want to stop sharing <strong>{channel_name}</strong> with {team_names}?{{/t}}
+      {{#if model_ob.shared_team_ids.length}}
+        {{#t team_names=(makeTeamNameList model_ob.shared_team_ids strong=true) channel_name=(makeModelObNameForDisplay model_ob inherit_font_size=true)}}Are you sure you want to stop sharing <strong>{channel_name}</strong> with {team_names}?{{/t}}
+      {{else}}
+        {{#t team_names=(makeTeamNameList model_ob.pending_shared strong=true) channel_name=(makeModelObNameForDisplay model_ob inherit_font_size=true)}}Are you sure you want to stop sharing <strong>{channel_name}</strong> with {team_names}?{{/t}}
+      {{/if}}
     </p>
   </div>
 </div>

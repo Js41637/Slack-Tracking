@@ -17,7 +17,7 @@
       </span>
     {{/if}}
     <span class="attachment_actions_interactions_inner_wrapper">
-      {{renderAttachmentActions attachment disable_actions}}
+      {{renderAttachmentActions attachment message_ts disable_actions}}
     </span>
     {{#if attachment._pending}}
       {{inlineSaver hide_text=true}}

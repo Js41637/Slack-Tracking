@@ -194,7 +194,7 @@
     {{! Actions }}
     {{#if has_actions}}
       <div class="msg_inline_attachment_row attachment_actions">
-        {{> attachment_actions attachment=attachment enable_slack_action_links=enable_slack_action_links disable_buttons=disable_buttons}}
+        {{> attachment_actions attachment=attachment message_ts=msg.ts enable_slack_action_links=enable_slack_action_links disable_buttons=disable_buttons}}
       </div>
     {{/if}}
 
@@ -202,7 +202,7 @@
     {{#feature flag="feature_shared_channels_client"}}
     {{#if client_buttons}}
       <div class="msg_inline_attachment_row attachment_actions">
-        {{> attachment_actions attachment=client_buttons}}
+        {{> attachment_actions attachment=client_buttons message_ts=msg.ts}}
       </div>
     {{/if}}
     {{/feature}}

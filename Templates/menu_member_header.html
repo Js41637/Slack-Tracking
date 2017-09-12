@@ -122,12 +122,14 @@
 
     {{#unless member.is_restricted}}
       {{#if member.deleted}}
-        <div class="member_restriction_over_image">
-          <span class="overflow_ellipsis lato_black">
-            <i aria-hidden="true" class="ts_icon ts_icon_archived_channel"></i>
-            {{#t note="Refers to deactivated account"}}This account is deactivated{{/t}}
-          </span>
-        </div>
+        {{#unless member.is_external}}
+          <div class="member_restriction_over_image">
+            <span class="overflow_ellipsis lato_black">
+              <i aria-hidden="true" class="ts_icon ts_icon_archived_channel"></i>
+              {{#t note="Refers to deactivated account"}}This account is deactivated{{/t}}
+            </span>
+          </div>
+        {{/unless}}
       {{/if}}
     {{/unless}}
 
