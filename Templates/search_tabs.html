@@ -5,24 +5,21 @@
   <div id="search_filters" class="{{searchFilter}}" role="tablist">
     {{#feature flag="feature_sli_file_search"}}
       {{#if show_all_tab}}
-        <button type="button" role="tab" id="filter_all" class="btn_unstyle tab" onclick="TS.search.setFilter('all'); return false;">{{#t rough-draft=true}}All{{/t}}</button>
+        <button type="button" role="tab" id="filter_all" class="btn_unstyle tab" onclick="TS.search.setFilter('all'); return false;">
+          {{#t note="A label for the All tab in search"}}All{{/t}}
+        </button>
       {{/if}}
     {{/feature}}
     <button type="button" role="tab" class="btn_unstyle tab" id="filter_messages" onclick="TS.search.setFilter('messages');">
-      <span class="tab_label">{{#t note="A label for the Messages tab in search" rough-draft="true"}}Messages{{/t}}</span>
+      <span class="tab_label">{{#t note="A label for the Messages tab in search"}}Messages{{/t}}</span>
     </button>
     <button type="button" role="tab" class="btn_unstyle tab" id="filter_files" onclick="TS.search.setFilter('files');">
-      <span class="tab_label">{{#t note="A label for the Files tab in search" rough-draft="true"}}Files{{/t}}</span>
+      <span class="tab_label">{{#t note="A label for the Files tab in search"}}Files{{/t}}</span>
     </button>
   </div>
 {{/feature}}
 {{else}}
   <div id="search_filters" class="{{searchFilter}}" role="tablist">
-    {{#feature flag="feature_sli_file_search"}}
-      {{#if show_all_tab}}
-        <button type="button" role="tab" id="filter_all" class="btn_unstyle tab" onclick="TS.search.setFilter('all'); return false;">{{#t rough-draft=true}}All{{/t}}</button>
-      {{/if}}
-    {{/feature}}
     <button type="button" role="tab" class="btn_unstyle tab" id="filter_messages" onclick="TS.search.setFilter('messages');">
       <span class="tab_label">{{#t note="A message count label that shows next to search results. For example, Messages (5)"}}Messages ({messages_count}){{/t}}</span>
     </button>
