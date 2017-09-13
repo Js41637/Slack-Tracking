@@ -31,9 +31,9 @@
 
     {{#shouldUseUnifiedMemberDisplay}}
       {{#feature flag="feature_name_tagging_client"}}
-        {{> c-member member=member size="small" avatar=true context="not_in_channel" not_channel_member=member_does_not_belong_to_channel force_display_name_as_primary=true }}
+        {{> c-member member=member size="small" avatar=true context="not_in_channel" not_channel_member=member_does_not_belong_to_channel forced_primary="display_name" }}
       {{else}}
-        {{> c-member member=member size="small" avatar=true context="not_in_channel" not_channel_member=member_does_not_belong_to_channel force_display_name_as_primary=false }}
+        {{> c-member member=member size="small" avatar=true context="not_in_channel" not_channel_member=member_does_not_belong_to_channel }}
       {{/feature}}
     {{else}}
       {{#if result.member.presence}}

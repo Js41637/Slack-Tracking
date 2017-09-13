@@ -89,20 +89,6 @@
   transition: background .5s
 }
 
-#monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_bar {
-  visibility: hidden;
-  background: #453744
-}
-
-#monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_handle_inner {
-  border: 3px solid #453744;
-  background: #937e90
-}
-
-#col_channels:hover #monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_bar {
-  visibility: visible
-}
-
 .monkey_scroller {
   overflow-x: hidden
 }
@@ -13236,27 +13222,6 @@ h1 .presence {
 
 h3 .presence {
   margin-bottom: .1rem
-}
-
-#channels_scroller .presence.active {
-  color: #38978D
-}
-
-#channels_scroller .presence.away {
-  color: inherit
-}
-
-#channels_scroller.show_which_channel_is_active li.member.active .presence {
-  color: #fff
-}
-
-#channels_scroller.show_which_channel_is_active li.member.active .presence.away {
-  color: #625361;
-  box-shadow: none;
-  text-shadow: 1px 1px rgba(0, 0, 0, .1);
-  opacity: 1;
-  -moz-opacity: 1;
-  -khtml-opacity: 1
 }
 
 .feature_name_tagging_client .team_list_item .member_name {

@@ -1,237 +1,67 @@
-  {!-- DEPRECATED_FILE_NOTICE: This file can be deleted once feature_react_sidebar is released. --}
-  <style type="text/css" id="sidebar_theme_css">
+{!--
+ * This file is used to theme sidebar elements that haven't been ported to React.
+ * It is deprecated by js/modern/components/channel-sidebar/theme.jsx
+ * Yes: this needs to be improved, but this can't be removed until
+ * the team menu header block is converted to React (it's also themed).
+ --}
+<style type="text/css" id="sidebar_theme_css">
 
-    /* Column Background */
-    .client_channels_list_container {
-      background: {{theme.column_bg}};
-    }
-    #monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_handle_inner {
-      border-color: {{theme.column_bg}};
-    }
+  /* Column Background */
+  .client_channels_list_container {
+    background: {{theme.column_bg}};
+  }
 
-    /* Menu Background */
-    #team_menu {
-      color: {{theme.text_color}};
-      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
-    }
-    #team_menu,
-    #quick_switcher_btn,
-    #team_menu_overlay,
-    #col_channels_overlay {
-      border-color: {{theme.column_bg}};
-    }
-    body:not(.loading) #team_menu:hover,
-    body:not(.loading) #team_menu.active {
-      background: {{theme.menu_bg}};
-      border-color: {{theme.menu_bg}};
-    }
+  /* Menu Background */
+  #team_menu {
+    color: {{theme.text_color}};
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.25);
+  }
+  #team_menu,
+  #team_menu_overlay {
+    border-color: {{theme.column_bg}};
+  }
+  body:not(.loading) #team_menu:hover,
+  body:not(.loading) #team_menu.active {
+    background: {{theme.menu_bg}};
+    border-color: {{theme.menu_bg}};
+  }
 
-    /* Active Item */
-    #channels_scroller.show_which_channel_is_active ul li.active .primary_action,
-    #channels_scroller.show_which_channel_is_active ul li.active .primary_action.im_name > *:not(.unread_highlights) {
-      background: {{theme.active_item}};
-      opacity: 1;
-      color: {{theme.active_item_text}} !important;
-    }
-    #channels_scroller.show_which_channel_is_active ul li.active .unread_highlights {
-      color: {{theme.active_item}};
-    }
-    #channel_scroll_up {
-      box-shadow: 0 1px 1px rgba(0,0,0,0.25), inset 0px 2px 2px rgba(0,0,0,0.1)
-    }
-    #channel_scroll_down {
-      box-shadow: 0 -1px 1px rgba(0,0,0,0.25), inset 0px -2px 2px rgba(0,0,0,0.1)
-    }
+  /* Text Color */
+  #team_menu:before,
+  #team_menu .notifications_menu_btn,
+  #team_menu .team_name_caret,
+  #team_menu_user_name {
+    color: {{theme.text_color}} !important;
+    opacity: 0.6;
+  }
+  #team_menu_user,
+  #team_menu_user_details .current_status ts-icon {
+    color: {{theme.text_color}};
+  }
 
-    /* Hovered Item */
-    .channels_list_holder ul li .primary_action:not(.im_name):hover,
-    .channels_list_holder ul li .primary_action.im_name:hover > .im_name_background,
-    #monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_bar {
-      background: {{theme.hover_item}};
-    }
-    /* Separated b/c FF will drop all rules since it doesn't recognize -webkit-scrollbar
-     * Note: when we have slim scrollbar, we do not want a track, so increasing specificity
-     *       will remove increased specificity once feature_slim_scrollbar is 100% GA
-     */
-    .supports_custom_scrollbar:not(.slim_scrollbar) #channels_scroller::-webkit-scrollbar-track,
-    .supports_custom_scrollbar.slim_scrollbar #channels_scroller::-webkit-scrollbar-track,
-    .supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-track {
-      background: transparent;
-      color: transparent;
-    }
+  #team_menu:hover:before,
+  #team_menu.active:before,
+  #team_menu:hover .team_name_caret,
+  #team_menu.active .team_name_caret,
+  #team_menu:hover #team_menu_user_name,
+  #team_menu:hover .current_user_current_status {
+    opacity: 1;
+  }
 
-    /* TODO: will remove once feature_slim_scrollbar is 100% GA */
-    .supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller::-webkit-scrollbar-track,
-    .supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-track {
-      background: {{theme.hover_item}};
-      color: {{theme.column_bg}};
-    }
 
-    /* Text Color */
-    .channels_list_holder ul li .primary_action:not(.im_name),
-    .channels_list_holder ul li .primary_action.im_name > *:not(.unread_highlights),
-    .channels_list_holder h2,
-    .list_more,
-    #team_menu:before,
-    #team_menu .notifications_menu_btn,
-    #team_menu .team_name_caret,
-    #channels_scroller.show_which_channel_is_active ul li.active .primary_action .prefix,
-    #team_menu_user_name,
-    .channels_list_holder ul li.unread .prefix,
-    .channels_list_holder .im_close,
-    .channels_list_holder .mpim_close,
-    .channels_list_holder .group_close,
-    #quick_switcher_btn > i {
-      color: {{theme.text_color}} !important;
-      opacity: 0.6;
-    }
-    #team_menu_user,
-    #team_menu_user_details .current_status ts-icon,
-    .channels_list_holder ul li .im_name.primary_action .current_status ts-icon {
-      color: {{theme.text_color}};
-    }
-    /* styles for experiment #feat-link-in-sidebar: Quick Switcher button at bottom of channel list */
-    #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar {
-      border-color: {{theme.text_color}} !important;
-      opacity: 0.9;
-    }
-    #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar > i {
-      color: {{theme.text_color}} !important;
-      opacity: 1;
-    }
-    .dim + #quick_switcher_btn {
-      opacity: 0.6;
-    }
-    #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:hover, #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:focus {
-      opacity: 1;
-    }
-    #quick_switcher_btn.quick_switcher_btn_feat_link_in_sidebar:active {
-      background-color: {{theme.menu_bg}} !important;
-      opacity: 1;
-    }
-    .channel_list_add_link {
-      color: {{theme.text_color}} !important;
-    }
-    .channel_list_add_link:hover {
-      border-color: {{theme.text_color}};
-    }
-    /* styles for experiment #feat-link-in-sidebar: 'Invite People' button at bottom of channel list */
-    .channel_list_add_link_feat_link_in_sidebar {
-      color: {{theme.text_color}} !important;
-      border-color: {{theme.text_color}} !important;
-      opacity: 0.9;
-    }
-    .channel_list_add_link_feat_link_in_sidebar.dim {
-      opacity: 0.6;
-    }
-    .channel_list_add_link_feat_link_in_sidebar:hover, .channel_list_add_link_feat_link_in_sidebar:focus {
-      opacity: 1;
-    }
-    .channel_list_add_link_feat_link_in_sidebar:active {
-      background-color: {{theme.menu_bg}} !important;
-    }
-    .overlay_mock_text{
-      background: {{theme.text_color}} !important;
-    }
-    #team_menu:hover:before,
-    #team_menu.active:before,
-    .channels_list_holder h2.hoverable:hover,
-    #team_menu:hover .team_name_caret,
-    #team_menu.active .team_name_caret,
-    #team_menu:hover #team_menu_user_name,
-    #team_menu:hover .current_user_current_status,
-    .invite_widget_link:hover {
-      opacity: 1;
-    }
-    #channels_scroller.show_which_channel_is_active ul li.active .primary_action .prefix {
-      color: {{theme.active_item_text}} !important;
-    }
-    .list_more:hover {
-      color: {{theme.text_color}} !important;
-      border-bottom-color: {{theme.text_color}};
-    }
+  /* Presence */
+  #team_menu #presence.active:before {
+    color: {{theme.active_presence}};
+    opacity: 1;
+  }
 
-    .channels_list_holder ul li.unread .primary_action,
-    .channels_list_holder ul li.unread .primary_action.im_name > *,
-    .channels_list_holder ul li .channels_list_new_btn:hover {
-      opacity: 1 !important;
-    }
+  /* Badge + Mentions bar */    
+   ts-jumper ol li .unread_count {
+     background: {{theme.badge}};    
+   }
 
-    #monkey_scroll_wrapper_for_channels_scroller .monkey_scroll_handle_inner {
-      background: {{theme.text_color}};
-      opacity: 0.7;
-    }
-    /* Separated b/c FF will drop all rules since it doesn't recognize -webkit-scrollbar */
-    /* Will remove increased specificity once feature_slim_scrollbar is 100% GA */
-    .supports_custom_scrollbar:not(.slim_scrollbar) #channels_scroller::-webkit-scrollbar-thumb,
-    .supports_custom_scrollbar.slim_scrollbar #channels_scroller::-webkit-scrollbar-thumb {
-      background: transparent;
-      color: transparent;
-    }
-    /* Temporarily increasing specificity by adding .slim_scrollbar to override default theme styling.
-     * Will remove increased specificity once feature_slim_scrollbar is 100% GA
-     */
-    .supports_custom_scrollbar:not(.slim_scrollbar) #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb,
-    .supports_custom_scrollbar.slim_scrollbar #col_channels:hover #channels_scroller::-webkit-scrollbar-thumb {
-      background: rgba({{theme.text_color_rgb.r}}, {{theme.text_color_rgb.g}}, {{theme.text_color_rgb.b}}, .7);
-      color: {{theme.column_bg}};
-    }
-
-    /* Presence */
-    #channels_scroller .presence.active i.presence_icon,
-    #channel_header #presence.active:before,
-    #team_menu #presence.active:before,
-    .slackbot_icon {
-      color: {{theme.active_presence}};
-      opacity: 1;
-    }
-
-    #channels_scroller.show_which_channel_is_active li.active .presence.active i.presence_icon,
-    #channels_scroller.show_which_channel_is_active li.active .slackbot_icon {
-      color: {{theme.active_item_text}} !important;
-    }
-
-    /* Override for Hoth Theme presence dot on selected item. Fixes Bug #7154 */
-    .sidebar_theme_hoth_theme #channels_scroller.show_which_channel_is_active li.active .presence.active i.presence_icon,
-    .sidebar_theme_hoth_theme #channels_scroller.show_which_channel_is_active li.active .slackbot_icon {
-      color: {{theme.active_presence}} !important;
-    }
-
-    #channels_scroller.show_which_channel_is_active li.active .presence.away i.presence_icon {
-      color: {{theme.active_item_text}} !important;
-      opacity: 0.3;
-    }
-    #channels_scroller .presence.away,
-    #channels_scroller .presence.away,
-    #channel_header #presence.away:before {
-      color: {{theme.text_color}};
-      opacity: 0.3;
-    }
-
-    /* Badge + Mentions bar */
-    .channels_list_holder .unread_highlights,
-    #channel_scroll_up.unseen_have_mentions,
-    #channel_scroll_down.unseen_have_mentions,
-    ts-jumper ol li .unread_count {
-      background: {{theme.badge}};
-    }
-
-    /* No text shadows */
-    #col_channels a,
-    #team_menu {
-      text-shadow: none !important;
-    }
-
-    .client_channels_list_container .focus-ring {
-            /* we want !important here because we want to override the generic
-             * `.focus-ring` color applied in client_layout.source.less
-             * such that focus outline matches the sidebar text theme
-             */
-      box-shadow: inset 0 0 0 3px {{theme.text_color}};
-    }
-
-    .client_channels_list_container.focusablesection:focus .sectionfocusindicator {
-      box-shadow: inset 0 0 0 3px {{theme.text_color}};
-    }
-
-  </style>
+  /* No text shadows */
+  #team_menu {
+    text-shadow: none !important;
+  }
+</style>
