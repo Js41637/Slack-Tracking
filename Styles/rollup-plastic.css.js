@@ -1215,7 +1215,7 @@
 
 @font-face {
   font-family: Slack;
-  src: url(/a425/fonts/slack-icons-Regular.woff2) format('woff2'), url(/a425/fonts/slack-icons-Regular.woff) format('woff');
+  src: url(/42cfe/fonts/slack-icons-Regular.woff2) format('woff2'), url(/42cfe/fonts/slack-icons-Regular.woff) format('woff');
   font-style: normal;
   font-weight: 400
 }
@@ -1700,6 +1700,14 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_paper_plane_alt:before {
   content: '\E099'
+}
+
+.ts_icon_cloud_offline:before {
+  content: '\E0A0'
+}
+
+.ts_icon_cloud_offline_small:before {
+  content: '\E0A1'
 }
 
 .ts_icon_share:before {
@@ -2498,6 +2506,22 @@ svg.ts_icon_spinner svg {
 
 .ts_icon_shared_channels_baseline:before {
   content: '\E568'
+}
+
+.ts_icon_shared_channels_pending:before {
+  content: '\E569'
+}
+
+.ts_icon_shared_channels_baseline_pending:before {
+  content: '\E570'
+}
+
+.ts_icon_cloud_offline_filled:before {
+  content: '\E571'
+}
+
+.ts_icon_cloud_offline_small_filled:before {
+  content: '\E572'
 }
 
 .ts_icon_arrow_right:before {

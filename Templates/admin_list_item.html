@@ -106,6 +106,12 @@
                     {{#unless member.is_bot}}
                         <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}} {{member.profile.email}}"{{/if}}>{{member.profile.email}}</span>
                     {{/unless}}
+                    {{#or member.is_restricted member.is_ultra_restricted}}
+                        {{#if guest_expiration_str}}
+                            <br/>
+                            <span class="no_wrap" title="{{#t}}Time limit{{/t}}">{{guest_expiration_str}}</span>
+                        {{/if}}
+                    {{/or}}
                 </span>
             {{else}}
                 <span class="admin_member_display_name_and_email">
@@ -118,6 +124,12 @@
                     {{#unless member.is_bot}}
                         <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}} {{member.profile.email}}"{{/if}}>{{member.profile.email}}</span>
                     {{/unless}}
+                    {{#or member.is_restricted member.is_ultra_restricted}}
+                        {{#if guest_expiration_str}}
+                            <br/>
+                            <span class="no_wrap" title="{{#t}}Time limit{{/t}}">{{guest_expiration_str}}</span>
+                        {{/if}}
+                    {{/or}}
                 </span>
             {{/feature}}
         {{else}}

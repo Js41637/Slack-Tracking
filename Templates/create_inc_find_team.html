@@ -2,7 +2,7 @@
 
 <div id="find_team">
   {{#feature flag="feature_teams_to_workspaces"}}
-    <span>{{#t fallback_hash="d34fb0ef0b741f1f1f9b00df1bdfa28c607237ce"}}Looking to join an existing workspace?</span> <a href="/get-started" id="find_team_link">Find your workspace.{{/t}}</a>
+    <span>{{#t}}Looking to join an existing workspace?</span> <a href="/get-started" id="find_team_link">Find your workspace.{{/t}}</a>
   {{else}}
     <span>{{#t}}Looking to join an existing team?</span> <a href="/get-started" id="find_team_link">Find your team.{{/t}}</a>
   {{/feature}}
