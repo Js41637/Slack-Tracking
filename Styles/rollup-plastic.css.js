@@ -9565,8 +9565,7 @@ input[type=file] {
   font-size: 12px;
   line-height: 12px;
   width: auto;
-  font-weight: 400;
-  font-family: sans-serif
+  font-weight: 400
 }
 
 .no_touch .plastic_select:hover,
@@ -13247,7 +13246,6 @@ h3 .presence {
 .team_list_item {
   line-height: 1.25rem;
   color: #555459;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   position: relative;
   clear: both;
   -webkit-user-select: text;
@@ -13318,7 +13316,6 @@ body:not(.unify_user) .team_list_item .member_image {
 
 .team_list_item .member_name {
   font-weight: 900;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   font-size: 1.125rem;
   color: #555459;
   display: inline-block;
@@ -13480,7 +13477,6 @@ body:not(.unify_user) .team_list_item .member_image {
 
 .filter_header {
   background-color: #E8E8E8;
-  font-family: Slack-Lato, appleLogo, sans-serif;
   line-height: 1.5rem;
   font-size: .9375rem;
   padding: 0 .5rem;
@@ -13845,7 +13841,6 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 }
 
 .current_status_input_container:not(.current_status_input_for_edit_profile) {
-  font-family: Slack-Lato, appleLogo, sans-serif;
   min-height: 36px
 }
 

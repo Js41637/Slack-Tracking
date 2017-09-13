@@ -28,9 +28,13 @@
         {{#pageNeedsEnterprise}}
           <option {{#if_equal sort_by_selected compare="org_shared"}}selected{{/if_equal}} value="org_shared">{{#t}}Shared channels{{/t}}</option>
         {{/pageNeedsEnterprise}}
-        {{#sharedChannelsEnabled}}
+        {{#pageNeedsEnterprise}}
           <option {{#if_equal sort_by_selected compare="local"}}selected{{/if_equal}} value="local">{{#t team_name=(currentTeamName)}}{team_name} channels{{/t}}</option>
-        {{/sharedChannelsEnabled}}
+        {{else}}
+          {{#sharedChannelsEnabled}}
+            <option {{#if_equal sort_by_selected compare="local"}}selected{{/if_equal}} value="local">{{#t team_name=(currentTeamName)}}{team_name} channels{{/t}}</option>
+          {{/sharedChannelsEnabled}}
+        {{/pageNeedsEnterprise}}
         <option {{#if_equal sort_by_selected compare="archived"}}selected{{/if_equal}} value="archived">{{#t}}Archived channels{{/t}}</option>
         {{#sharedChannelsEnabled}}
           {{! show filter options for individual external teams if there are more than one }}
