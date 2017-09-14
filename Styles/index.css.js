@@ -98,7 +98,7 @@ a.btn {
 .btn_outline.btn_transparent:active,
 .btn_outline.btn_transparent:focus,
 .btn_outline.btn_transparent:hover {
-  color: #007AB8!important;
+  color: #0576B9!important;
   background: rgba(255, 255, 255, .9)!important
 }
 
@@ -120,7 +120,7 @@ a.btn {
 .btn_outline:focus,
 .btn_outline:hover {
   background: #fff;
-  color: #007AB8!important
+  color: #0576B9!important
 }
 
 .btn_outline.hover:after,
@@ -130,7 +130,7 @@ a.btn {
 }
 
 .btn_outline:active {
-  color: #007AB8
+  color: #0576B9
 }
 
 .btn_outline:active:after {
@@ -224,7 +224,7 @@ a.btn {
   font-weight: inherit;
   line-height: inherit;
   outline: 0;
-  color: #007AB8;
+  color: #0576B9;
   vertical-align: baseline;
   cursor: pointer
 }

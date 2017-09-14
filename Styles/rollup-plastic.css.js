@@ -6018,7 +6018,7 @@ moscow_red_bg {
 }
 
 .blue_link {
-  color: #007AB8
+  color: #0576B9
 }
 
 .blue_hover {
@@ -6194,7 +6194,7 @@ img.grayscale {
 a.mini,
 a.mini:link,
 a.mini:visited {
-  color: #007AB8
+  color: #0576B9
 }
 
 a.mini:active,
@@ -7056,7 +7056,7 @@ h1 i:first-of-type {
 a,
 a:link,
 a:visited {
-  color: #007AB8;
+  color: #0576B9;
   text-decoration: none
 }
 
@@ -7066,7 +7066,7 @@ a.active {
 }
 
 a:active {
-  color: #007AB8
+  color: #0576B9
 }
 
 a.sub_link {
@@ -8977,7 +8977,7 @@ a.btn {
 .btn_outline.btn_transparent:active,
 .btn_outline.btn_transparent:focus,
 .btn_outline.btn_transparent:hover {
-  color: #007AB8!important;
+  color: #0576B9!important;
   background: rgba(255, 255, 255, .9)!important
 }
 
@@ -8999,7 +8999,7 @@ a.btn {
 .btn_outline:focus,
 .btn_outline:hover {
   background: #fff;
-  color: #007AB8!important
+  color: #0576B9!important
 }
 
 .btn_outline.hover:after,
@@ -9009,7 +9009,7 @@ a.btn {
 }
 
 .btn_outline:active {
-  color: #007AB8
+  color: #0576B9
 }
 
 .btn_outline:active:after {
@@ -9103,7 +9103,7 @@ a.btn {
   font-weight: inherit;
   line-height: inherit;
   outline: 0;
-  color: #007AB8;
+  color: #0576B9;
   vertical-align: baseline;
   cursor: pointer
 }
@@ -9960,7 +9960,7 @@ label.validation_warning .validation_message:before {
 
 label.validation_success .validation_message,
 label.validation_success .validation_message:before {
-  color: #007AB8
+  color: #0576B9
 }
 
 .feature_name_tagging_client .username_input_container::before {
@@ -11562,7 +11562,7 @@ html.fs_modal_active {
 
 .menu.selectable li.selected,
 .menu.selectable li.selected a {
-  color: #007AB8
+  color: #0576B9
 }
 
 .menu.selectable li.selected a:hover,
@@ -12447,7 +12447,7 @@ body.ReactModal__Body--open {
 
 .menu.avatar_menu ul li.highlighted a ts-icon,
 .menu.avatar_menu:not(.keyboard_active) ul li:hover:not(.disabled) a ts-icon {
-  color: #007AB8
+  color: #0576B9
 }
 
 .menu.avatar_menu ul {
@@ -12459,7 +12459,7 @@ body.ReactModal__Body--open {
 }
 
 .menu.avatar_menu ul li:hover ts-icon {
-  color: #007AB8;
+  color: #0576B9;
   background: #fff
 }
 
@@ -12544,7 +12544,7 @@ body.ReactModal__Body--open {
 }
 
 .avatar_menu_signin_item {
-  color: #007AB8
+  color: #0576B9
 }
 
 .avatar_menu_signin_item:hover {
@@ -12596,7 +12596,7 @@ body.ReactModal__Body--open {
   font-size: 15px;
   line-height: 25px;
   background: 0 0;
-  color: #007AB8
+  color: #0576B9
 }
 
 #recap_menu_items .recap_learn_more:hover {
@@ -14876,7 +14876,7 @@ body:not(.unify_user) #client-ui .searchable_member_list .team_list_item:hover {
 #team_filter a.icon_close:hover,
 #user_group_filter a.icon_close:hover,
 .searchable_member_list_search_bar a.icon_close:hover {
-  color: #007AB8;
+  color: #0576B9;
   text-decoration: none
 }
 
@@ -14909,7 +14909,7 @@ body:not(.unify_user) #client-ui .searchable_member_list .team_list_item:hover {
 }
 
 #client-ui a.icon_close:hover {
-  color: #007AB8;
+  color: #0576B9;
   text-decoration: none
 }
 
@@ -14986,7 +14986,7 @@ body:not(.unify_user) .mpdm_badge a {
 
 .dm_badge .dm_badge:hover a,
 .mpdm_badge .dm_badge:hover a {
-  color: #007AB8
+  color: #0576B9
 }
 
 .dm_badge .hint,
@@ -17091,7 +17091,7 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 }
 
 .p-searchable_enterprise_team_list .icon_close:hover {
-  color: #007AB8;
+  color: #0576B9;
   text-decoration: none
 }
 
@@ -17950,12 +17950,12 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .feature_name_tagging_client .rxn.user_reacted {
-  background: rgba(0, 122, 184, .05);
-  border-color: rgba(0, 122, 184, .3)!important
+  background: rgba(5, 118, 185, .05);
+  border-color: rgba(5, 118, 185, .3)!important
 }
 
 .feature_name_tagging_client .rxn.user_reacted .emoji_rxn_count {
-  color: #007AB8
+  color: #0576B9
 }
 
 .rxn .emoji-sizer {
