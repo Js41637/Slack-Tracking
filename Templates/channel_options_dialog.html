@@ -22,16 +22,31 @@
   {{#feature flag="feature_shared_channels_client"}}
     {{#if show_share_channel_btn}}
       {{! TODO - refactor the --disabled styles to be more Slack Kit compliant }}
-      <div class="channel_option_item top_padding bottom_padding {{#if disable_show_share_channel_btn}}channel_option_item--disabled{{/if}}" {{#unless disable_show_share_channel_btn}}data-action="share_channel_btn"{{/unless}}>
+      <div class="channel_option_item top_padding bottom_padding {{#if disable_show_share_channel_btn}}channel_option_item--disabled{{/if}}" data-action="share_channel_btn">
         <div class="title channel_option_item__title bold small_bottom_margin">{{#t}}Share this channel with another workspace{{/t}}</div>
 
         <p class="channel_option_item__copy subtle_silver no_bottom_margin">
-          {{#t}}Shared channels link two workspaces together. People from both sides can send messages, share files, and search the channel\u2019s history. <a target="_blank" href="https://get.slack.help/hc/articles/115004151203">Learn more</a>{{/t}}
+          {{#feature flag="feature_esc_cancel_invitations_button"}}
+            {{#t}}Shared channels link two workspaces together. People from both sides can send messages, share files, and search the channel\u2019s history.{{/t}}
+
+            <a target="_blank" href="https://get.slack.help/hc/articles/115004151203" data-action="shared_channels_learn_more">
+              {{#t note="Link to a Help Center article about shared channels."}}Learn more{{/t}}
+            </a>
+          {{else}}
+            {{#t}}Shared channels link two workspaces together. People from both sides can send messages, share files, and search the channel\u2019s history. <a target="_blank" href="https://get.slack.help/hc/articles/115004151203">Learn more</a>{{/t}}
+          {{/feature}}
         </p>
 
         {{#if pending_team_name}}
           <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
             {{#t}}<strong>{pending_team_name}</strong> was already invited to this channel.{{/t}}
+
+            {{#if show_cancel_shared_invite_btn}}
+              {{! Temporarily hidden, waiting on an API to cancel a pending invitation using the channel ID / target team ID }}
+              <a class="{{#feature flag="feature_esc_cancel_invitations_button"}}{{else}}hidden{{/feature}}" data-action="shared_channel_cancel_invitation_btn">
+                {{#t note="Button to cancel a shared channel invitation"}}Cancel invitation{{/t}}
+              </a>
+            {{/if}}
           </div>
         {{/if}}
 
@@ -40,11 +55,6 @@
             {{#t}}This channel was previously shared with another workspace and can\u2019t be shared again.{{/t}}
           </div>
         {{/if}}
-
-        {{! Temporarily hidden, while we figure out a way to cancel a pending invitation using the channel ID }}
-        <a class="hidden">
-          {{#t note="Button to cancel a shared channel invitation"}}Cancel invitation{{/t}}
-        </a>
 
         <div class="channel_option_open">
           <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
