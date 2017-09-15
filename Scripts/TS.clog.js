@@ -10,18 +10,18 @@ webpackJsonp([456], {
           var o = Math.floor(Math.random() * r);
           setInterval(f, e + o);
           $(window).on("beforeunload pagehide", f);
-          $("body").on("click", '[data-clog-click="true"], [data-clog-ui-action="click"], [data-clog-event=WEBSITE_CLICK]', d);
-          S();
+          $("body").on("click", '[data-clog-click="true"], [data-clog-ui-action="click"], [data-clog-event=WEBSITE_CLICK]', v);
+          T();
           TS.clog.flush();
         },
         setUser: function t(e) {
           c = e;
         },
         setTeam: function t(e) {
-          i = e;
+          a = e;
         },
         setEnterprise: function t(e) {
-          a = e;
+          i = e;
         },
         setLocale: function t(e) {
           l = e;
@@ -53,7 +53,7 @@ webpackJsonp([456], {
               }
             }
           };
-          if (e.contexts) r.contexts = p(r.contexts, e.contexts);
+          if (e.contexts) r.contexts = S(r.contexts, e.contexts);
           TS.clog.track(e.event, r);
         },
         flush: function t() {
@@ -61,7 +61,7 @@ webpackJsonp([456], {
         },
         test: function e() {
           return {
-            createLogURLs: v,
+            createLogURLs: d,
             sendDataAndEmptyQueue: f,
             detectClogEndpoint: u,
             getLogs: function t() {
@@ -82,10 +82,10 @@ webpackJsonp([456], {
           var r = {};
           var n = 0;
           var o = e.length;
-          var i;
+          var a;
           for (n; n < o; n += 1) {
-            i = e[n].split("=");
-            r[i[0]] = i[1];
+            a = e[n].split("=");
+            r[a[0]] = a[1];
           }
           return r;
         }
@@ -95,18 +95,18 @@ webpackJsonp([456], {
       var r = 1e3;
       var n = r;
       var o = [];
-      var i;
       var a;
+      var i;
       var c;
       var l;
       var s = false;
       var u = function e(r) {
         var n = r.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
         var o = r.match(/^([^.]+\.)?(?:enterprise\.)?(qa[0-9]*)\.slack\.com/);
-        var i = r.match(/^([^.]+\.)?(?:enterprise\.)?(staging)\.slack\.com/);
+        var a = r.match(/^([^.]+\.)?(?:enterprise\.)?(staging)\.slack\.com/);
         if (n) t = "https://" + n[2] + ".slack.com/clog/track/";
         else if (o) t = "https://" + o[2] + ".slack.com/clog/track/";
-        else if (i) t = "https://staging.slack.com/clog/track/";
+        else if (a) t = "https://staging.slack.com/clog/track/";
         else t = "https://slack.com/clog/track/";
       };
       var g = function t(e, u) {
@@ -117,9 +117,9 @@ webpackJsonp([456], {
           event: e,
           args: u
         };
-        S();
-        if (i) g.team_id = i;
-        if (a) g.enterprise_id = a;
+        T();
+        if (a) g.team_id = a;
+        if (i) g.enterprise_id = i;
         if (c) g.user_id = c;
         if (l) g.i18n_locale = l;
         o.push(g);
@@ -136,20 +136,20 @@ webpackJsonp([456], {
           TS.log(n, "Sending clog data, emptying queue");
           TS.log(n, "Logs: ", o);
         }
-        var e = v(o);
+        var e = d(o);
         var r;
-        for (var i = 0; i < e.length; i += 1) {
-          r = e[i];
-          var a = new Image;
-          a.src = r;
+        for (var a = 0; a < e.length; a += 1) {
+          r = e[a];
+          var i = new Image;
+          i.src = r;
           if (TS.log && TS.has_pri[n]) TS.log(n, "Logged event: " + r);
         }
         o = [];
       };
-      var v = function r(o) {
+      var d = function r(o) {
         if (!t) u(location.host);
-        var i = [];
         var a = [];
+        var i = [];
         var c = "";
         var l = function e(r) {
           return t + "?logs=" + encodeURIComponent(JSON.stringify(r));
@@ -157,19 +157,19 @@ webpackJsonp([456], {
         var s;
         for (var g = 0; g < o.length; g += 1) {
           s = o[g];
-          a.push(s);
-          c = l(a);
+          i.push(s);
+          c = l(i);
           if (c.length > e) {
-            a.pop();
-            i.push(l(a));
-            a = [s];
+            i.pop();
+            a.push(l(i));
+            i = [s];
           }
         }
-        i.push(l(a));
-        if (TS.log && TS.has_pri[n]) TS.log(n, "URLs:", i);
-        return i;
+        a.push(l(i));
+        if (TS.log && TS.has_pri[n]) TS.log(n, "URLs:", a);
+        return a;
       };
-      var d = function t() {
+      var v = function t() {
         var e = this.getAttribute("data-clog-event");
         if (!e) {
           if (TS.warn) TS.warn("Logging clicks with data-clog-click requires a data-clog-event attribute");
@@ -194,10 +194,10 @@ webpackJsonp([456], {
           case "WEBSITE_CLICK":
             n.page_url = location.href;
         }
-        r = p(n, r);
+        r = S(n, r);
         TS.clog.track(e, r);
       };
-      var p = function t(e, r) {
+      var S = function t(e, r) {
         var n = {};
         Object.keys(e).forEach(function(t) {
           n[t] = e[t];
@@ -207,8 +207,8 @@ webpackJsonp([456], {
         });
         return n;
       };
-      var S = function t() {
-        if (TS.boot_data.feature_redux_hearts_enterprise) {
+      var T = function t() {
+        if (TS.boot_data && TS.redux && TS.boot_data.feature_redux_hearts_enterprise) {
           var e = TS.redux.enterprise.getEnterprise().id;
           if (e) TS.clog.setEnterprise(e);
         } else if (TS.model)

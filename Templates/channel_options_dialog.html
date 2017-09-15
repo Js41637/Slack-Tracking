@@ -65,10 +65,12 @@
 
   {{#feature flag="feature_shared_channels_client"}}
     {{#if show_stop_sharing_channel_btn}}
-      <div class="channel_option_item top_padding bottom_padding" data-action="stop_sharing_channel_btn">
+      <div class="channel_option_item top_padding bottom_padding">
         <div class="title bold small_bottom_margin">{{#t}}Stop sharing this channel{{/t}}</div>
 
-        <p class="subtle_silver no_bottom_margin">{{#t}}You can stop sharing this channel at any time. Note that you won\u2019t be able to re-share this channel in the future.{{/t}}</p>
+        <p class="channel_option_item__copy subtle_silver no_bottom_margin">
+          {{#t}}You can stop sharing this channel at any time. Note that you won\u2019t be able to re-share this channel in the future.{{/t}}
+        </p>
 
         <div class="channel_option_open">
           <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
@@ -78,10 +80,28 @@
   {{/feature}}
 
   {{#if show_convert_btn}}
-    <div class="channel_option_item top_padding bottom_padding" data-action="channel_convert_btn">
-      <div class="title bold charcoal_grey small_bottom_margin">{{#t}}Convert this channel to a private channel{{/t}}</div>
+    <div class="channel_option_item top_padding bottom_padding {{#if disable_convert_btn}}channel_option_item--disabled{{/if}}" {{#unless disable_convert_btn}}data-action="channel_convert_btn"{{/unless}}>
+      <div class="title channel_option_item__title bold small_bottom_margin">
+        {{#t}}Convert this channel to a private channel{{/t}}
+      </div>
 
-      <p class="subtle_silver no_bottom_margin">{{#t}}Private channels are similar to channels, but they\u2019re hidden to non-members and the conversation is private. This conversion cannot be undone.{{/t}}</p>
+      <p class="channel_option_item__copy subtle_silver no_bottom_margin">
+        {{#t}}Private channels are similar to channels, but they\u2019re hidden to non-members and the conversation is private. This conversion cannot be undone.{{/t}}
+      </p>
+
+      {{#feature flag="feature_esc_disable_convert_to_private_option"}}
+        {{#if disable_convert_btn}}
+          {{#if model_ob.unlinked}}
+            <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
+              {{#t}}During the shared channels beta, channels that were previously shared can\u2019t be made private.{{/t}}
+            </div>
+          {{else}}
+            <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
+              {{#t}}During the beta, shared channels can\u2019t be made private.{{/t}}
+            </div>
+          {{/if}}
+        {{/if}}
+      {{/feature}}
 
       <div class="channel_option_open">
         <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
