@@ -1,5 +1,5 @@
 <button
-  class="btn btn_attachment{{#if _loading}} loading{{/if}}{{#if btn_class}} {{btn_class}}{{/if}}"
+  class="btn btn_attachment{{#if _loading}} loading{{/if}}{{#if btn_class}} {{btn_class}}{{/if}}{{#if url}} btn_attachment_link{{/if}}"
   {{#if url}}data-url="{{url}}"{{/if}}
   {{#if _disabled}}disabled{{/if}}
   data-action-id="{{id}}"
