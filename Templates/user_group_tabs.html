@@ -22,7 +22,7 @@
     {{/if}}
   </div>
 {{else}}
-  <ul class="flexpane_tab_bar small_top_margin lato no_bottom_margin bottom_border">
+  <ul class="flexpane_tab_bar small_top_margin no_bottom_margin bottom_border">
     {{#if show_members}}
       <li id="active_members_tab" class="bold active"><a href="#active_members" class="tab" data-name="active_members" data-action="search"><span class="tab_text">{{#isWeb}}{{#t}}Full Members{{/t}}{{else}}{{#t}}Members{{/t}}{{/isWeb}} <span id="active_members_count" class="normal">(<span id="active_members_count_value">{{members.length}}</span>)</span></span></a></li>
     {{/if}}
@@ -45,8 +45,8 @@
       </div>
     </div>
     <div id="user_group_edit" class="tab_action bottom_border hidden">
-      <a class="tab_action_button lato_bold {{#unless show_user_groups_edit}}hidden{{/unless}}" data-action="admin_user_groups_modal"><i class="ts_icon ts_icon_cog_o"></i> {{#t}}Edit User Groups{{/t}}</a>
-      <a class="tab_action_button lato_bold {{#unless show_user_groups_add}}hidden{{/unless}}" data-action="admin_user_groups_modal_new"><i class="ts_icon ts_icon_plus_circle"></i> {{#t}}Create a User Group{{/t}}</a>
+      <a class="tab_action_button bold {{#unless show_user_groups_edit}}hidden{{/unless}}" data-action="admin_user_groups_modal"><i class="ts_icon ts_icon_cog_o"></i> {{#t}}Edit User Groups{{/t}}</a>
+      <a class="tab_action_button bold {{#unless show_user_groups_add}}hidden{{/unless}}" data-action="admin_user_groups_modal_new"><i class="ts_icon ts_icon_plus_circle"></i> {{#t}}Create a User Group{{/t}}</a>
     </div>
   </div>
 {{/isWeb}}

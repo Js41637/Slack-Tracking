@@ -18,13 +18,13 @@
     {{/unless}}
   </h3>
   {{#if user_group.handle}}
-  <p class="lato subtle_silver {{#if user_group.created_by}}tiny_bottom_margin{{/if}}">
+  <p class="subtle_silver {{#if user_group.created_by}}tiny_bottom_margin{{/if}}">
     {{#t}}Use <b>@{user_group.handle}</b> to notify this group{{/t}}
   </p>
   {{/if}}
   {{#if user_group.created_by}}
     {{#if user_group.date_create}}
-      <p class="lato subtle_silver">
+      <p class="subtle_silver">
         {{#t note="description of the user group creator and user group creation date" creator=(getPrefCompliantMemberNameById user_group.created_by) creation_date=(convertTimestampToMilliseconds user_group.date_create)}}
           Created by <strong>{creator}</strong> on {creation_date, date, long}
         {{/t}}
@@ -33,11 +33,11 @@
   {{/if}}
 
   {{#if user_group.description}}
-    <p class="lato">{{user_group.description}}</p>
+    <p>{{user_group.description}}</p>
   {{/if}}
 </div>
 
-<ul id="user_group_tabs" class="flexpane_tab_bar small_top_margin lato no_bottom_margin bottom_border">
+<ul id="user_group_tabs" class="flexpane_tab_bar small_top_margin no_bottom_margin bottom_border">
   <li id="user_group_members_tab" class="bold active"><a href="#user_group_members" class="tab" data-name="user_group_members"><span class="tab_text">{{#t}}Members{{/t}} <span class="normal">({{members.length}})</span></span></a></li>
   <li id="user_group_channels_tab" class="bold"><a href="#user_group_channels" class="tab" data-name="user_group_channels"><span class="tab_text">{{#t}}Channels{{/t}} <span class="normal">({{channels.length}})</span></span></a></li>
 </ul>

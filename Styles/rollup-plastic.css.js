@@ -10552,6 +10552,7 @@ body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .presence {
 }
 
 .c-modal__media--onboarding_dialog {
+  height: 224px;
   max-height: 100%
 }
 
@@ -11188,6 +11189,25 @@ html.fs_modal_active {
   color: #870000
 }
 
+.menu ul li .menu_item {
+  display: block;
+  text-decoration: none;
+  padding: 0 1rem 0 .5rem;
+  margin: 0 .9375rem;
+  border-radius: .25rem;
+  white-space: nowrap;
+  outline: 0;
+  font-size: 15px;
+  line-height: 25px;
+  background: 0 0;
+  color: #2C2D30
+}
+
+.menu ul li .menu_item_details {
+  color: #9e9ea6;
+  padding-bottom: .2rem
+}
+
 .menu ul li.danger a {
   color: #eb4d5c
 }
@@ -11213,10 +11233,12 @@ html.fs_modal_active {
   text-shadow: 0 1px 0 rgba(0, 0, 0, .1)
 }
 
+.menu ul li.highlighted a .menu_item_details,
 .menu ul li.highlighted a .prefix,
 .menu ul li.highlighted a i,
 .menu ul li.highlighted a ts-icon,
 .menu ul li.highlighted a.delete_link,
+.menu:not(.keyboard_active) ul li:hover:not(.disabled) a .menu_item_details,
 .menu:not(.keyboard_active) ul li:hover:not(.disabled) a .prefix,
 .menu:not(.keyboard_active) ul li:hover:not(.disabled) a i,
 .menu:not(.keyboard_active) ul li:hover:not(.disabled) a ts-icon,

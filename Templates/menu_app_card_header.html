@@ -18,7 +18,7 @@
 >
   {{#if is_external_app}}
   <div class="app_card_is_external_over_image">
-    <span class="overflow_ellipsis lato_black">
+    <span class="overflow_ellipsis black">
         {{getTeamNameById app_team_id}}
         {{> member_type_external_badge team=(getTeamById app_team_id) size=48 badge_size=16}}
     </span>
@@ -70,14 +70,14 @@
     {{/if}}
   {{/if}}
   <div class="app_card_header_text">
-    <div class="app_card_name_row lato_black flexpane_grey display_flex align_items_center">
+    <div class="app_card_name_row black flexpane_grey display_flex align_items_center">
       <span class="app_name overflow_ellipsis" data-qa="app_header_name">{{name}}</span>
-      <div><span class="app_label lato neutral_white" data-qa="app_header_app_label">{{!--
+      <div><span class="app_label neutral_white" data-qa="app_header_app_label">{{!--
           --}}{{#t}}APP{{/t}}{{!--
         --}}</span></div>
     </div>
     {{#if desc}}
-      <div class="app_card_desc lato flexpane_grey overflow_hidden emoji_replace_on_load" data-qa="app_header_description">{{desc}}</div>
+      <div class="app_card_desc flexpane_grey overflow_hidden emoji_replace_on_load" data-qa="app_header_description">{{desc}}</div>
     {{/if}}
     {{#if app_profile}}
       <div class="app_profile_buttons">

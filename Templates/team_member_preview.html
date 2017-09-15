@@ -4,7 +4,7 @@
 
   {{#shouldShowMemberRestrictionBanner member}}
     <div class="member_restriction_banner">
-      <span class="overflow_ellipsis lato_black">
+      <span class="overflow_ellipsis black">
         {{#if member.is_external}}
           {{getTeamNameByMember member}}
           {{> member_type_external_badge team=(getTeamById member.team_id) size=48 badge_size=16}}
@@ -34,7 +34,7 @@
       {{#if member.deleted}}
         {{#unless member.is_external}}
           <div class="member_restriction_banner">
-            <span class="overflow_ellipsis lato_black">
+            <span class="overflow_ellipsis black">
               <i aria-hidden="true" class="ts_icon ts_icon_archived_channel"></i>
               {{#t note="Refers to deactivated account"}}This account is deactivated{{/t}}
             </span>
@@ -46,7 +46,7 @@
 
   {{makeMemberPreviewLinkImage member.id 512 false true true true}}
 
-  <div class="member_name_and_presence lato">
+  <div class="member_name_and_presence">
     {{#feature flag="feature_name_tagging_client"}}
       {{#if member.deleted}}
         {{#if member.is_external}}
@@ -102,19 +102,19 @@
 
   {{#if member.profile}}
     {{#if member.profile.title}}
-      <div class="member_title lato">{{member.profile.title}}</div>
+      <div class="member_title">{{member.profile.title}}</div>
     {{/if}}
   {{/if}}
 
   {{#pageNeedsEnterprise}}
     {{#if member.is_bot}}
-      <div class="member_type_and_description old_petunia_grey lato">
+      <div class="member_type_and_description old_petunia_grey">
         <span class="overflow_ellipsis">{{#t note="Description for bot"}}Non-sentient Bot{{/t}}</span>
       </div>
     {{/if}}
   {{else}}
     {{#if member.is_bot}}
-      <div class="member_restriction lato overflow_ellipsis">
+      <div class="member_restriction overflow_ellipsis">
         {{#t note="Description for bot"}}Non-sentient Bot{{/t}}
         <i class="ts_icon ts_icon_question_circle ts_tip ts_tip_top ts_tip_multiline ts_tip_float">
           <span class="ts_tip_tip">
@@ -179,7 +179,7 @@
       <hr class="member_details_divider{{#seesCurrentStatusInProfileView member}} with_current_status small_bottom_margin{{/seesCurrentStatusInProfileView}}">
 
       {{#seesCurrentStatusInProfileView member}}
-        <table class="member_data_table lato no_bottom_margin">
+        <table class="member_data_table no_bottom_margin">
           <tr>
             <td><span class="small_right_padding old_petunia_grey{{#isClient}} current_status_status_label{{/isClient}}" title="{{#t}}Status{{/t}}">{{#t}}Status{{/t}}</span></td>
             {{#isClient}}
@@ -196,7 +196,7 @@
         <hr class="member_details_divider with_current_status small_top_margin">
       {{/seesCurrentStatusInProfileView}}
 
-      <table class="member_data_table lato">
+      <table class="member_data_table">
         {{#feature flag="feature_name_tagging_client"}}
           {{#if member.profile.display_name}}
             <tr>
@@ -294,7 +294,7 @@
   {{#if member.is_restricted}}
     <hr class="member_details_divider">
 
-    <table id="member_data_table_guest_fields" class="member_data_table lato{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
+    <table id="member_data_table_guest_fields" class="member_data_table{{#pageNeedsEnterprise}}{{#if teams}} no_bottom_margin{{/if}}{{/pageNeedsEnterprise}}">
       {{> guest_profile_fields member=member lazy_load_profile_fields=lazy_load_profile_fields }}
     </table>
   {{/if}}
@@ -305,7 +305,7 @@
         {{#if shared_teams}}
           <hr class="member_details_divider">
 
-          <table id="member_data_table_shared_teams" class="member_data_table lato">
+          <table id="member_data_table_shared_teams" class="member_data_table">
             {{> member_shared_teams lazy_load_shared_teams=lazy_load_shared_teams shared_teams=shared_teams}}
           </table>
         {{/if}}
@@ -314,7 +314,7 @@
           {{#if teams.shared}}
             <hr class="member_details_divider">
 
-            <table class="member_data_table lato">
+            <table class="member_data_table">
                 <tr>
                   {{#feature flag="feature_teams_to_workspaces"}}
                     <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Workspaces{{/t}}">{{#t}}Shared Workspaces{{/t}}</span></td>
@@ -338,14 +338,14 @@
     <hr class="member_details_divider">
 
     {{#if member.is_stranger}}
-      <p class="lato align_center large_right_margin large_left_margin">
+      <p class="align_center large_right_margin large_left_margin">
         {{#t member_name=(getPrefCompliantMemberName member)}}
           <strong>You don\u2019t share any channels with {member_name}.</strong>
           To\u00a0interact with a person from another workspace, you need to be in at least one channel together.
         {{/t}}
       </p>
     {{else}}
-      <table id="member_data_table_shared_channels" class="member_data_table lato">
+      <table id="member_data_table_shared_channels" class="member_data_table">
         {{> shared_channels_profile_field}}
       </table>
     {{/if}}

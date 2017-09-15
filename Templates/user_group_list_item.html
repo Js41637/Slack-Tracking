@@ -6,10 +6,10 @@
       <a href="/usergroups/{{user_group.id}}" target="/usergroups/{{user_group.id}}" data-user-group-id="{{user_group.id}}" class="internal_user_group_link">
         <h4>{{user_group.name}}</h4>
         {{#if user_group.description}}
-          <p class="lato">{{user_group.description}}</p>
+          <p>{{user_group.description}}</p>
         {{/if}}
         {{#or user_group.handle user_group.user_count}}
-          <p class="lato subtle_silver tiny_bottom_margin">
+          <p class="subtle_silver tiny_bottom_margin">
             {{#t user_count=user_group.user_count}}
               {user_count, plural, =1 {# member} other {# members}}
             {{/t}}
@@ -22,7 +22,7 @@
   {{else}}
     {{#if user_group.date_delete}}
       <div class="col span_4_of_6 small_padding no_bottom_margin">
-        <p class="no_bottom_margin subtle_silver"><span class="lato_bold">{{user_group.name}}</span> <i>{{#t note="inline indication that group is disabled"}}(Disabled){{/t}}</i></p>
+        <p class="no_bottom_margin subtle_silver"><span class="bold">{{user_group.name}}</span> <i>{{#t note="inline indication that group is disabled"}}(Disabled){{/t}}</i></p>
       </div>
       <div class="col span_2_of_6 small_padding no_bottom_margin float_right align_right">
         {{#if show_toggle}}
@@ -34,13 +34,13 @@
       </div>
     {{else}}
       <div class="col span_3_of_4 small_padding no_bottom_margin">
-        <p class="lato_bold no_bottom_margin">{{user_group.name}} {{#if user_group.handle}}<span class="subtle_silver">@{{user_group.handle}}</span>{{/if}}</p>
+        <p class="bold no_bottom_margin">{{user_group.name}} {{#if user_group.handle}}<span class="subtle_silver">@{{user_group.handle}}</span>{{/if}}</p>
         {{#if user_group.description}}
           <p class="small no_bottom_margin">{{user_group.description}}</p>
         {{/if}}
         {{#or user_group.prefs.channels.length user_group.prefs.groups.length}}
           <p class="small subtle_silver no_bottom_margin">
-            <span class="lato_bold">{{#t note="heading for list of default channels"}}Default channels: {{/t}}</span>
+            <span class="bold">{{#t note="heading for list of default channels"}}Default channels: {{/t}}</span>
             {{#each user_group.prefs.channels}}
               {{getCorGNameWithPrefixById this}}
             {{/each}}

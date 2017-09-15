@@ -29,7 +29,7 @@
         {{/or}}
 
         {{#if member.is_bot}}
-          <span class="lato">
+          <span>
             <span class="overflow_ellipsis">{{#t note="Labelling a bot in the member card"}}Non-sentient Bot{{/t}}</span>
           </span>
         {{/if}}
@@ -54,7 +54,7 @@
     {{/unless}}
 
     <div class="member_details_over_image">
-      <div class="member_name_and_presence lato">
+      <div class="member_name_and_presence">
         {{#feature flag="feature_name_tagging_client"}}
           {{#if member.deleted}}
             <a href="/team/{{member.id}}" target={{newWindowName}} class="member_name" data-qa="member_name">{{getMemberRealName member}}</a>
@@ -90,20 +90,20 @@
 
       {{#feature flag="feature_name_tagging_client"}}
         {{#memberHasDifferentDisplayAndFullName member}}
-          <div class="member_display_name lato">{{getMemberProfileFieldDisplayName member}}</div>
+          <div class="member_display_name">{{getMemberProfileFieldDisplayName member}}</div>
         {{/memberHasDifferentDisplayAndFullName}}
       {{/feature}}
 
       {{#if member.profile}}
         {{#if member.profile.title}}
-          <div class="member_title lato">{{member.profile.title}}</div>
+          <div class="member_title">{{member.profile.title}}</div>
         {{/if}}
       {{/if}}
     </div>
 
     {{#shouldShowMemberRestrictionBanner member}}
       <div class="member_restriction_over_image{{#if member.is_external}} external{{/if}}">
-        <span class="overflow_ellipsis lato_black">
+        <span class="overflow_ellipsis black">
           {{#if member.is_external}}
             {{getTeamNameByMember member}}
             {{> member_type_external_badge team=(getTeamById member.team_id) size=48 badge_size=16}}
@@ -124,7 +124,7 @@
       {{#if member.deleted}}
         {{#unless member.is_external}}
           <div class="member_restriction_over_image">
-            <span class="overflow_ellipsis lato_black">
+            <span class="overflow_ellipsis black">
               <i aria-hidden="true" class="ts_icon ts_icon_archived_channel"></i>
               {{#t note="Refers to deactivated account"}}This account is deactivated{{/t}}
             </span>
