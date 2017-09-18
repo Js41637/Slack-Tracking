@@ -12818,8 +12818,6 @@ a.plastic_typeahead_item:hover {
   -webkit-tap-highlight-color: transparent;
   cursor: pointer;
   border: 0;
-  font-family: Slack-Lato, appleLogo, sans-serif;
-  font-weight: 400;
   padding: 0 0 .75rem;
   font-size: .85rem;
   line-height: 20px;

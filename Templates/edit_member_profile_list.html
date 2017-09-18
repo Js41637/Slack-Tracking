@@ -4,7 +4,7 @@
   <p class="col span_2_of_3">
     {{#feature flag="feature_name_tagging_client"}}
       <label for="real_name_profile_field">{{#t note="For a members profile"}}Full name{{/t}}</label>
-      <input type="text" class="no_bottom_margin" name="real_name" value="{{member.profile.real_name}}" data-validation{{#feature flag="feature_name_tagging_client_validation"}}="membername=required"{{/feature}} data-validation-for="real_name_profile_field_warnings" data-validation-success placeholder="{{#t note='For a members profile'}}Full name{{/t}}" id="real_name_profile_field" />
+      <input type="text" class="no_bottom_margin" name="real_name" value="{{member.profile.real_name}}" data-validation="membername=required" data-validation-for="real_name_profile_field_warnings" data-validation-success placeholder="{{#t note='For a members profile'}}Full name{{/t}}" id="real_name_profile_field" />
       <label for="real_name_profile_field_warnings"><span class="validation_message"></span></label>
     {{else}}
       <label for="first_name_profile_field">{{#t note="For a members profile"}}First name{{/t}}</label>
@@ -39,7 +39,7 @@
         <input type="text" class="no_bottom_margin" value="{{member.profile.display_name}}" placeholder="{{member.profile.real_name}}" disabled/>
       {{else}}
         <label for="display_name_profile_field">{{#t note="For a members profile"}}Display name <span class="normal">(optional)</span>{{/t}}</label>
-        <input type="text" class="no_bottom_margin" name="display_name" value="{{member.profile.display_name}}" placeholder="{{member.profile.real_name}}" id="display_name_profile_field" data-validation{{#feature flag="feature_name_tagging_client_validation"}}="membername"{{/feature}} data-validation-for="display_name_profile_field_warnings" data-validation-success />
+        <input type="text" class="no_bottom_margin" name="display_name" value="{{member.profile.display_name}}" placeholder="{{member.profile.real_name}}" id="display_name_profile_field" data-validation="membername" data-validation-for="display_name_profile_field_warnings" data-validation-success />
         <label for="display_name_profile_field_warnings"><span class="validation_message"></span></label>
         <span class="input_note">{{#t note="Helper note for setting a display name"}}This could be your first name, or a nickname \u2014 however you\u2019d like people to refer to you in Slack.{{/t}}</span>
       {{/if}}

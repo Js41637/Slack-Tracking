@@ -44,13 +44,14 @@ webpackJsonp([456], {
           });
         },
         trackClickWithContext: function t(e) {
-          if (!e || !e.event || !e.element) return;
+          if (!e || !e.event) return;
           var r = {
-            contexts: {
-              ui_context: {
-                action: "click",
-                ui_element: e.element
-              }
+            contexts: {}
+          };
+          if (e.element) r.contexts = {
+            ui_context: {
+              action: "click",
+              ui_element: e.element
             }
           };
           if (e.contexts) r.contexts = S(r.contexts, e.contexts);

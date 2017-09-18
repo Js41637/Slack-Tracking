@@ -14,7 +14,7 @@
           <div class="names no_top_padding bottom_padding" id="name_fields">
             <label>{{#t}}Full name{{/t}}</label>
             <div class="name_field" id="real_name_wrapper">
-              <input type="text" name="full_name" placeholder="{{#t}}Full name{{/t}}" id="signup_real_name" autocomplete="off" data-qa="real_name_field" {{#if real_name}}value="{{real_name}}"{{/if}} data-validation data-validation-for="real_name_profile_field_warnings" data-validation-success/>
+              <input type="text" name="full_name" placeholder="{{#t}}Full name{{/t}}" id="signup_real_name" autocomplete="off" data-qa="real_name_field" {{#if real_name}}value="{{real_name}}"{{/if}} data-validation="membername=required" data-validation-for="real_name_profile_field_warnings" data-validation-success/>
               <label for="real_name_profile_field_warnings"><span class="validation_message"></span></label>
             </div>
           </div>
@@ -37,7 +37,7 @@
           <label for="display_name">{{#t}}Display name <span class="normal">(optional)</span>{{/t}}</label>
           <div class="input_wrapper display_name">
             <p id="display_name_overlay" class="input_overlay"></p>
-            <input type="text" name="display_name" id="signup_display_name" autocomplete="off" data-qa="display_name_field" placeholder="{{#if display_name_placeholder_prefill}}{{display_name_placeholder_prefill}}{{else}}{{#t}}Display name{{/t}}{{/if}}" data-validation data-validation-for="display_name_profile_field_warnings" data-validation-success/>
+            <input type="text" name="display_name" id="signup_display_name" autocomplete="off" data-qa="display_name_field" placeholder="{{#if display_name_placeholder_prefill}}{{display_name_placeholder_prefill}}{{else}}{{#t}}Display name{{/t}}{{/if}}" data-validation="membername" data-validation-for="display_name_profile_field_warnings" data-validation-success/>
           </div>
           <label for="display_name_profile_field_warnings"><span class="validation_message"></span></label>
           <p class="subtle_silver">{{#t}}By default, Slack will use your full name \u2014 but you can choose something shorter if you\u2019d like.{{/t}}</p>
