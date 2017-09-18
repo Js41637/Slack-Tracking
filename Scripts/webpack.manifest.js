@@ -1,6 +1,6 @@
 (function(e) {
   var a = window["webpackJsonp"];
-  window["webpackJsonp"] = function c(r, f, o) {
+  window["webpackJsonp"] = function c(r, o, f) {
     var i, _, s = 0,
       n = [],
       l;
@@ -9,12 +9,12 @@
       if (d[_]) n.push(d[_][0]);
       d[_] = 0;
     }
-    for (i in f)
-      if (Object.prototype.hasOwnProperty.call(f, i)) e[i] = f[i];
-    if (a) a(r, f, o);
+    for (i in o)
+      if (Object.prototype.hasOwnProperty.call(o, i)) e[i] = o[i];
+    if (a) a(r, o, f);
     while (n.length) n.shift()();
-    if (o)
-      for (s = 0; s < o.length; s++) l = b(b.s = o[s]);
+    if (f)
+      for (s = 0; s < f.length; s++) l = b(b.s = f[s]);
     return l;
   };
   var c = {};
@@ -43,14 +43,14 @@
       c = d[a] = [e, b];
     });
     c[2] = r;
-    var f = document.getElementsByTagName("head")[0];
-    var o = document.createElement("script");
-    o.type = "text/javascript";
-    o.charset = "utf-8";
-    o.async = true;
-    o.timeout = 12e4;
-    if (b.nc) o.setAttribute("nonce", b.nc);
-    o.src = b.p + "" + ({
+    var o = document.getElementsByTagName("head")[0];
+    var f = document.createElement("script");
+    f.type = "text/javascript";
+    f.charset = "utf-8";
+    f.async = true;
+    f.timeout = 12e4;
+    if (b.nc) f.setAttribute("nonce", b.nc);
+    f.src = b.p + "" + ({
       0: "boot_app",
       1: "sockets-demo",
       2: "codemirror.min",
@@ -476,7 +476,6 @@
       425: "TS.emoji",
       426: "TS.developer_apps.verification_token",
       427: "TS.developer_apps.user_ids_toggle",
-      428: "sli_trends_dashboard",
       429: "TS.developer_apps.uninstall_button",
       430: "TS.developer_apps.submit",
       431: "TS.developer_apps",
@@ -539,27 +538,28 @@
       489: "TS.calls.screen_share_controls",
       490: "TS.lessons.model",
       491: "TS.web.admin_billing_item",
-      492: "TS.hello_world"
+      492: "TS.hello_world",
+      493: "sli_trending_channels_dashboard"
     }[a] || a) + "." + {
-      0: "fc2435ac4a152cf2d92e",
-      1: "28420be0706dcbcd738a",
+      0: "296bb9cecabb203907be",
+      1: "7ac5ae41b748bc508dd9",
       2: "e2bf579bcee157a88b78",
-      3: "7238292fcfc164b1db6c",
-      4: "f298615901cacf81df80",
-      5: "0bed5cf504b894cffc08",
+      3: "dd29ec5bf246d832c2a0",
+      4: "23492235061295b76afb",
+      5: "5cb8d5fb5744146dd86d",
       6: "223c9574a2dc498174c1",
-      7: "29f3b23667796f3e435a",
-      8: "4238f97589b515dcc695",
+      7: "735b47e0f2620d003998",
+      8: "2f973aeb459530bffff5",
       9: "67114d10323fa22dec91",
       10: "c28722f3cbcccf75d506",
       11: "351342331b744eee94f3",
       12: "54c753d5cffe24773551",
-      13: "6b134c05bc5208be0dc6",
+      13: "e3b389c27cc0a6d502ae",
       14: "5166a3a1f557bb263b87",
-      15: "3890f38842467353a37e",
+      15: "a5abe063a0ae4de50430",
       16: "5a138a08d44a831e7701",
       17: "dac29c5e5db2aa57b9e6",
-      18: "1d28fd96cf51bf4c8cda",
+      18: "db4a5504dcb8ce706a77",
       19: "6289fc74fcdb3ccf4514",
       20: "30c951a804ca988e0335",
       21: "aa275b9bf248a7096dbe",
@@ -969,7 +969,6 @@
       425: "d7e8574562b32aa503cd",
       426: "04d3ad626249c71b7e4e",
       427: "797af1976a78fb61a1ba",
-      428: "616f3c883444f0118a63",
       429: "f86ebce2d76bba21a96c",
       430: "1df23f6bc285b9cb01f8",
       431: "961c4dc9a762a0626ec5",
@@ -1030,15 +1029,16 @@
       487: "2c1520358c94b7b153b8",
       488: "38a833a0516d721eabdb",
       489: "b8112700a0b2f62a3976",
-      490: "f74a51141b8b7d8ff185",
+      490: "444fd24b8632a4ab8b50",
       491: "e4ccc35feffa41889131",
-      492: "88590b1ccc50b68d90da"
+      492: "88590b1ccc50b68d90da",
+      493: "9fca78dae1e04ef45b79"
     }[a] + ".chunk.min.js";
     var i = setTimeout(_, 12e4);
-    o.onerror = o.onload = _;
+    f.onerror = f.onload = _;
 
     function _() {
-      o.onerror = o.onload = null;
+      f.onerror = f.onload = null;
       clearTimeout(i);
       var e = d[a];
       if (0 !== e) {
@@ -1046,7 +1046,7 @@
         d[a] = void 0;
       }
     }
-    f.appendChild(o);
+    o.appendChild(f);
     return r;
   };
   b.m = e;

@@ -82,24 +82,22 @@
       {{/unless}}
     {{/feature}}
 
-    {{#feature flag="feature_copy_user_id_to_clipboard"}}
-      {{#if show_user_id}}
-        <li class="divider"></li>
-        <li id="member_copy_id" role="menuitem">
-          {{#if can_write_to_clipboard}}
-            <a>
-              {{#t}}Copy member ID{{/t}}<br>
-              <p class="menu_item_details small_text no_bottom_margin">{{member.id}}</p>
-            </a>
-          {{else}}
-            <span class="menu_item">
-              {{#t}}Member ID{{/t}}
-              <p class="menu_item_details small_text no_bottom_margin">{{member.id}}</p>
-            </span>
-          {{/if}}
-        </li>
-      {{/if}}
-    {{/feature}}
+    {{#if show_user_id}}
+      <li class="divider"></li>
+      <li id="member_copy_id" role="menuitem">
+        {{#if can_write_to_clipboard}}
+          <a>
+            {{#t}}Copy member ID{{/t}}<br>
+            <p class="menu_item_details small_text no_bottom_margin">{{member.id}}</p>
+          </a>
+        {{else}}
+          <span class="menu_item">
+            {{#t}}Member ID{{/t}}
+            <p class="menu_item_details small_text no_bottom_margin">{{member.id}}</p>
+          </span>
+        {{/if}}
+      </li>
+    {{/if}}
 
     <li class="divider"></li>
 
@@ -243,24 +241,22 @@
         {{/if}}
       {{/unless}}
     {{/feature}}
-    {{#feature flag="feature_copy_user_id_to_clipboard"}}
-      {{#if show_user_id}}
-        <li class="divider"></li>
-        <li id="member_copy_id" role="menuitem">
-          {{#if can_write_to_clipboard}}
-            <a>
-              {{#t}}Copy member ID{{/t}}<br>
-              <p class="menu_item_details small_text no_bottom_margin">{{member.id}}</p>
-            </a>
-          {{else}}
-            <span class="menu_item">
-              {{#t}}Member ID{{/t}}
-              <p class="menu_item_details small_text no_bottom_margin">{{member.id}}</p>
-            </span>
-          {{/if}}
-        </li>
-      {{/if}}
-    {{/feature}}
+    {{#if show_user_id}}
+      <li class="divider"></li>
+      <li id="member_copy_id" role="menuitem">
+        {{#if can_write_to_clipboard}}
+          <a>
+            {{#t}}Copy member ID{{/t}}<br>
+            <p class="menu_item_details small_text no_bottom_margin">{{member.id}}</p>
+          </a>
+        {{else}}
+          <span class="menu_item">
+            {{#t}}Member ID{{/t}}
+            <p class="menu_item_details small_text no_bottom_margin">{{member.id}}</p>
+          </span>
+        {{/if}}
+      </li>
+    {{/if}}
 
   {{/if}}
 {{/if}}
