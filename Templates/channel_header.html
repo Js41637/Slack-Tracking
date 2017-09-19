@@ -16,6 +16,13 @@
       <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t}}All Threads{{/t}}</h2>
     </div>
     <div id="channel_header_info" class="channel_header_info threads_channel_header_info"></div>
+  {{else if home_screen.is_showing}}
+    {{#feature flag="feature_sli_home"}}
+      <div id="channel_name_container" class="channel_name_container">
+        <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t rough-draft=true}}Welcome Home{{/t}}</h2>
+      </div>
+      <div id="channel_header_info" class="channel_header_info threads_channel_header_info">{{#t rough-draft=true}}Catch up on what you've missed.{{/t}}</div>
+    {{/feature}}
   {{else if is_app}}
     <div id="channel_name_container" class="channel_name_container">
       {{!-- For App Space, we put the star next to the Channel/App name --}}

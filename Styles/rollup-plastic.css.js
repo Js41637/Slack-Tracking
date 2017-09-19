@@ -15770,8 +15770,8 @@ only screen and (max-width:767px) {
   }
 }
 
-.channel_modal_with_list .monkey_scroll_hider,
-.channel_modal_with_list .monkey_scroll_wrapper {
+.channel_modal_with_list>.monkey_scroll_hider,
+.channel_modal_with_list>.monkey_scroll_wrapper {
   display: flex;
   flex-direction: column;
   flex: 1;

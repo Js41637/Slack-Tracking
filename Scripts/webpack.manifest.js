@@ -1,6 +1,6 @@
 (function(e) {
   var a = window["webpackJsonp"];
-  window["webpackJsonp"] = function c(r, o, f) {
+  window["webpackJsonp"] = function c(r, f, o) {
     var i, _, s = 0,
       n = [],
       l;
@@ -9,12 +9,12 @@
       if (d[_]) n.push(d[_][0]);
       d[_] = 0;
     }
-    for (i in o)
-      if (Object.prototype.hasOwnProperty.call(o, i)) e[i] = o[i];
-    if (a) a(r, o, f);
+    for (i in f)
+      if (Object.prototype.hasOwnProperty.call(f, i)) e[i] = f[i];
+    if (a) a(r, f, o);
     while (n.length) n.shift()();
-    if (f)
-      for (s = 0; s < f.length; s++) l = b(b.s = f[s]);
+    if (o)
+      for (s = 0; s < o.length; s++) l = b(b.s = o[s]);
     return l;
   };
   var c = {};
@@ -43,14 +43,14 @@
       c = d[a] = [e, b];
     });
     c[2] = r;
-    var o = document.getElementsByTagName("head")[0];
-    var f = document.createElement("script");
-    f.type = "text/javascript";
-    f.charset = "utf-8";
-    f.async = true;
-    f.timeout = 12e4;
-    if (b.nc) f.setAttribute("nonce", b.nc);
-    f.src = b.p + "" + ({
+    var f = document.getElementsByTagName("head")[0];
+    var o = document.createElement("script");
+    o.type = "text/javascript";
+    o.charset = "utf-8";
+    o.async = true;
+    o.timeout = 12e4;
+    if (b.nc) o.setAttribute("nonce", b.nc);
+    o.src = b.p + "" + ({
       0: "boot_app",
       1: "sockets-demo",
       2: "codemirror.min",
@@ -542,25 +542,25 @@
       492: "TS.hello_world",
       493: "sli_trending_channels_dashboard"
     }[a] || a) + "." + {
-      0: "2b73e01b3bfe9d885a84",
+      0: "6fdb3b5af68f9a5b585f",
       1: "925922a1c53f0eba9607",
       2: "e2bf579bcee157a88b78",
       3: "c42058bbf9e2ac7d9c08",
-      4: "04f73da115e00ac8a561",
+      4: "28c7f73ca1fc99bad8cc",
       5: "1748beecbcecfb54b220",
       6: "223c9574a2dc498174c1",
-      7: "a4ccb48e6b2744928899",
-      8: "7ca9d42dd728cd017143",
-      9: "67114d10323fa22dec91",
+      7: "59df44be2fc40df286e6",
+      8: "cbbd7484f6194591a89f",
+      9: "4c8b4aa3cefd081c759b",
       10: "c28722f3cbcccf75d506",
       11: "351342331b744eee94f3",
       12: "26792828da88983a2f81",
-      13: "3d98199810496138fede",
+      13: "3b229da3da3eea166a20",
       14: "5166a3a1f557bb263b87",
       15: "d107be3c4a92216d8a76",
       16: "a602fb0d2f072ddf8182",
       17: "dac29c5e5db2aa57b9e6",
-      18: "db4a5504dcb8ce706a77",
+      18: "d8b5b5a6e9885f614c8e",
       19: "6289fc74fcdb3ccf4514",
       20: "30c951a804ca988e0335",
       21: "aa275b9bf248a7096dbe",
@@ -756,7 +756,7 @@
       211: "b24df987d09128cd054e",
       212: "f7a7684d0d2f7c962053",
       213: "ebdf63851b041aebbbff",
-      214: "b31e5521354d2c773a94",
+      214: "7ecf4485b52b9f7d1df0",
       215: "710ed323974a24298fcb",
       216: "babca4c36235504ef5ed",
       217: "067322506afb45d5d11f",
@@ -873,7 +873,7 @@
       328: "286124bce442ab7751d2",
       329: "b77ba710573c637be4ba",
       330: "4a5137ec3ed1e23cf059",
-      331: "4bff04fe6a274ac63014",
+      331: "c281dbc1a6793645b06c",
       332: "5514b754495ab69631a2",
       333: "7ad9e37966006fb94309",
       334: "5f9c5c7850b80dc8c2ef",
@@ -970,7 +970,7 @@
       425: "d7e8574562b32aa503cd",
       426: "04d3ad626249c71b7e4e",
       427: "797af1976a78fb61a1ba",
-      428: "5abe3668e6c40c082736",
+      428: "f8baceafad5a1bfcd17d",
       429: "f86ebce2d76bba21a96c",
       430: "1df23f6bc285b9cb01f8",
       431: "961c4dc9a762a0626ec5",
@@ -1027,8 +1027,8 @@
       482: "238d0eecc660748a7299",
       483: "d0db7b242f2409c884e1",
       485: "30edabbc0716e31a96e5",
-      486: "118d0ba687e2c13d9349",
-      487: "2c1520358c94b7b153b8",
+      486: "5c6092e91227f37e29ef",
+      487: "306e02d339f1a3fa60b5",
       488: "38a833a0516d721eabdb",
       489: "b8112700a0b2f62a3976",
       490: "444fd24b8632a4ab8b50",
@@ -1037,10 +1037,10 @@
       493: "9fca78dae1e04ef45b79"
     }[a] + ".chunk.min.js";
     var i = setTimeout(_, 12e4);
-    f.onerror = f.onload = _;
+    o.onerror = o.onload = _;
 
     function _() {
-      f.onerror = f.onload = null;
+      o.onerror = o.onload = null;
       clearTimeout(i);
       var e = d[a];
       if (0 !== e) {
@@ -1048,7 +1048,7 @@
         d[a] = void 0;
       }
     }
-    o.appendChild(f);
+    f.appendChild(o);
     return r;
   };
   b.m = e;
