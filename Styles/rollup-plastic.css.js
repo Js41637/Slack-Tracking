@@ -16252,9 +16252,20 @@ body:not(.unify_user) #im_browser .im_browser_row .im_unread_cnt {
   visibility: hidden
 }
 
+#im_browser .qs_tip.alert {
+  font-size: 15px;
+  border-left: 1px solid #E8E8E8;
+  display: none;
+  margin: 1rem 0 0
+}
+
 #im_browser.filter_active .clear_filter_icon,
 #im_browser.filter_active .kb_nav_label {
   visibility: visible
+}
+
+#im_browser.filter_active .qs_tip {
+  display: block
 }
 
 #im_browser.filter_active .recent_label,
@@ -16266,7 +16277,8 @@ body:not(.unify_user) #im_browser .im_browser_row .im_unread_cnt {
   display: none
 }
 
-#im_browser.filter_active.no_filter_matches .kb_nav_label {
+#im_browser.filter_active.no_filter_matches .kb_nav_label,
+#im_browser.filter_active.no_filter_matches .qs_tip {
   visibility: hidden
 }
 

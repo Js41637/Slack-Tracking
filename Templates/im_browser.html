@@ -34,6 +34,12 @@
     {{> im_browser_tokens members=preselected}}
     <div class="remaining_participant_hint greigh">{{#if reached_maximum}}{{#t}}You have reached the maximum number of participants{{/t}}{{/if}}</div>
     {{> channel_kb_nav_label multiple_select=true}}
+    {{#feature flag="feature_im_browser_qs_tip"}}
+      <div class="qs_tip alert alert_info">
+        <ts-icon class="ts_icon_magic"></ts-icon>
+        {{#t}}<strong>Tip:</strong> Jump easily from one channel or DM to another with the Quick Switcher ({quickswitcher_shortcut}).{{/t}}
+      </div>
+    {{/feature}}
   </div>
   <div id="im_browser_empty" class="hidden align_center margin_auto display_flex align_items_center justify_content_center">
     <span class="im_browser_empty_message"></span>
