@@ -1,6 +1,6 @@
 (function(e) {
   var a = window["webpackJsonp"];
-  window["webpackJsonp"] = function c(r, f, o) {
+  window["webpackJsonp"] = function c(r, o, f) {
     var i, _, s = 0,
       n = [],
       l;
@@ -9,12 +9,12 @@
       if (d[_]) n.push(d[_][0]);
       d[_] = 0;
     }
-    for (i in f)
-      if (Object.prototype.hasOwnProperty.call(f, i)) e[i] = f[i];
-    if (a) a(r, f, o);
+    for (i in o)
+      if (Object.prototype.hasOwnProperty.call(o, i)) e[i] = o[i];
+    if (a) a(r, o, f);
     while (n.length) n.shift()();
-    if (o)
-      for (s = 0; s < o.length; s++) l = b(b.s = o[s]);
+    if (f)
+      for (s = 0; s < f.length; s++) l = b(b.s = f[s]);
     return l;
   };
   var c = {};
@@ -43,14 +43,14 @@
       c = d[a] = [e, b];
     });
     c[2] = r;
-    var f = document.getElementsByTagName("head")[0];
-    var o = document.createElement("script");
-    o.type = "text/javascript";
-    o.charset = "utf-8";
-    o.async = true;
-    o.timeout = 12e4;
-    if (b.nc) o.setAttribute("nonce", b.nc);
-    o.src = b.p + "" + ({
+    var o = document.getElementsByTagName("head")[0];
+    var f = document.createElement("script");
+    f.type = "text/javascript";
+    f.charset = "utf-8";
+    f.async = true;
+    f.timeout = 12e4;
+    if (b.nc) f.setAttribute("nonce", b.nc);
+    f.src = b.p + "" + ({
       0: "boot_app",
       1: "sockets-demo",
       2: "codemirror.min",
@@ -542,15 +542,15 @@
       492: "TS.hello_world",
       493: "sli_trending_channels_dashboard"
     }[a] || a) + "." + {
-      0: "4a91cef2de6f3e09ef71",
+      0: "66cfa8e6d3935bb11162",
       1: "e44db9ab1a3b405f22a0",
       2: "e2bf579bcee157a88b78",
       3: "dd29ec5bf246d832c2a0",
-      4: "73e714cedf510f259ffb",
+      4: "8e5731ea21ba8602b2f4",
       5: "eef05afce6022f928a82",
       6: "223c9574a2dc498174c1",
-      7: "cffa9aa9b293a6cb8b3a",
-      8: "2249471e2b6923739a00",
+      7: "fdd864511e052e1449cc",
+      8: "6320b27b6f75ca18894b",
       9: "67114d10323fa22dec91",
       10: "c28722f3cbcccf75d506",
       11: "351342331b744eee94f3",
@@ -570,7 +570,7 @@
       25: "6a7c0480d00d693b231a",
       26: "2cccfc592e04ff8e6d0f",
       27: "d4d8c74e0811028c91c8",
-      28: "723007369feb3b82c108",
+      28: "f969400570cf0a533495",
       29: "2c903be5c5dece6e2bf2",
       30: "ef545c428f48bf1b0c3e",
       31: "4b2f21001c019a7c5a71",
@@ -1037,10 +1037,10 @@
       493: "9fca78dae1e04ef45b79"
     }[a] + ".chunk.min.js";
     var i = setTimeout(_, 12e4);
-    o.onerror = o.onload = _;
+    f.onerror = f.onload = _;
 
     function _() {
-      o.onerror = o.onload = null;
+      f.onerror = f.onload = null;
       clearTimeout(i);
       var e = d[a];
       if (0 !== e) {
@@ -1048,7 +1048,7 @@
         d[a] = void 0;
       }
     }
-    f.appendChild(o);
+    o.appendChild(f);
     return r;
   };
   b.m = e;
