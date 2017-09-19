@@ -1,6 +1,6 @@
 (function(e) {
   var a = window["webpackJsonp"];
-  window["webpackJsonp"] = function c(r, o, f) {
+  window["webpackJsonp"] = function c(r, f, o) {
     var i, _, s = 0,
       n = [],
       l;
@@ -9,12 +9,12 @@
       if (d[_]) n.push(d[_][0]);
       d[_] = 0;
     }
-    for (i in o)
-      if (Object.prototype.hasOwnProperty.call(o, i)) e[i] = o[i];
-    if (a) a(r, o, f);
+    for (i in f)
+      if (Object.prototype.hasOwnProperty.call(f, i)) e[i] = f[i];
+    if (a) a(r, f, o);
     while (n.length) n.shift()();
-    if (f)
-      for (s = 0; s < f.length; s++) l = b(b.s = f[s]);
+    if (o)
+      for (s = 0; s < o.length; s++) l = b(b.s = o[s]);
     return l;
   };
   var c = {};
@@ -43,14 +43,14 @@
       c = d[a] = [e, b];
     });
     c[2] = r;
-    var o = document.getElementsByTagName("head")[0];
-    var f = document.createElement("script");
-    f.type = "text/javascript";
-    f.charset = "utf-8";
-    f.async = true;
-    f.timeout = 12e4;
-    if (b.nc) f.setAttribute("nonce", b.nc);
-    f.src = b.p + "" + ({
+    var f = document.getElementsByTagName("head")[0];
+    var o = document.createElement("script");
+    o.type = "text/javascript";
+    o.charset = "utf-8";
+    o.async = true;
+    o.timeout = 12e4;
+    if (b.nc) o.setAttribute("nonce", b.nc);
+    o.src = b.p + "" + ({
       0: "boot_app",
       1: "sockets-demo",
       2: "codemirror.min",
@@ -546,10 +546,10 @@
       1: "e44db9ab1a3b405f22a0",
       2: "e2bf579bcee157a88b78",
       3: "dd29ec5bf246d832c2a0",
-      4: "41c75c2eab54d0b3358a",
+      4: "73e714cedf510f259ffb",
       5: "eef05afce6022f928a82",
       6: "223c9574a2dc498174c1",
-      7: "2a930624083b91aabf88",
+      7: "cffa9aa9b293a6cb8b3a",
       8: "2249471e2b6923739a00",
       9: "67114d10323fa22dec91",
       10: "c28722f3cbcccf75d506",
@@ -1037,10 +1037,10 @@
       493: "9fca78dae1e04ef45b79"
     }[a] + ".chunk.min.js";
     var i = setTimeout(_, 12e4);
-    f.onerror = f.onload = _;
+    o.onerror = o.onload = _;
 
     function _() {
-      f.onerror = f.onload = null;
+      o.onerror = o.onload = null;
       clearTimeout(i);
       var e = d[a];
       if (0 !== e) {
@@ -1048,7 +1048,7 @@
         d[a] = void 0;
       }
     }
-    o.appendChild(f);
+    f.appendChild(o);
     return r;
   };
   b.m = e;
