@@ -89,19 +89,17 @@
         {{#t}}Private channels are similar to channels, but they\u2019re hidden to non-members and the conversation is private. This conversion cannot be undone.{{/t}}
       </p>
 
-      {{#feature flag="feature_esc_disable_convert_to_private_option"}}
-        {{#if disable_convert_btn}}
-          {{#if model_ob.unlinked}}
-            <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
-              {{#t}}During the shared channels beta, channels that were previously shared can\u2019t be made private.{{/t}}
-            </div>
-          {{else}}
-            <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
-              {{#t}}During the beta, shared channels can\u2019t be made private.{{/t}}
-            </div>
-          {{/if}}
+      {{#if disable_convert_btn}}
+        {{#if model_ob.unlinked}}
+          <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
+            {{#t}}During the shared channels beta, channels that were previously shared can\u2019t be made private.{{/t}}
+          </div>
+        {{else}}
+          <div class="c-alert c-alert--inline c-alert--level_warning channel_option_item__alert">
+            {{#t}}During the beta, shared channels can\u2019t be made private.{{/t}}
+          </div>
         {{/if}}
-      {{/feature}}
+      {{/if}}
 
       <div class="channel_option_open">
         <ts-icon class="ts_icon_arrow_large_right"></ts-icon>
