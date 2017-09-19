@@ -10,7 +10,7 @@
   {{else}}
     {{#if_equal filter compare="all"}}
       {{#feature flag="feature_sli_file_search"}}
-        {{#t rough-draft="true"}}No results found matching:<br><strong>{query_string}</strong>.{{/t}}
+        {{#t}}No results found matching:<br><strong>{query_string}</strong>.{{/t}}
       {{/feature}}
     {{else}}
       {{#t}}No messages found matching:<br><strong>{query_string}</strong>.{{/t}}
