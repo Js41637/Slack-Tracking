@@ -1,14 +1,289 @@
 webpackJsonp([87], {
-  0: function(n, e) {
-    n.exports = function(n) {
-      if ("undefined" !== typeof execScript) execScript(n);
-      else eval.call(null, n);
-    };
+  13378: function(e, n, r) {
+    (function(n) {
+      e.exports = n["parseMessageFormatString"] = r(13379);
+    }).call(n, r(30));
   },
-  212: function(n, e, r) {
-    r(0)(r(213));
+  13379: function(e, n, r) {
+    var t;
+    var t;
+    (function(n) {
+      if (true) e.exports = n();
+      else if ("function" === typeof define && define.amd) define([], n);
+      else {
+        var r;
+        if ("undefined" !== typeof window) r = window;
+        else if ("undefined" !== typeof global) r = global;
+        else if ("undefined" !== typeof self) r = self;
+        else r = this;
+        r.parseMessageFormatString = n();
+      }
+    })(function() {
+      var e, n, r;
+      return function e(n, r, i) {
+        function o(a, d) {
+          if (!r[a]) {
+            if (!n[a]) {
+              var l = "function" == typeof t && t;
+              if (!d && l) return t(a, !0);
+              if (s) return s(a, !0);
+              var f = new Error("Cannot find module '" + a + "'");
+              throw f.code = "MODULE_NOT_FOUND", f;
+            }
+            var x = r[a] = {
+              exports: {}
+            };
+            n[a][0].call(x.exports, function(e) {
+              var r = n[a][1][e];
+              return o(r ? r : e);
+            }, x, x.exports, e, n, r, i);
+          }
+          return r[a].exports;
+        }
+        var s = "function" == typeof t && t;
+        for (var a = 0; a < i.length; a++) o(i[a]);
+        return o;
+      }({
+        1: [function(e, n, r) {
+          "use strict";
+          n.exports = function e(n) {
+            var r = {
+              tokens: [],
+              pattern: String(n),
+              index: 0
+            };
+            try {
+              h(r, "message");
+              if (r.index < r.pattern.length) throw new Error("Unexpected symbol");
+            } catch (e) {
+              r.error = e;
+            }
+            return {
+              tokens: r.tokens,
+              lastIndex: r.index,
+              error: r.error
+            };
+          };
+
+          function t(e) {
+            return "0" === e || "1" === e || "2" === e || "3" === e || "4" === e || "5" === e || "6" === e || "7" === e || "8" === e || "9" === e;
+          }
+
+          function i(e) {
+            var n = e && e.charCodeAt(0);
+            return n >= 9 && n <= 13 || 32 === n || 133 === n || 160 === n || 6158 === n || n >= 8192 && n <= 8205 || 8232 === n || 8233 === n || 8239 === n || 8287 === n || 8288 === n || 12288 === n || 65279 === n;
+          }
+
+          function o(e) {
+            var n = e.index;
+            var r = e.pattern;
+            var t = r.length;
+            while (e.index < t && i(r[e.index])) ++e.index;
+            if (n < e.index) e.tokens.push(["space", r.slice(n, e.index)]);
+          }
+
+          function s(e, n) {
+            var r = e.pattern;
+            var t = r.length;
+            var o = "plural" === n || "selectordinal" === n;
+            var s = "style" === n;
+            var a = e.index;
+            var d;
+            while (e.index < t) {
+              d = r[e.index];
+              if ("{" === d || "}" === d || o && "#" === d || s && i(d)) break;
+              else if ("'" === d) {
+                d = r[++e.index];
+                if ("'" === d) ++e.index;
+                else if ("{" === d || "}" === d || o && "#" === d || s && i(d))
+                  while (++e.index < t) {
+                    d = r[e.index];
+                    if ("''" === r.slice(e.index, e.index + 2)) ++e.index;
+                    else if ("'" === d) {
+                      ++e.index;
+                      break;
+                    }
+                  }
+              } else ++e.index;
+            }
+            return r.slice(a, e.index);
+          }
+
+          function a(e) {
+            var n = e.pattern;
+            var r = n[e.index];
+            if ("#" === r) {
+              ++e.index;
+              e.tokens.push(["#", "#"]);
+              return;
+            }
+            if ("{" === r) {
+              ++e.index;
+              e.tokens.push(["{", "{"]);
+            } else throw new Error("Expected { to start placeholder");
+            o(e);
+            d(e);
+            o(e);
+            r = n[e.index];
+            if ("}" === r) {
+              ++e.index;
+              e.tokens.push([r, r]);
+              return;
+            } else if ("," === r) {
+              ++e.index;
+              e.tokens.push([r, r]);
+            } else throw new Error("Expected , or }");
+            o(e);
+            var t = l(e);
+            o(e);
+            r = n[e.index];
+            if ("}" === r) {
+              ++e.index;
+              e.tokens.push([r, r]);
+              return;
+            } else if ("," === r) {
+              ++e.index;
+              e.tokens.push([r, r]);
+            } else throw new Error("Expected , or }");
+            o(e);
+            if ("plural" === t || "selectordinal" === t) {
+              x(e);
+              o(e);
+              u(e, t);
+            } else if ("select" === t) u(e, t);
+            else f(e);
+            o(e);
+            r = n[e.index];
+            if ("}" === r) {
+              ++e.index;
+              e.tokens.push([r, r]);
+            } else throw new Error("Expected } to end the placeholder");
+          }
+
+          function d(e) {
+            var n = e.pattern;
+            var r = n.length;
+            var t = e.index;
+            while (e.index < r) {
+              var o = n[e.index];
+              if ("{" === o || "#" === o || "}" === o || "," === o || i(o)) break;
+              ++e.index;
+            }
+            var s = n.slice(t, e.index);
+            if (s) e.tokens.push(["id", s]);
+            else throw new Error("Expected placeholder id");
+            return s;
+          }
+
+          function l(e) {
+            var n = e.pattern;
+            var r;
+            var t = ["number", "date", "time", "ordinal", "duration", "spellout", "plural", "selectordinal", "select"];
+            for (var i = 0, o = t.length; i < o; ++i) {
+              var s = t[i];
+              if (n.slice(e.index, e.index + s.length) === s) {
+                r = s;
+                e.index += s.length;
+                break;
+              }
+            }
+            if (r) e.tokens.push(["type", r]);
+            else throw new Error("Expected placeholder type:\n" + t.join(", "));
+            return r;
+          }
+
+          function f(e) {
+            var n = s(e, "style");
+            if (n) e.tokens.push(["style", n]);
+            else throw new Error("Expected a placeholder style name");
+            return n;
+          }
+
+          function x(e) {
+            var n = e.pattern;
+            var r = n.length;
+            if ("offset:" === n.slice(e.index, e.index + 7)) {
+              e.index += 7;
+              e.tokens.push(["offset", "offset"]);
+              e.tokens.push([":", ":"]);
+              o(e);
+              var i = e.index;
+              while (e.index < r && t(n[e.index])) ++e.index;
+              if (i !== e.index) e.tokens.push(["number", n.slice(i, e.index)]);
+              else throw new Error("Expected offset number");
+            }
+          }
+
+          function u(e, n) {
+            var r = e.pattern;
+            var t = r.length;
+            var i = false;
+            var s = false;
+            while (e.index < t && "}" !== r[e.index]) {
+              var a = p(e);
+              if ("other" === a) s = true;
+              o(e);
+              c(e, n);
+              o(e);
+              i = true;
+            }
+            if (!i) throw new Error("Expected " + n + " message options");
+            else if (!s) throw new Error("Expected " + n + ' to have an "other" option');
+          }
+
+          function p(e) {
+            var n = e.index;
+            var r = e.pattern;
+            var t = r.length;
+            while (e.index < t) {
+              var o = r[e.index];
+              if ("}" === o || "," === o || "{" === o || i(o)) break;
+              ++e.index;
+            }
+            var s = r.slice(n, e.index);
+            if (s) e.tokens.push(["selector", s]);
+            else throw new Error("Expected option selector");
+            return s;
+          }
+
+          function c(e, n) {
+            var r = e.pattern[e.index];
+            if ("{" !== r) throw new Error("Expected { to start sub message");
+            ++e.index;
+            e.tokens.push([r, r]);
+            h(e, n);
+            r = e.pattern[e.index];
+            if ("}" !== r) throw new Error("Expected } to end sub message");
+            ++e.index;
+            e.tokens.push([r, r]);
+          }
+
+          function h(e, n) {
+            var r = e.tokens;
+            var t = e.pattern;
+            var i = t.length;
+            var o;
+            if (o = s(e, n)) r.push(["text", o]);
+            while (e.index < i && "}" !== t[e.index]) {
+              a(e);
+              if (o = s(e, n)) r.push(["text", o]);
+            }
+            return r;
+          }
+        }, {}]
+      }, {}, [1])(1);
+    });
   },
-  213: function(n, e) {
-    n.exports = "(function(f){if(typeof exports===\"object\"&&typeof module!==\"undefined\"){module.exports=f()}else if(typeof define===\"function\"&&define.amd){define([],f)}else{var g;if(typeof window!==\"undefined\"){g=window}else if(typeof global!==\"undefined\"){g=global}else if(typeof self!==\"undefined\"){g=self}else{g=this}g.parseMessageFormatString = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require==\"function\"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error(\"Cannot find module '\"+o+\"'\");throw f.code=\"MODULE_NOT_FOUND\",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require==\"function\"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){\n/**\n * Tokens\n *\n * Turns this:\n *  `You have { numBananas, plural,\n *       =0 {no bananas}\n *      one {a banana}\n *    other {# bananas}\n *  } for sale`\n *\n * into this:\n *  [\n *    [ \"text\", \"You have \" ],\n *    [ \"{\", \"{\" ],\n *    [ \"space\", \" \" ],\n *    [ \"id\", \"numBananas\" ],\n *    [ \",\", \", \" ],\n *    [ \"space\", \" \" ],\n *    [ \"type\", \"plural\" ],\n *    [ \",\", \",\" ],\n *    [ \"space\", \"\\n     \" ],\n *    [ \"selector\", \"=0\" ],\n *    [ \"space\", \" \" ],\n *    [ \"{\", \"{\" ],\n *    [ \"text\", \"no bananas\" ],\n *    [ \"}\", \"}\" ],\n *    [ \"space\", \"\\n    \" ],\n *    [ \"selector\", \"one\" ],\n *    [ \"space\", \" \" ],\n *    [ \"{\", \"{\" ],\n *    [ \"text\", \"a banana\" ],\n *    [ \"}\", \"}\" ],\n *    [ \"space\", \"\\n  \" ],\n *    [ \"selector\", \"other\" ],\n *    [ \"space\", \" \" ],\n *    [ \"{\", \"{\" ],\n *    [ \"#\", \"#\" ],\n *    [ \"text\", \" bananas\" ],\n *    [ \"}\", \"}\" ],\n *    [ \"space\", \"\\n\" ],\n *    [ \"}\", \"}\" ],\n *    [ \"text\", \" for sale.\" ]\n *  ]\n **/\n\n'use strict'\n\nmodule.exports = function tokens (pattern) {\n  var current = { tokens: [], pattern: String(pattern), index: 0 }\n  try {\n    messageTokens(current, 'message')\n    if (current.index < current.pattern.length) {\n      throw new Error('Unexpected symbol')\n    }\n  } catch (error) {\n    current.error = error\n  }\n  return {\n    tokens: current.tokens,\n    lastIndex: current.index,\n    error: current.error\n  }\n}\n\nfunction isDigit (char) {\n  return (\n    char === '0' ||\n    char === '1' ||\n    char === '2' ||\n    char === '3' ||\n    char === '4' ||\n    char === '5' ||\n    char === '6' ||\n    char === '7' ||\n    char === '8' ||\n    char === '9'\n  )\n}\n\nfunction isWhitespace (char) {\n  var code = char && char.charCodeAt(0)\n  return (\n    (code >= 0x09 && code <= 0x0D) ||\n    code === 0x20 || code === 0x85 || code === 0xA0 || code === 0x180E ||\n    (code >= 0x2000 && code <= 0x200D) ||\n    code === 0x2028 || code === 0x2029 || code === 0x202F || code === 0x205F ||\n    code === 0x2060 || code === 0x3000 || code === 0xFEFF\n  )\n}\n\nfunction skipWhitespace (current) {\n  var start = current.index\n  var pattern = current.pattern\n  var length = pattern.length\n  while (\n    current.index < length &&\n    isWhitespace(pattern[current.index])\n  ) {\n    ++current.index\n  }\n  if (start < current.index) {\n    current.tokens.push([ 'space', pattern.slice(start, current.index) ])\n  }\n}\n\nfunction text (current, parentType) {\n  var pattern = current.pattern\n  var length = pattern.length\n  var isHashSpecial = (parentType === 'plural' || parentType === 'selectordinal')\n  var isSpaceSpecial = (parentType === 'style')\n  var start = current.index\n  var char\n  while (current.index < length) {\n    char = pattern[current.index]\n    if (\n      char === '{' ||\n      char === '}' ||\n      (isHashSpecial && char === '#') ||\n      (isSpaceSpecial && isWhitespace(char))\n    ) {\n      break\n    } else if (char === '\\'') {\n      char = pattern[++current.index]\n      if (char === '\\'') { // double is always 1 '\n        ++current.index\n      } else if (\n        // only when necessary\n        char === '{' ||\n        char === '}' ||\n        (isHashSpecial && char === '#') ||\n        (isSpaceSpecial && isWhitespace(char))\n      ) {\n        while (++current.index < length) {\n          char = pattern[current.index]\n          if (pattern.slice(current.index, current.index + 2) === '\\'\\'') { // double is always 1 '\n            ++current.index\n          } else if (char === '\\'') { // end of quoted\n            ++current.index\n            break\n          }\n        }\n      } // lone ' is just a '\n    } else {\n      ++current.index\n    }\n  }\n\n  return pattern.slice(start, current.index)\n}\n\nfunction argumentTokens (current) {\n  var pattern = current.pattern\n  var char = pattern[current.index]\n  if (char === '#') {\n    ++current.index // move passed #\n    current.tokens.push([ '#', '#' ])\n    return\n  }\n\n  if (char === '{') {\n    ++current.index // move passed {\n    current.tokens.push([ '{', '{' ])\n  } else {\n    throw new Error('Expected { to start placeholder')\n  }\n\n  skipWhitespace(current)\n\n  argId(current)\n\n  skipWhitespace(current)\n\n  char = pattern[current.index]\n  if (char === '}') { // end placeholder\n    ++current.index\n    current.tokens.push([ char, char ])\n    return\n  } else if (char === ',') {\n    ++current.index\n    current.tokens.push([ char, char ])\n  } else {\n    throw new Error('Expected , or }')\n  }\n\n  skipWhitespace(current)\n\n  var type = argType(current)\n\n  skipWhitespace(current)\n\n  char = pattern[current.index]\n  if (char === '}') { // end placeholder\n    ++current.index\n    current.tokens.push([ char, char ])\n    return\n  } else if (char === ',') {\n    ++current.index\n    current.tokens.push([ char, char ])\n  } else {\n    throw new Error('Expected , or }')\n  }\n\n  skipWhitespace(current)\n\n  if (type === 'plural' || type === 'selectordinal') {\n    pluralOffsetTokens(current)\n    skipWhitespace(current)\n    subMessagesTokens(current, type)\n  } else if (type === 'select') {\n    subMessagesTokens(current, type)\n  } else {\n    argStyle(current)\n  }\n\n  skipWhitespace(current)\n\n  char = pattern[current.index]\n  if (char === '}') { // end placeholder\n    ++current.index\n    current.tokens.push([ char, char ])\n  } else {\n    throw new Error('Expected } to end the placeholder')\n  }\n}\n\nfunction argId (current) {\n  var pattern = current.pattern\n  var length = pattern.length\n  var start = current.index\n  while (current.index < length) {\n    var char = pattern[current.index]\n    if (\n      char === '{' || char === '#' || char === '}' || char === ',' ||\n      isWhitespace(char)\n    ) {\n      break\n    }\n    ++current.index\n  }\n  var token = pattern.slice(start, current.index)\n  if (token) {\n    current.tokens.push([ 'id', token ])\n  } else {\n    throw new Error('Expected placeholder id')\n  }\n  return token\n}\n\nfunction argType (current) {\n  var pattern = current.pattern\n  var token\n  var types = [\n    'number', 'date', 'time', 'ordinal', 'duration', 'spellout', 'plural', 'selectordinal', 'select'\n  ]\n  for (var t = 0, tt = types.length; t < tt; ++t) {\n    var type = types[t]\n    if (pattern.slice(current.index, current.index + type.length) === type) {\n      token = type\n      current.index += type.length\n      break\n    }\n  }\n  if (token) {\n    current.tokens.push([ 'type', token ])\n  } else {\n    throw new Error('Expected placeholder type:\\n' + types.join(', '))\n  }\n  return token\n}\n\nfunction argStyle (current) {\n  var token = text(current, 'style')\n  if (token) {\n    current.tokens.push([ 'style', token ])\n  } else {\n    throw new Error('Expected a placeholder style name')\n  }\n  return token\n}\n\nfunction pluralOffsetTokens (current) {\n  var pattern = current.pattern\n  var length = pattern.length\n  if (pattern.slice(current.index, current.index + 7) === 'offset:') {\n    current.index += 7 // move passed offset:\n    current.tokens.push([ 'offset', 'offset' ])\n    current.tokens.push([ ':', ':' ])\n    skipWhitespace(current)\n    var start = current.index\n    while (\n      current.index < length &&\n      isDigit(pattern[current.index])\n    ) {\n      ++current.index\n    }\n    if (start !== current.index) {\n      current.tokens.push([ 'number', pattern.slice(start, current.index) ])\n    } else {\n      throw new Error('Expected offset number')\n    }\n  }\n}\n\nfunction subMessagesTokens (current, parentType) {\n  var pattern = current.pattern\n  var length = pattern.length\n  var hasSubs = false\n  var hasOther = false\n  while (\n    current.index < length &&\n    pattern[current.index] !== '}'\n  ) {\n    var select = selector(current)\n    if (select === 'other') {\n      hasOther = true\n    }\n    skipWhitespace(current)\n    subMessageTokens(current, parentType)\n    skipWhitespace(current)\n    hasSubs = true\n  }\n  if (!hasSubs) {\n    throw new Error('Expected ' + parentType + ' message options')\n  } else if (!hasOther) {\n    throw new Error('Expected ' + parentType + ' to have an \"other\" option')\n  }\n}\n\nfunction selector (current) {\n  var start = current.index\n  var pattern = current.pattern\n  var length = pattern.length\n  while (current.index < length) {\n    var char = pattern[current.index]\n    if (char === '}' || char === ',' || char === '{' || isWhitespace(char)) {\n      break\n    }\n    ++current.index\n  }\n  var token = pattern.slice(start, current.index)\n  if (token) {\n    current.tokens.push([ 'selector', token ])\n  } else {\n    throw new Error('Expected option selector')\n  }\n  return token\n}\n\nfunction subMessageTokens (current, parentType) {\n  var char = current.pattern[current.index]\n  if (char !== '{') {\n    throw new Error('Expected { to start sub message')\n  }\n  ++current.index // move passed {\n  current.tokens.push([ char, char ])\n\n  messageTokens(current, parentType)\n\n  char = current.pattern[current.index]\n  if (char !== '}') {\n    throw new Error('Expected } to end sub message')\n  }\n\n  ++current.index // move passed }\n  current.tokens.push([ char, char ])\n}\n\nfunction messageTokens (current, parentType) {\n  var tokens = current.tokens\n  var pattern = current.pattern\n  var length = pattern.length\n  var token\n  if ((token = text(current, parentType))) {\n    tokens.push([ 'text', token ])\n  }\n  while (current.index < length && pattern[current.index] !== '}') {\n    argumentTokens(current)\n    if ((token = text(current, parentType))) {\n      tokens.push([ 'text', token ])\n    }\n  }\n  return tokens\n}\n\n},{}]},{},[1])(1)\n});";
+  30: function(e, n) {
+    var r;
+    r = function() {
+      return this;
+    }();
+    try {
+      r = r || Function("return this")() || (0, eval)("this");
+    } catch (e) {
+      if ("object" === typeof window) r = window;
+    }
+    e.exports = r;
   }
-}, [212]);
+}, [13378]);
