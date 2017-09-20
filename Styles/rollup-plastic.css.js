@@ -15778,6 +15778,10 @@ only screen and (max-width:767px) {
   min-height: 0
 }
 
+.channel_modal_with_list .monkey_scroll_hider {
+  overflow-y: auto
+}
+
 .channel_modal_with_list .channel_modal_list {
   min-height: 0;
   flex: 1;
