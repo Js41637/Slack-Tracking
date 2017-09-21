@@ -1,5 +1,5 @@
 webpackJsonp([53], {
-  17231: function(t, c) {
+  18796: function(t, c) {
     $(function() {
       "use strict";
       $("footer .links .col").click(function(t) {
@@ -18,4 +18,4 @@ webpackJsonp([53], {
       });
     }());
   }
-}, [17231]);
+}, [18796]);

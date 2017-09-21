@@ -15423,28 +15423,10 @@ body:not(.unify_user) .mpdm_badge .presence {
   line-height: 1.5
 }
 
-body:not(.unify_user) .tab_complete_ui ul.type_emoji li {
-  padding: 3px 7px 3px 8px;
-  line-height: .8rem
-}
-
-body:not(.unify_user) .tab_complete_ui ul.type_members .member_image {
-  margin-right: .4rem;
-  margin-top: -2px;
-  vertical-align: middle
-}
-
 .tab_complete_ui ul.type_members .broadcast,
 .tab_complete_ui ul.type_members .username {
   font-weight: 900;
   margin-right: .4rem
-}
-
-body:not(.unify_user) .tab_complete_ui ul.type_members .broadcast {
-  display: inline-block;
-  color: #555459;
-  font-weight: 900;
-  margin-left: 0
 }
 
 .tab_complete_ui ul.type_members .unify_broadcast {
@@ -15467,16 +15449,11 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .broadcast {
   font-size: 1rem
 }
 
-body:not(.unify_user) .tab_complete_ui ul.type_members .unify_broadcast {
-  display: inline-block;
-  color: #555459;
-  font-weight: 900;
-  margin-left: 0
-}
-
 .tab_complete_ui ul.type_members .broadcast_info {
   font-weight: 400;
-  margin-left: .25rem
+  margin-left: .25rem;
+  overflow: hidden;
+  text-overflow: ellipsis
 }
 
 .tab_complete_ui ul.type_members .broadcast_info,
@@ -15502,15 +15479,6 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .unify_broadcast {
 .tab_complete_ui ul.type_members .secondary_name {
   margin-right: .4rem;
   color: #717274
-}
-
-body:not(.unify_user) .tab_complete_ui ul.type_members .broadcast,
-body:not(.unify_user) .tab_complete_ui ul.type_members .bullet,
-body:not(.unify_user) .tab_complete_ui ul.type_members .display_name,
-body:not(.unify_user) .tab_complete_ui ul.type_members .presence,
-body:not(.unify_user) .tab_complete_ui ul.type_members .secondary_name,
-body:not(.unify_user) .tab_complete_ui ul.type_members .username {
-  margin-right: 6px
 }
 
 .tab_complete_ui ul.type_members .bullet {
@@ -15558,11 +15526,6 @@ body:not(.unify_user) .tab_complete_ui ul.type_members .username {
   line-height: 1.2rem
 }
 
-body:not(.unify_user) .tab_complete_ui ul.type_cmds li.tab_complete_ui_item {
-  padding: 6px 10px;
-  line-height: 1.2rem
-}
-
 .tab_complete_ui ul.type_cmds .cmdname {
   color: #000;
   font-weight: 900
@@ -15589,6 +15552,13 @@ body:not(.unify_user) .tab_complete_ui ul.type_cmds li.tab_complete_ui_item {
   font-size: .7rem
 }
 
+.tab_complete_ui .p-tabcomplete-channel-item__channel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap
+}
+
 .tab_complete_ui li.tab_complete_ui_group,
 .tab_complete_ui li.tab_complete_ui_item {
   border: 0;
@@ -15600,13 +15570,6 @@ body:not(.unify_user) .tab_complete_ui ul.type_cmds li.tab_complete_ui_item {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis
-}
-
-body:not(.unify_user) .tab_complete_ui li.tab_complete_ui_group,
-body:not(.unify_user) .tab_complete_ui li.tab_complete_ui_item {
-  padding: 3px 10px;
-  font-size: .9rem;
-  line-height: 1.5rem
 }
 
 .tab_complete_ui li.tab_complete_ui_group.active,
@@ -15652,25 +15615,12 @@ body:not(.unify_user) .tab_complete_ui li.tab_complete_ui_item {
 .tab_complete_ui li.tab_complete_ui_group .ts_icon_shared_channels,
 .tab_complete_ui li.tab_complete_ui_item .ts_icon_shared_channels {
   position: relative;
-  right: 0;
-  bottom: -1px;
-  float: right;
-  height: 24px
-}
-
-.unify_user .tab_complete_ui li.tab_complete_ui_group .ts_icon_shared_channels,
-.unify_user .tab_complete_ui li.tab_complete_ui_item .ts_icon_shared_channels {
+  height: 24px;
   bottom: 4px
 }
 
-.tab_complete_ui li.tab_complete_ui_group .ts_icon_shared_channels:before,
-.tab_complete_ui li.tab_complete_ui_item .ts_icon_shared_channels:before {
-  position: absolute;
-  right: 0
-}
-
-.unify_user .tab_complete_ui li.tab_complete_ui_group .ts_icon_shared_channel:before,
-.unify_user .tab_complete_ui li.tab_complete_ui_item .ts_icon_shared_channel:before {
+.tab_complete_ui li.tab_complete_ui_group .ts_icon_shared_channel:before,
+.tab_complete_ui li.tab_complete_ui_item .ts_icon_shared_channel:before {
   line-height: 20px
 }
 
