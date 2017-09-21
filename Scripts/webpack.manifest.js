@@ -541,11 +541,11 @@
       492: "TS.hello_world",
       493: "sli_trending_channels_dashboard"
     }[a] || a) + "." + {
-      0: "4d03c0f05a05ffbfd4a1",
+      0: "be7d4ed00681c52217f0",
       1: "dab17f1bf51f169433c1",
       2: "e2bf579bcee157a88b78",
       3: "45c90c53728d255f29a2",
-      4: "33eba12b236080699685",
+      4: "0c8c7e99dcae6a28abef",
       5: "d9a29941f1e6a301fd3a",
       6: "f4f11e4a6ec22a18de2f",
       7: "1c91053870c42e7c4702",
