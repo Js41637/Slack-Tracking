@@ -16004,10 +16004,6 @@ html:not(.supports_flexbox) #channel_browser .channel_browser_sort_container {
   padding: 0
 }
 
-body:not(.unify_user) #new_channel_modal #invite_members_container .lazy_filter_select .lfs_list .lfs_item {
-  padding: .375rem
-}
-
 .new_channel_modal_footer {
   padding-top: .75rem
 }
@@ -16060,16 +16056,6 @@ body:not(.unify_user) #new_channel_modal #invite_members_container .lazy_filter_
   padding-top: 11px
 }
 
-body:not(.unify_user) #im_browser .im_browser_row {
-  padding-left: 62px
-}
-
-body:not(.unify_user) #im_browser .im_browser_row .member_image {
-  position: absolute;
-  left: 12px;
-  top: 13px
-}
-
 #im_browser .im_browser_row.disabled_dm {
   cursor: default;
   background: #f9f9f9
@@ -16093,16 +16079,8 @@ body:not(.unify_user) #im_browser .im_browser_row .member_image {
   color: #2c2d30
 }
 
-body:not(.unify_user) #im_browser .im_browser_row.multiparty {
-  color: inherit
-}
-
 #im_browser .im_browser_row.multiparty .im_display_name_container {
   margin-top: 10px
-}
-
-body:not(.unify_user) #im_browser .im_browser_row.multiparty .im_display_name_container {
-  margin-top: 0
 }
 
 #im_browser .im_browser_row.multiparty .member_image {
@@ -16165,10 +16143,6 @@ body:not(.unify_user) #im_browser .im_browser_row.multiparty .im_display_name_co
   bottom: 13px;
   position: relative;
   padding: 2px 8px
-}
-
-body:not(.unify_user) #im_browser .im_browser_row .im_unread_cnt {
-  bottom: 0
 }
 
 #im_browser .im_browser_row .enter_icon {
@@ -16483,13 +16457,6 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   position: relative
 }
 
-body:not(.unify_user) .channel_invite_member,
-body:not(.unify_user) .channel_invite_member_small,
-body:not(.unify_user) .channel_invite_pending_user_small {
-  padding-left: 42px;
-  height: 36px
-}
-
 .channel_invite_member .add_icon,
 .channel_invite_member .enter_icon,
 .channel_invite_member_small .add_icon,
@@ -16514,18 +16481,6 @@ body:not(.unify_user) .channel_invite_pending_user_small {
   font-size: 1.6rem;
   color: #439fe0;
   align-self: center
-}
-
-body:not(.unify_user) .channel_invite_member .invite_user_group_avatar,
-body:not(.unify_user) .channel_invite_member .member_image,
-body:not(.unify_user) .channel_invite_member_small .invite_user_group_avatar,
-body:not(.unify_user) .channel_invite_member_small .member_image,
-body:not(.unify_user) .channel_invite_pending_user_small .invite_user_group_avatar,
-body:not(.unify_user) .channel_invite_pending_user_small .member_image {
-  margin-right: .5rem;
-  position: absolute;
-  left: 0;
-  top: 0
 }
 
 .channel_invite_member .invite_user_group_avatar,
@@ -16611,11 +16566,6 @@ body:not(.unify_user) .channel_invite_pending_user_small .member_image {
 
 .channel_invite_member {
   display: flex
-}
-
-body:not(.unify_user) .channel_invite_member {
-  padding-left: 50px;
-  height: 40px
 }
 
 .channel_invite_member .invite_user_group_avatar {
@@ -16757,19 +16707,11 @@ body:not(.unify_user) .channel_invite_member {
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row {
   width: 100%;
-  height: 64px;
+  height: 58px;
   cursor: pointer;
   border: 1px solid transparent;
   border-top: 1px solid #E8E8E8;
   padding: .625rem .75rem
-}
-
-body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_invite_row {
-  height: 64px
-}
-
-.unify_user #channel_invite_container.page_needs_enterprise .channel_invite_row {
-  height: 58px
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row.disabled {
@@ -16780,14 +16722,6 @@ body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_i
 #channel_invite_container.page_needs_enterprise .channel_invite_row.disabled .add_icon {
   visibility: hidden;
   display: none
-}
-
-body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_invite_row .channel_invite_member {
-  height: 42px
-}
-
-body:not(.unify_user) #channel_invite_container.page_needs_enterprise .channel_invite_row .channel_invite_member .member_image {
-  top: 3px
 }
 
 #channel_invite_container.page_needs_enterprise .channel_invite_row .name_container {

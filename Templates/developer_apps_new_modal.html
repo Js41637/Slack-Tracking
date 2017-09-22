@@ -9,21 +9,19 @@
   <input type="hidden" name="done" value="1">
   <input type="hidden" name="crumb" value="{{crumb}}">
 
-  {{#feature flag="feature_app_permissions_api_site"}}
-    {{#if_equal token_type compare="xoxp"}}
-    <a href="/slack-apps-preview" target="_blank" class="p-app_creation_banner__anchor">
-      <div class="p-app_creation_banner {{#if env_is_dev}}p-app_creation_banner--is-dev{{/if}}">
+  {{#if_equal token_type compare="xoxp"}}
+  <a href="/slack-apps-preview" target="_blank" class="p-app_creation_banner__anchor">
+    <div class="p-app_creation_banner {{#if env_is_dev}}p-app_creation_banner--is-dev{{/if}}">
 
-        {{> developer_apps_new_modal_flask_svg}}
+      {{> developer_apps_new_modal_flask_svg}}
 
-        <div class="p-app_creation_banner__content">
-          <h2 class="p-app_creation_banner__header">{{#t note="Title text of a call to action to a blog post"}}Interested in the next generation of apps?{{/t}}</h2>
-          <p class="p-app_creation_banner__para">{{#t note="call to action text"}}We\u2019re improving app development and distribution. Join the API Preview period for workspace tokens and the Permissions API.{{/t}}</p>
-        </div>
+      <div class="p-app_creation_banner__content">
+        <h2 class="p-app_creation_banner__header">{{#t note="Title text of a call to action to a blog post"}}Interested in the next generation of apps?{{/t}}</h2>
+        <p class="p-app_creation_banner__para">{{#t note="call to action text"}}We\u2019re improving app development and distribution. Join the API Preview period for workspace tokens and the Permissions API.{{/t}}</p>
       </div>
-    </a>
-    {{/if_equal}}
-  {{/feature}}
+    </div>
+  </a>
+  {{/if_equal}}
 
   {{!-- App Name --}}
   <label for="name">{{#t note="Title of the form which shows up in a modal when a third party developer wishes to create an app"}}App Name{{/t}}</label>
@@ -51,5 +49,5 @@
   <input type="hidden" name="app_type" value="{{token_type}}">
 
   {{!-- ToS Agreement --}}
-  <div class="small {{#feature flag="feature_app_permissions_api_site"}}{{else}}top_margin{{/feature}}">{{#t note="Legal copy targetted towards a third party developer creating an app using our api"}}By creating a Web API Application, you agree to the <a target="_blank" href="/terms-of-service/api">Slack API Terms of Service</a>.{{/t}}</div>
+  <div class="small">{{#t note="Legal copy targetted towards a third party developer creating an app using our api"}}By creating a Web API Application, you agree to the <a target="_blank" href="/terms-of-service/api">Slack API Terms of Service</a>.{{/t}}</div>
 </form>
