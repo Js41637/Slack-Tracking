@@ -10503,6 +10503,15 @@ body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .presence {
   color: #fff
 }
 
+.c-modal__media_container--onboarding_dialog>.infinite_spinner {
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate3d(-50%, -50%, 0);
+  -moz-transform: translate3d(-50%, -50%, 0);
+  -ms-transform: translate3d(-50%, -50%, 0);
+  transform: translate3d(-50%, -50%, 0)
+}
+
 .c-modal__left_navigation--onboarding_dialog,
 .c-modal__right_navigation--onboarding_dialog {
   height: 56px;
@@ -13048,7 +13057,17 @@ a.c-tabs__tab--plastic:focus {
   }
 }
 
-.infinite_spinner_bg,
+.infinite_spinner_bg {
+  stroke-width: 8;
+  fill: none;
+  opacity: .2;
+  stroke: grey
+}
+
+.infinite_spinner_bg_white {
+  stroke: #fff
+}
+
 .infinite_spinner_path {
   stroke-width: 8;
   fill: none
@@ -13060,11 +13079,6 @@ a.c-tabs__tab--plastic:focus {
 
 .infinite_spinner_blue {
   stroke: #50acf4
-}
-
-.infinite_spinner_bg {
-  opacity: .2;
-  stroke: grey
 }
 
 .infinite_spinner_path {
