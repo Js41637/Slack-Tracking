@@ -18,7 +18,7 @@
   <div class="search_module_footer{{#if debug.show_top_results_not_triggered}} show_top_results_not_triggered{{/if}}">
     <p>
       <span class="top_results_feedback">{{#t}}Were these <span><u><a onclick="TS.search.topResultsFeedback(this, 'top_results_useful');">useful</a></u></span> or <span><u><a onclick="TS.search.topResultsFeedback(this, 'top_results_not_useful');">not useful</a></u></span>?{{/t}}</span>
-      <span id="see_more"><a onclick="TS.search.moreTopResults();">{{#t}}See more{{/t}}</a><ts-icon style="position: absolute" class="ts_icon_chevron_right"></ts-icon></span>
+      <span id="see_more"><a onclick="TS.search.view.moreTopResults();">{{#t}}See more{{/t}}</a><ts-icon style="position: absolute" class="ts_icon_chevron_right"></ts-icon></span>
     </p>
   </div>
   {{/unless}}
