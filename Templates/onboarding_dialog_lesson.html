@@ -8,10 +8,10 @@
   <button class="c-modal__right_navigation--onboarding_dialog position_absolute no_border no_padding">
     <ts-icon class="ts_icon_chevron_right c-modal__right_caret--onboarding_dialog position_absolute"></ts-icon>
   </button>
-  <video class="c-modal__media--onboarding_dialog full_max_width no_margin" autoplay controls preload="auto" src="{{modal_media_url}}">
+  <video class="c-modal__media--onboarding_dialog" autoplay controls preload="auto" src="{{modal_media_url}}">
     {{#t}}Your browser does not support HTML5 Video. Try <a href="http://browsehappy.com/">a modern browser</a>.{{/t}}
   </video>
-  <img class="position_absolute" src="{{versioned_loading_hash_animation}}" />
+  <div class="c-modal__loading_graphic--onboarding_dialog position_absolute"></div>
 </div>
 <div class="c-modal__copy--onboarding_dialog full_width align_right">
   <div class="c-modal__lesson_circle_buttons">

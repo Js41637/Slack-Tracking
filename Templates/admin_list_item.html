@@ -14,9 +14,9 @@
     {{/if}}
 
     {{#if exclude_lazy_load}}
-        {{makeMemberPreviewLinkImage member.id 36 false}}
+        {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 36 false)}}
     {{else}}
-        {{makeMemberPreviewLinkImage member.id 36 true}}
+        {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 36 true)}}
     {{/if}}
 
     {{#feature flag="feature_name_tagging_client"}}

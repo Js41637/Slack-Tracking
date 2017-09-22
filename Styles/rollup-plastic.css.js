@@ -10454,7 +10454,7 @@ body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .presence {
   width: 370px;
   top: 50%;
   right: 0;
-  left: initial;
+  left: inherit;
   border-top-right-radius: 0;
   border-bottom-right-radius: 0;
   -webkit-transform: translate3d(500px, -50%, 0);
@@ -10497,13 +10497,6 @@ body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .presence {
 }
 
 .c-modal__media_container--onboarding_dialog {
-  display: flex;
-  -ms-flex-pack: center;
-  -webkit-box-pack: center;
-  -webkit-justify-content: center;
-  -moz-justify-content: center;
-  justify-content: center;
-  align-items: center;
   height: 280px;
   padding: 28px;
   border-top-left-radius: 4px;
@@ -10514,9 +10507,11 @@ body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .presence {
 .c-modal__right_navigation--onboarding_dialog {
   height: 56px;
   width: 28px;
+  margin-top: 28px;
   overflow: hidden;
   background: rgba(44, 45, 48, .25);
-  color: #fff
+  color: #fff;
+  transform: translate(0, 100%)
 }
 
 .c-modal__left_navigation--onboarding_dialog:hover,
@@ -10553,6 +10548,9 @@ body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .presence {
 
 .c-modal__media--onboarding_dialog {
   height: 224px;
+  width: 280px;
+  display: block;
+  margin: 0 auto;
   max-height: 100%
 }
 
@@ -10590,7 +10588,8 @@ body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .presence {
 }
 
 .c-modal__lesson_circle {
-  color: #E8E8E8
+  color: #E8E8E8;
+  line-height: 21px
 }
 
 .c-modal__lesson_circle.ts_icon_check_circle_o_large {
@@ -10598,12 +10597,21 @@ body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .presence {
   top: -1px
 }
 
+.c-modal__loading_graphic--onboarding_dialog {
+  background-image: url(/9c217/img/loading_hash_animation_@2x.gif);
+  background-position: center center;
+  background-repeat: no-repeat;
+  width: 80%;
+  height: 50%;
+  top: 0
+}
+
 .c-modal__media_container--onboarding_dialog_blue {
-  background-color: rgba(45, 158, 224, .9)
+  background-color: rgba(45, 158, 224, .94)
 }
 
 .c-modal__lesson_circle--blue {
-  color: rgba(45, 158, 224, .9)
+  color: rgba(45, 158, 224, .94)
 }
 
 .c-modal__media_container--onboarding_dialog_orange {

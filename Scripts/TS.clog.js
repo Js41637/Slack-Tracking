@@ -210,7 +210,7 @@ webpackJsonp([456], {
       };
       var T = function t() {
         if (TS.boot_data && TS.redux && TS.boot_data.feature_redux_hearts_enterprise) {
-          var e = TS.redux.enterprise.getEnterprise().id;
+          var e = TS.redux.enterprise.getEnterpriseId();
           if (e) TS.clog.setEnterprise(e);
         } else if (TS.model)
           if (TS.model.enterprise && TS.model.enterprise.id) TS.clog.setEnterprise(TS.model.enterprise.id);
