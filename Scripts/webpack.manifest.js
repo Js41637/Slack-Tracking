@@ -542,15 +542,15 @@
       492: "TS.hello_world",
       493: "sli_trending_channels_dashboard"
     }[a] || a) + "." + {
-      0: "3679b16e21005f490998",
+      0: "b7dc1ff11d9762b2dcc6",
       1: "4b40420b133e73644ac6",
       2: "e2bf579bcee157a88b78",
       3: "eb035aab983b227d99d4",
-      4: "7adc3d34c6c6583755ec",
+      4: "0e64d1255dbdceceffa5",
       5: "881bccee99f8bedd96de",
       6: "c1502633a53108d4477c",
       7: "a8c7dc97558958b76c53",
-      8: "0e10a933ce450bc61009",
+      8: "33f906a426d710fb2a10",
       9: "a731542eb1d28211ac01",
       10: "ded107f394343a53c5a3",
       11: "3a77a0a234fdae179088",
