@@ -10178,11 +10178,6 @@ only screen and (min-resolution:2dppx) {
   font-size: 18px
 }
 
-body:not(.unify_user) #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon):before,
-body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon):before {
-  position: absolute
-}
-
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon).ts_icon_channel:before,
 #share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon).ts_icon_channel:before {
   top: 5px
@@ -10191,13 +10186,6 @@ body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .ts_icon:not(.
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item ts-icon.ts_icon_shared_channel,
 #share_dialog .lazy_filter_select .lfs_item ts-icon.ts_icon_shared_channel {
   line-height: 0
-}
-
-body:not(.unify_user) #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .presence,
-body:not(.unify_user) #share_dialog .lazy_filter_select .lfs_item .presence {
-  position: absolute;
-  top: 9px;
-  left: 3px
 }
 
 #generic_dialog.basic_share_dialog .lazy_filter_select .lfs_item .presence:not(.away):not(.active),
@@ -13331,12 +13319,6 @@ h3 .presence {
   color: #555459
 }
 
-body:not(.unify_user) #member_preview_scroller a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):not(.current_status_presets_edit_link):hover,
-body:not(.unify_user) .team_list_item a:not(.member_name):not(.current_status_preset_option):not(.member_details_manage_link):not(.current_status_presets_edit_link):hover {
-  color: #005E99;
-  text-decoration: underline
-}
-
 .team_list_item a.member_preview_link:hover,
 .team_list_item:hover a.member_preview_link {
   color: inherit
@@ -13344,23 +13326,10 @@ body:not(.unify_user) .team_list_item a:not(.member_name):not(.current_status_pr
 
 .team_list_item .member_details {
   padding: 0;
-  min-height: 72px
-}
-
-.unify_user .team_list_item .member_details {
   min-height: 56px;
   display: flex;
   flex-direction: column;
   justify-content: center
-}
-
-body:not(.unify_user) .team_list_item .member_item_inset {
-  padding-left: 82px
-}
-
-body:not(.unify_user) .team_list_item .member_image {
-  float: left;
-  margin: 0 0 0 -82px
 }
 
 .team_list_item .member_name {
@@ -13561,30 +13530,10 @@ only screen and (min-resolution:2dppx) {
 #client-ui #team_list .team_list_item,
 #member_preview_scroller .team_list_item {
   padding: .5rem;
-  cursor: pointer
-}
-
-body:not(.unify_user) #client-ui #team_list .team_list_item,
-body:not(.unify_user) #member_preview_scroller .team_list_item {
-  border-radius: 5px;
-  border: 1px solid transparent
-}
-
-body:not(.unify_user) #client-ui #team_list .team_list_item:hover,
-body:not(.unify_user) #member_preview_scroller .team_list_item:hover {
-  border-color: #E0E0E0
-}
-
-.unify_user #client-ui #team_list .team_list_item,
-.unify_user #member_preview_scroller .team_list_item {
+  cursor: pointer;
   border-bottom: 1px solid #E0E0E0;
   border-top: none;
   padding-left: 12px
-}
-
-.unify_user #client-ui #team_list .team_list_item:hover,
-.unify_user #member_preview_scroller .team_list_item:hover {
-  background: #f9f9f9
 }
 
 #client-ui #team_list .team_list_item .disclosure_arrow,
@@ -13612,6 +13561,7 @@ body:not(.unify_user) #member_preview_scroller .team_list_item:hover {
 
 #client-ui #team_list .team_list_item:hover,
 #member_preview_scroller .team_list_item:hover {
+  background: #f9f9f9;
   border-color: #d9d9d9
 }
 
@@ -13623,11 +13573,6 @@ body:not(.unify_user) #member_preview_scroller .team_list_item:hover {
 #client-ui #team_list .member_details,
 #member_preview_scroller .member_details {
   padding-right: 32px
-}
-
-body:not(.unify_user) #client-ui #team_list .member_details,
-body:not(.unify_user) #member_preview_scroller .member_details {
-  align-items: center
 }
 
 #client-ui #team_list .member_action_button,
@@ -14835,35 +14780,16 @@ body:not(.unify_user) #member_preview_scroller .member_details {
 #client-ui .searchable_member_list .member_item,
 #client-ui .searchable_member_list .team_list_item {
   cursor: pointer;
-  width: calc(100% - 1rem)
-}
-
-.unify_user #client-ui .searchable_member_list .member_item,
-.unify_user #client-ui .searchable_member_list .team_list_item {
   width: 100%
 }
 
 #client-ui .searchable_member_list .team_list_item {
-  padding: .75rem .5rem .75rem .75rem
-}
-
-body:not(.unify_user) #client-ui .searchable_member_list .team_list_item {
-  margin: .5rem;
-  padding: .5rem;
-  border-radius: 5px;
-  border: 1px solid transparent
-}
-
-body:not(.unify_user) #client-ui .searchable_member_list .team_list_item:hover {
-  border-color: #E0E0E0
-}
-
-.unify_user #client-ui .searchable_member_list .team_list_item {
+  padding: .75rem .5rem .75rem .75rem;
   border-bottom: 1px solid #E0E0E0;
   border-top: none
 }
 
-.unify_user #client-ui .searchable_member_list .team_list_item:hover {
+#client-ui .searchable_member_list .team_list_item:hover {
   background: #f9f9f9
 }
 
@@ -14999,13 +14925,6 @@ body:not(.unify_user) #client-ui .searchable_member_list .team_list_item:hover {
   float: left
 }
 
-body:not(.unify_user) .dm_badge .member_image,
-body:not(.unify_user) .mpdm_badge .member_image {
-  margin: 0 .75rem 0 0;
-  flex: none;
-  align-self: start
-}
-
 .dm_badge .dm_badge_meta,
 .mpdm_badge .dm_badge_meta {
   margin: 0 0 .5rem;
@@ -15022,26 +14941,9 @@ body:not(.unify_user) .mpdm_badge .member_image {
   color: #a0a0a2
 }
 
-body:not(.unify_user) .dm_badge a.app_preview_link,
-body:not(.unify_user) .dm_badge a.member_preview_link,
-body:not(.unify_user) .mpdm_badge a.app_preview_link,
-body:not(.unify_user) .mpdm_badge a.member_preview_link {
-  font-weight: 600;
-  font-size: 1rem;
-  color: #555459
-}
-
 .dm_badge .dm_badge:hover a.member_preview_link,
 .mpdm_badge .dm_badge:hover a.member_preview_link {
   color: inherit
-}
-
-body:not(.unify_user) .dm_badge a,
-body:not(.unify_user) .mpdm_badge a {
-  color: #9e9ea6;
-  -webkit-transition: .1s;
-  -moz-transition: .1s;
-  transition: .1s
 }
 
 .dm_badge .dm_badge:hover a,
@@ -15057,11 +14959,6 @@ body:not(.unify_user) .mpdm_badge a {
 .dm_badge .member_type_and_description,
 .mpdm_badge .member_type_and_description {
   font-size: 1rem
-}
-
-body:not(.unify_user) .dm_badge .presence,
-body:not(.unify_user) .mpdm_badge .presence {
-  margin: 0 .25rem
 }
 
 .mpdm_badge .member_image {
@@ -17135,10 +17032,6 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   height: 34px
 }
 
-body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input {
-  height: inherit
-}
-
 .lazy_filter_select .lfs_input_container.monkey_scroller {
   max-height: 150px
 }
@@ -17335,10 +17228,6 @@ body:not(.unify_user) .lazy_filter_select .lfs_input_container.empty .lfs_input 
   margin-right: 2px
 }
 
-body:not(.unify_user) .lazy_filter_select .lfs_list .lfs_item .multipary_dm_icon {
-  margin: 0
-}
-
 .lazy_filter_select .lfs_item_icon {
   border-radius: 2px;
   background-position: center center;
@@ -17435,10 +17324,6 @@ body:not(.unify_user) .lazy_filter_select .lfs_list .lfs_item .multipary_dm_icon
   pointer-events: none
 }
 
-body:not(.unify_user) .lazy_filter_select.single .lfs_input_container:after {
-  top: 4px
-}
-
 .lazy_filter_select.single .lfs_input_container.active:after,
 .lazy_filter_select.single .lfs_input_container:hover:after {
   color: #717274
@@ -17477,14 +17362,6 @@ body:not(.unify_user) .lazy_filter_select.single .lfs_input_container:after {
 
 .lazy_filter_select.single:not(.value) .lfs_value {
   display: none
-}
-
-body:not(.unify_user) .lazy_filter_select .lfs_value {
-  padding: .45rem 2.5rem .55rem 8px
-}
-
-body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
-  top: 0
 }
 
 .lazy_filter_select .lfs_token .addl_text,
@@ -17555,11 +17432,11 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   margin-bottom: 1px
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_value {
+#select_share_channels .lazy_filter_select .lfs_value {
   padding: 0 2.5rem .15rem 8px
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected {
+#select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected {
   height: 28px;
   color: #2c2d30;
   font-weight: 700;
@@ -17567,17 +17444,17 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   top: 3px
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon:not(.presence_icon) {
+#select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon:not(.presence_icon) {
   color: #717274;
   position: relative;
   top: -3px
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon_shared_channels {
+#select_share_channels .lazy_filter_select .lfs_value .lfs_item.selected .ts_icon_shared_channels {
   margin-right: 0
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_item {
+#select_share_channels .lazy_filter_select .lfs_item {
   color: #2c2d30;
   font-weight: 700;
   font-size: 15px;
@@ -17589,12 +17466,12 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   align-items: center
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_item .c-member--small {
+#select_share_channels .lazy_filter_select .lfs_item .c-member--small {
   margin-right: 6px;
   flex: 1
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon) {
+#select_share_channels .lazy_filter_select .lfs_item .ts_icon:not(.presence_icon) {
   color: #717274;
   position: relative;
   top: -3px;
@@ -17602,7 +17479,7 @@ body:not(.unify_user) .lazy_filter_select .lfs_value .ts_icon_shared_channels {
   margin: 0 .25rem 0 .15rem
 }
 
-.unify_user #select_share_channels .lazy_filter_select .lfs_item .ts_icon_shared_channels {
+#select_share_channels .lazy_filter_select .lfs_item .ts_icon_shared_channels {
   margin-left: auto;
   margin-right: 5px
 }

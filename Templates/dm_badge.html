@@ -126,11 +126,11 @@
         {{#unless is_muted}}
           <label class="radio no_margin normal">
             <input id="all_notifications_rd" type="radio" name="notifications" {{#if_equal desktop_setting compare="everything"}}checked="checked"{{/if_equal}}>
-            {{#t note="One of many notification preference settings" fallback_hash="deae1434b0fd8e310d9d2c9171de61960b27b06d"}}All new messages{{/t}}
+            {{#t note="One of many notification preference settings"}}All new messages{{/t}}
           </label>
           <label class="radio no_margin normal">
             <input id="mentions_rd" type="radio" name="notifications" {{#if_equal desktop_setting compare="mentions"}}checked="checked"{{/if_equal}}>
-            {{#t note="One of many notification preference settings" fallback_hash="f64b750f44b89994740e52d7cbdca478de340944"}}Just mentions &amp; keywords{{/t}}
+            {{#t note="One of many notification preference settings"}}Just mentions &amp; keywords{{/t}}
           </label>
         {{/unless}}
         {{/if_equal}}

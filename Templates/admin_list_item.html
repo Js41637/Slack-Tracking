@@ -287,7 +287,7 @@
                                     {{/isModelObExtShared}}
                                     {{#if_gt ../total_memberships compare=1}}
                                         {{#canKickFromChannels}}
-                                            <i class="ts_icon ts_icon_times_circle pill_action api_channel_kick" data-channel-id="{{this.id}}" title="{{#t fallback_hash='66c09654fca702d1cf229b05556c041b1fb5b468' member_name=../member.name channel_name=this.name}}Remove {member_name} from #{channel_name}{{/t}}"></i>
+                                            <i class="ts_icon ts_icon_times_circle pill_action api_channel_kick" data-channel-id="{{this.id}}" title="{{#t member_name=../member.name channel_name=this.name}}Remove {member_name} from #{channel_name}{{/t}}"></i>
                                         {{/canKickFromChannels}}
                                     {{/if_gt}}
                                 </span>
