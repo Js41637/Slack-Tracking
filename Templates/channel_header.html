@@ -129,24 +129,14 @@
       {{/feature}}
 
       {{~#if show_topic~}}
-        {{~#feature flag="feature_name_tagging_client"~}}
-          <div class="channel_header_info_item channel_topic_container">
-            <span id="edit_topic_container" class="channel_topic" tabindex="0" role="button">{{!--
-              --}}<span id="edit_topic_inner" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
-                --}}<span id="channel_topic_text" class="no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>{{!--
-              --}}</span>{{!--
-            --}}</span>
-            <button type="button" class="btn_link" id="edit_topic_trigger" tabindex="-1">{{#t}}Edit{{/t}}</button>
-          </div>
-        {{~else~}}
         <div class="channel_header_info_item channel_topic_container">
-          <span id="topic_inline_edit" class="channel_topic inline_edit">{{!--
-            --}}<span tabindex="0" class="inline_edit_inner" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
-              --}}<span id="channel_topic_text" class="inline_edit_input no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>{{!--
+          <span id="edit_topic_container" class="channel_topic" tabindex="0" role="button">{{!--
+            --}}<span id="edit_topic_inner" data-instructions-text="{{#t}}Enter to submit, Esc to cancel{{/t}}">{{!--
+              --}}<span id="channel_topic_text" class="no_jumbomoji" data-placeholder="{{#currentUserIsRA}}{{else}}{{#t}}Add a topic{{/t}}{{/currentUserIsRA}}"></span>{{!--
             --}}</span>{{!--
           --}}</span>
+          <button type="button" class="btn_link" id="edit_topic_trigger" tabindex="-1">{{#t}}Edit{{/t}}</button>
         </div>
-        {{~/feature~}}
       {{~/if~}}
 
     </div>{{!--/channel_header_info--}}

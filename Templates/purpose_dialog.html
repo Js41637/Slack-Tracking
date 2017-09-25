@@ -10,12 +10,8 @@
       <span class="normal">{{#t}}(optional){{/t}}</span>
     </label>
 
-    {{#supportsTextyMentions}}
-      <div id="purpose_input" tabindex="1"></div>
-      <div style="margin-left: 100px;" class="candy_red too_long_warning hidden small small_top_margin">{{#t}}text is too long!{{/t}}</div>
-    {{else}}
-      <textarea id="purpose_input" name="purpose_input" type="text" style="height: 4.5rem;" maxlength="{{ChannelPurposeMaxLength}}" tabindex="1">{{unFormatMessage model_ob.purpose.value}}</textarea>
-    {{/supportsTextyMentions}}
+    <div id="purpose_input" tabindex="1"></div>
+    <div style="margin-left: 100px;" class="candy_red too_long_warning hidden small small_top_margin">{{#t}}text is too long!{{/t}}</div>
 
     <span class="modal_input_note" style="margin-left: 100px;">
       {{#t}}Give your channel a purpose that describes what it will be used for.{{/t}}

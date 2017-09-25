@@ -10438,6 +10438,10 @@ only screen and (min-resolution:2dppx) {
   z-index: 1041
 }
 
+.modal#generic_dialog.c-modal--onboarding_dialog.below_menu {
+  z-index: 1040
+}
+
 .c-modal--onboarding_dialog {
   width: 370px;
   top: 50%;

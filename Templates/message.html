@@ -337,7 +337,15 @@
 
     <i class="copy_only"><br></i>
     {{#if unprocessed}}
-      <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send"}}(this message send failed, would you like to <nobr><button type="button" class="btn_link resend_temp_msg">resend</button> \u2022 <button type="button" class="btn_link remove_temp_msg">remove</button>?)</nobr>{{/t}}</span>
+      {{#feature flag="feature_default_shared_channels"}}
+        {{#canPostInModelOb model_ob}}
+          <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send"}}(this message send failed, would you like to <nobr><button type="button" class="btn_link resend_temp_msg">resend</button> \u2022 <button type="button" class="btn_link remove_temp_msg">remove</button>?)</nobr>{{/t}}</span>
+        {{else}}
+          <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send and they don't have permissions to post in the channel anymore" fallback_hash='3536365b5060bec0d20c21ebe8f336fc651538c6'}}(this message send failed, would you like to <nobr><button type="button" class="btn_link remove_temp_msg">remove</button> it?)</nobr>{{/t}}</span>
+        {{/canPostInModelOb}}
+      {{else}}
+        <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send"}}(this message send failed, would you like to <nobr><button type="button" class="btn_link resend_temp_msg">resend</button> \u2022 <button type="button" class="btn_link remove_temp_msg">remove</button>?)</nobr>{{/t}}</span>
+      {{/feature}}
     {{/if}}
 
     {{#if standalone}}

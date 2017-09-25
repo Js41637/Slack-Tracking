@@ -33,33 +33,18 @@
 </p>
 
 {{#if success_invites}}
-  {{#feature flag="feature_name_tagging_client"}}
-    <table class="addresses large_bottom_margin align_left full_width">
+  <table class="addresses large_bottom_margin align_left full_width">
+    <tr>
+      <th class="span_1_of_2">{{#t}}Email Address{{/t}}</th>
+      <th class="span_1_of_2">{{#t}}Full Name{{/t}}</th>
+    </tr>
+    {{#each success_invites}}
       <tr>
-        <th class="span_1_of_2">{{#t}}Email Address{{/t}}</th>
-        <th class="span_1_of_2">{{#t}}Full Name{{/t}}</th>
+        <td class="align_top">{{this.email}}</td>
+        <td>{{this.real_name}}</td>
       </tr>
-      {{#each success_invites}}
-        <tr>
-          <td class="align_top">{{this.email}}</td>
-          <td>{{this.real_name}}</td>
-        </tr>
-      {{/each}}
-    </table>
-  {{else}}
-    <table class="addresses large_bottom_margin align_left full_width">
-      <tr>
-        <th class="span_1_of_2">{{#t}}Email Address{{/t}}</th>
-        <th class="span_1_of_2">{{#t}}Name{{/t}}</th>
-      </tr>
-      {{#each success_invites}}
-        <tr>
-          <td class="align_top">{{this.email}}</td>
-          <td>{{this.first_name}} {{this.last_name}}</td>
-        </tr>
-      {{/each}}
-    </table>
-  {{/feature}}
+    {{/each}}
+  </table>
 {{/if}}
 
 {{#if error_invites}}

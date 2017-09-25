@@ -69,11 +69,7 @@
         <span class="greigh normal">(optional)</span>
         {{/t}}
       </label>
-      {{#supportsTextyMentions}}
-        <div id="channel_purpose_input" name="channel_purpose_input" class="texty_single_line_input" data-validation="maxlength={{ChannelPurposeMaxLength}}" data-validation-for="channel_purpose_input"></div>
-      {{else}}
-        <input id="channel_purpose_input" name="channel_purpose_input" type="text" maxlength="{{ChannelPurposeMaxLength}}" placeholder=""/>
-      {{/supportsTextyMentions}}
+      <div id="channel_purpose_input" name="channel_purpose_input" class="texty_single_line_input" data-validation="maxlength={{ChannelPurposeMaxLength}}" data-validation-for="channel_purpose_input"></div>
       <span class="modal_input_note margin_auto">{{#t}}What\u2019s this channel about?{{/t}}</span>
     </div>
     {{/unless}}

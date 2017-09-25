@@ -18,7 +18,7 @@ webpackJsonp([413], {
         },
         locale: function e() {
           g();
-          return n;
+          return a;
         },
         keyboard: function e() {
           return v();
@@ -45,7 +45,7 @@ webpackJsonp([413], {
           return r;
         },
         localeOrPseudo: function e() {
-          if (a) return "pseudo";
+          if (n) return "pseudo";
           return TS.i18n.locale();
         },
         isLocaleCJK: function e() {
@@ -54,7 +54,7 @@ webpackJsonp([413], {
         zdLocale: function e() {
           g();
           var r = TS.i18n.DEFAULT_LOCALE.toLowerCase();
-          if (c && c[n.toLowerCase()]) r = c[n.toLowerCase()];
+          if (c && c[a.toLowerCase()]) r = c[a.toLowerCase()];
           return r;
         },
         t: function e(o, i) {
@@ -66,15 +66,15 @@ webpackJsonp([413], {
               return "";
             };
           }
-          var c = n + ":" + i + ":" + o;
+          var c = a + ":" + i + ":" + o;
           if (void 0 === u[c]) {
-            if (a || "pseudo" === n) u[c] = new MessageFormat(n, F(o)).format;
+            if (n || "pseudo" === a) u[c] = new MessageFormat(a, F(o)).format;
             else {
               if (r && i && window.sha1 && window.tsTranslations && window.tsTranslations[i]) {
                 o = window.tsTranslations[i][window.sha1(o)] || o;
                 o = o.replace(/\[{3}/g, '<span class="no_wrap">').replace(/\]{3}/g, "</span>");
               }
-              u[c] = new MessageFormat(n, o).format;
+              u[c] = new MessageFormat(a, o).format;
             }
             if (r && t) u[c].toString = j(c, i);
           }
@@ -82,11 +82,11 @@ webpackJsonp([413], {
         },
         number: function e(r) {
           g();
-          return Intl.NumberFormat(n).format(r);
+          return Intl.NumberFormat(a).format(r);
         },
         percent: function e(r, t) {
           g();
-          return Intl.NumberFormat(n, {
+          return Intl.NumberFormat(a, {
             style: "percent",
             maximumFractionDigits: t
           }).format(r);
@@ -100,8 +100,8 @@ webpackJsonp([413], {
         mappedSorter: function e(r) {
           return function(e, t) {
             if (!e || !t) return !e ? -1 : 1;
-            var a = ("" + r).split(".");
-            if (a.length > 1) a.forEach(function(r) {
+            var n = ("" + r).split(".");
+            if (n.length > 1) n.forEach(function(r) {
               e = e[r];
               t = t[r];
             });
@@ -140,7 +140,7 @@ webpackJsonp([413], {
         },
         listify: function e(r, t) {
           g();
-          var a;
+          var n;
           var o = [];
           var i = r.length;
           var s = t && "or" === t.conj ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
@@ -149,21 +149,21 @@ webpackJsonp([413], {
           var f = t && t.strong ? "</strong>" : "";
           var l = t && t.no_escape;
           var d = t && t.item_prefix ? t.item_prefix : "";
-          switch (n) {
+          switch (a) {
             case "ja-JP":
-              a = ", ";
+              n = ", ";
               break;
             case "en-US":
-              a = u + " " + s + " ";
+              n = u + " " + s + " ";
               break;
             default:
-              a = " " + s + " ";
+              n = " " + s + " ";
           }
           r.forEach(function(e, r) {
             if (!l) e = _.escape(e);
             o.push(c + d + e + f);
             if (r < i - 2) o.push(", ");
-            else if (r < i - 1) o.push(a);
+            else if (r < i - 1) o.push(n);
           });
           return o;
         },
@@ -178,10 +178,10 @@ webpackJsonp([413], {
         },
         getStaticTranslation: function e(r, t) {
           if (!U()) return null;
-          var a = TS.storage.fetchStaticTranslations();
-          var n = _.get(a, "data." + t);
-          if (!n || !n[r]) return null;
-          return n[r];
+          var n = TS.storage.fetchStaticTranslations();
+          var a = _.get(n, "data." + t);
+          if (!a || !a[r]) return null;
+          return a[r];
         },
         keyEquivalent: function e(r) {
           var t = v();
@@ -264,17 +264,17 @@ webpackJsonp([413], {
         },
         test: {
           setLocale: function e(r) {
-            n = r;
-            if (Intl.Collator) s = Intl.Collator(n);
-            if (window.moment) window.moment.locale(n);
+            a = r;
+            if (Intl.Collator) s = Intl.Collator(a);
+            if (window.moment) window.moment.locale(a);
           }
         }
       });
       var e;
       var r;
       var t;
-      var a;
       var n;
+      var a;
       var o;
       var i;
       var s;
@@ -293,10 +293,10 @@ webpackJsonp([413], {
         r = location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
         t = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
         var i = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
-        if (i) n = i[1];
-        if (!n) n = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE;
-        if ("pseudo" === n) a = true;
-        if (Intl.Collator) s = Intl.Collator(n);
+        if (i) a = i[1];
+        if (!a) a = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE;
+        if ("pseudo" === a) n = true;
+        if (Intl.Collator) s = Intl.Collator(a);
         else s = null;
         e = true;
       };
@@ -321,7 +321,6 @@ webpackJsonp([413], {
         });
       };
       var v = function e() {
-        if (!TS.boot_data.feature_localization) o = "en-US";
         if (!o)
           if (TS.i18n.canAutoGetKeyboard()) {
             o = y(desktop.app.getLocaleInformation().currentKeyboardLayout);
@@ -410,8 +409,8 @@ webpackJsonp([413], {
           var e = t + "." + r;
           if (d.indexOf(e) >= 0) return;
           d.push(e);
-          var a = "TS.i18n.t(" + JSON.stringify(r) + ", " + JSON.stringify(t) + ")";
-          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + a + " when you meant to do " + a + "()");
+          var n = "TS.i18n.t(" + JSON.stringify(r) + ", " + JSON.stringify(t) + ")";
+          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + n + " when you meant to do " + n + "()");
           alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + t + "\nString: " + r);
           return "";
         };
@@ -422,9 +421,9 @@ webpackJsonp([413], {
           t = true;
           r = r.substr(0, r.length - 1);
         }
-        var a = /(<[^>]+>)|(&\w+;)/gi;
-        var n = r.match(a) || [];
-        r = r.replace(a, "<>");
+        var n = /(<[^>]+>)|(&\w+;)/gi;
+        var a = r.match(n) || [];
+        r = r.replace(n, "<>");
         var o = parseMessageFormatString(r);
         if (o.error) TS.error(o.error);
         var i;
@@ -442,7 +441,7 @@ webpackJsonp([413], {
           return e[1];
         }).join("");
         r = r.split("<>").map(function(e, r) {
-          return e + (n[r] || "");
+          return e + (a[r] || "");
         }).join("");
         if (t) r += ":";
         return r;
@@ -588,9 +587,9 @@ webpackJsonp([413], {
           "￥": "¥",
           "￦": "₩"
         };
-        var a = r.charCodeAt(0);
+        var n = r.charCodeAt(0);
         if (r in t) return t[r];
-        else if (a >= 65280 && a <= 65374) return String.fromCharCode(a - 65248);
+        else if (n >= 65280 && n <= 65374) return String.fromCharCode(n - 65248);
         return r;
       };
       var O = function e(r) {

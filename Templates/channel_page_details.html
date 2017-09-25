@@ -9,7 +9,9 @@
     {{/feature}}
     {{#if is_globally_shared}}
       <p>
-        <img class="member_image float_left small_right_margin" src="{{enterprise_org_icon.image_68}}" srcset="{{enterprise_org_icon.image_34}} 1x, {{enterprise_org_icon.image_68}} 2x"/>
+        <span class="c-org_icon float_left small_right_margin">
+          <img class="" src="{{enterprise_org_icon.image_68}}" srcset="{{enterprise_org_icon.image_34}} 1x, {{enterprise_org_icon.image_68}} 2x"/>
+        </span>
         {{#feature flag="feature_teams_to_workspaces"}}
           {{#t}}Shared with all workspaces in the {enterprise_org_name} organization{{/t}}
         {{else}}
@@ -112,12 +114,8 @@
     {{/if}}
   </div>
 
-  {{#supportsTextyMentions}}
-    <div id="channel_purpose_input" class="message_input hidden small" tabindex="1"></div>
-    <div class="candy_red too_long_warning hidden align_right small">{{#t}}text is too long!{{/t}}</div>
-  {{else}}
-    <textarea type="text" id="channel_purpose_input" class="hidden small" maxLength="{{ChannelPurposeMaxLength}}" tabindex="1">{{#if model_ob.purpose.value}}{{unFormatMessage model_ob.purpose.value}}{{else}}{{/if}}</textarea>
-  {{/supportsTextyMentions}}
+  <div id="channel_purpose_input" class="message_input hidden small" tabindex="1"></div>
+  <div class="candy_red too_long_warning hidden align_right small">{{#t}}text is too long!{{/t}}</div>
 
   <button class="hidden btn btn_outline btn_small purpose_cancel tiny_right_margin" tabindex="3">{{#t}}Cancel{{/t}}</button>
   <button class="hidden btn btn_small purpose_done" tabindex="2">{{#t}}Done{{/t}}</button>

@@ -19,126 +19,62 @@
         {{> member_preview_link_image (getMemberPreviewLinkImageArgs member 36 true)}}
     {{/if}}
 
-    {{#feature flag="feature_name_tagging_client"}}
-        {{#if show_rename}}
-            {{#memberIsSelf id=member.id}}
-                <span class="admin_member_real_name">{{#t}}You{{/t}} <span class="normal bullet">\u2022</span><span class="normal inline_name">{{getMemberRealName member}}</span></span>
-            {{else}}
-                <span class="inline_name admin_member_real_name" title="{{#t}}Click to edit full name{{/t}}">{{getMemberRealName member}}</span>
-            {{/memberIsSelf}}
-
-            <form class="inline_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitNameForm('{{member.id}}');">
-                {{! no need for crumb_input }}
-                <input type="text" name="real_name" placeholder="{{#t}}Full name{{/t}}" value="{{getMemberRealName member}}" />
-                <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
-            </form>
-
+    {{#if show_rename}}
+        {{#memberIsSelf id=member.id}}
+            <span class="admin_member_real_name">{{#t}}You{{/t}} <span class="normal bullet">\u2022</span><span class="normal inline_name">{{getMemberRealName member}}</span></span>
         {{else}}
+            <span class="inline_name admin_member_real_name" title="{{#t}}Click to edit full name{{/t}}">{{getMemberRealName member}}</span>
+        {{/memberIsSelf}}
 
-            {{#memberIsSelf id=member.id}}
-                <span class="admin_member_real_name">{{#t}}You{{/t}} <span class="normal"><span class="bullet">\u2022</span> {{getMemberRealName member}}</span></span>
-            {{else}}
-                <span class="admin_member_real_name">{{getMemberRealName member}}</span>
-            {{/memberIsSelf}}
+        <form class="inline_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitNameForm('{{member.id}}');">
+            {{! no need for crumb_input }}
+            <input type="text" name="real_name" placeholder="{{#t}}Full name{{/t}}" value="{{getMemberRealName member}}" />
+            <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
+        </form>
 
-        {{/if}}
     {{else}}
 
-        {{#if show_rename}}
-
-            {{#memberIsSelf id=member.id}}
-                <span class="admin_member_real_name">{{#t}}You{{/t}}{{#if member.profile.real_name}} <span class="normal bullet">\u2022</span> <span class="normal inline_name">{{member.profile.real_name}}</span>{{/if}}</span>
-            {{else}}
-                {{#if member.profile.real_name}}
-                    <span class="inline_name admin_member_real_name" title="{{#t}}Click to edit full name{{/t}}">{{member.profile.real_name}}</span>
-                {{else}}
-                    <span class="inline_name" title="{{#t}}Click to edit{{/t}}">{{#t}}Click to add a full name{{/t}}</span>
-                {{/if}}
-            {{/memberIsSelf}}
-
-            <form class="inline_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitNameForm('{{member.id}}');">
-                {{! no need for crumb_input }}
-                <input type="text" name="first_name" placeholder="{{#t}}First name{{/t}}" value="{{member.profile.first_name}}" />
-                <input type="text" name="last_name" placeholder="{{#t}}Last name{{/t}}" value="{{member.profile.last_name}}" />
-                <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
-            </form>
-
+        {{#memberIsSelf id=member.id}}
+            <span class="admin_member_real_name">{{#t}}You{{/t}} <span class="normal"><span class="bullet">\u2022</span> {{getMemberRealName member}}</span></span>
         {{else}}
+            <span class="admin_member_real_name">{{getMemberRealName member}}</span>
+        {{/memberIsSelf}}
 
-            {{#memberIsSelf id=member.id}}
-                <span class="admin_member_real_name">{{#t}}You{{/t}}{{#if member.profile.real_name}} <span class="normal"><span class="bullet">\u2022</span> {{member.profile.real_name}}</span>{{/if}}</span>
-            {{else}}
-                {{#if member.profile.real_name}}
-                    <span class="admin_member_real_name">{{member.profile.real_name}}</span>
-                {{else}}
-                    {{#t}}No real name set{{/t}}
-                {{/if}}
-            {{/memberIsSelf}}
-
-        {{/if}}
-    {{/feature}}
+    {{/if}}
 
     <br />
 
-        {{#feature flag="feature_name_tagging_client"}}
-            <span class="admin_member_display_name_and_email">
-                {{#memberHasProfileFieldDisplayName member}}
-                    {{#if show_rename}}
-                        <span class="inline_display_name indifferent_grey" title="{{#t}}Click to edit display name{{/t}}">
-                    {{else}}
-                        <span class="indifferent_grey">
-                    {{/if}}
-                            {{getMemberProfileFieldDisplayName member}}
-                        </span>
+        <span class="admin_member_display_name_and_email">
+            {{#memberHasProfileFieldDisplayName member}}
+                {{#if show_rename}}
+                    <span class="inline_display_name indifferent_grey" title="{{#t}}Click to edit display name{{/t}}">
                 {{else}}
-                    {{#if show_rename}}
-                        <span class="inline_display_name indifferent_grey" title="{{#t}}Click to edit display name{{/t}}">{{#t}}Click to add a display name{{/t}}</span>
-                    {{/if}}
-                {{/memberHasProfileFieldDisplayName}}
-                <form class="inline_display_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitDisplayNameForm('{{member.id}}');">
-                    {{! no need for crumb_input }}
-                    <input type="text" name="display_name" placeholder="{{#t}}Display name{{/t}}" value="{{getMemberProfileFieldDisplayName member}}" />
-                    <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelDisplayNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
-                </form>
-                <span class="bullet">\u2022</span>
-
-                {{#unless member.is_bot}}
-                    <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}} {{member.profile.email}}"{{/if}}>{{member.profile.email}}</span>
-                {{/unless}}
-                {{#or member.is_restricted member.is_ultra_restricted}}
-                    {{#if guest_expiration_str}}
-                        <br/>
-                        <span class="no_wrap" title="{{#t}}Time limit{{/t}}">{{guest_expiration_str}}</span>
-                    {{/if}}
-                {{/or}}
-            </span>
-        {{else}}
-        <span class="admin_member_username_and_email">
-            <span class="indifferent_grey{{#if show_username_edit}} inline_username{{/if}}" {{#if show_username_edit}}title="{{#t}}Click to edit username{{/t}}"{{/if}}>@{{member.name}}</span>
-
-            {{#if show_username_edit}}
-                {{#if member.username_is_editable}}
-                <form class="inline_username_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitUsernameForm('{{member.id}}')">
-                    {{! no need for crumb_input }}
-                    <input type="text" name="username" placeholder="{{#t}}Username{{/t}}" value="{{member.name}}" maxlength="21" required />
-                    <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelUsernameForm(''{member.id}'');">cancel</a>{{/t}}</span>
-                </form>
+                    <span class="indifferent_grey">
                 {{/if}}
-            {{/if}}
+                        {{getMemberProfileFieldDisplayName member}}
+                    </span>
+            {{else}}
+                {{#if show_rename}}
+                    <span class="inline_display_name indifferent_grey" title="{{#t}}Click to edit display name{{/t}}">{{#t}}Click to add a display name{{/t}}</span>
+                {{/if}}
+            {{/memberHasProfileFieldDisplayName}}
+            <form class="inline_display_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitDisplayNameForm('{{member.id}}');">
+                {{! no need for crumb_input }}
+                <input type="text" name="display_name" placeholder="{{#t}}Display name{{/t}}" value="{{getMemberProfileFieldDisplayName member}}" />
+                <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelDisplayNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
+            </form>
+            <span class="bullet">\u2022</span>
 
             {{#unless member.is_bot}}
-                <span class="bullet">\u2022</span>
                 <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}} {{member.profile.email}}"{{/if}}>{{member.profile.email}}</span>
             {{/unless}}
-
             {{#or member.is_restricted member.is_ultra_restricted}}
                 {{#if guest_expiration_str}}
                     <br/>
                     <span class="no_wrap" title="{{#t}}Time limit{{/t}}">{{guest_expiration_str}}</span>
                 {{/if}}
             {{/or}}
-        {{/feature}}
-
+        </span>
     </span>
 
     {{#if show_email_edit}}

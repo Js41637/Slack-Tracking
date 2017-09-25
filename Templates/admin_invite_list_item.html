@@ -8,55 +8,26 @@
       {{/if}}
 
       <div class="admin_list_item_name_email">
-      {{#feature flag="feature_name_tagging_client"}}
-        {{#if member}}
-          <a href="/team/{{member.id}}" class="admin_member_real_name">{{getPrefCompliantMemberName member}}</a><br />
-        {{else if invite.real_name}}
-          <span class="admin_member_real_name">{{invite.real_name}}</span><br />
-        {{/if}}
+      {{#if member}}
+        <a href="/team/{{member.id}}" class="admin_member_real_name">{{getPrefCompliantMemberName member}}</a><br />
+      {{else if invite.real_name}}
+        <span class="admin_member_real_name">{{invite.real_name}}</span><br />
+      {{/if}}
 
-        <span class="admin_member_display_name_and_email">
-          {{#if member}}
-            {{#memberHasSecondaryName member}}
-              <span class="indifferent_grey">{{getMemberSecondaryName member}}</span> <span class="bullet">\u2022</span>
-            {{/memberHasSecondaryName}}
-          {{/if}}
-          {{#if invite}}
-            {{#if invite.type}}
-              {{invite_type_label}} <span class="bullet">\u2022</span>
-            {{/if}}
-          {{/if}}
-          <span class="email">{{invite.email}}</span>
-          {{#if invite.bouncing}}<span class="bullet">\u2022</span> {{#t}}email address bounced{{/t}}{{/if}}
-        </span>
-      {{else}}
+      <span class="admin_member_display_name_and_email">
         {{#if member}}
-          {{#if member.profile.real_name}}
-            <span class="admin_member_real_name">{{member.profile.real_name}}</span><br />
+          {{#memberHasSecondaryName member}}
+            <span class="indifferent_grey">{{getMemberSecondaryName member}}</span> <span class="bullet">\u2022</span>
+          {{/memberHasSecondaryName}}
+        {{/if}}
+        {{#if invite}}
+          {{#if invite.type}}
+            {{invite_type_label}} <span class="bullet">\u2022</span>
           {{/if}}
         {{/if}}
-
-        {{#or invite.first_name invite.last_name}}
-          <span class="admin_member_real_name">{{invite.first_name}} {{invite.last_name}}</span><br />
-        {{/or}}
-
-        <span class="admin_member_username_and_email">
-          {{#if member}}
-            {{#feature flag="feature_shared_channels_client"}}
-              <a href="/team/{{member.id}}" class="indifferent_grey">@{{member.name}}</a> <span class="bullet">\u2022</span>
-            {{else}}
-              <a href="/team/{{member.name}}" class="indifferent_grey">@{{member.name}}</a> <span class="bullet">\u2022</span>
-            {{/feature}}
-          {{/if}}
-          {{#if invite}}
-            {{#if invite.type}}
-              {{invite_type_label}} <span class="bullet">\u2022</span>
-            {{/if}}
-          {{/if}}
-          <span class="email">{{invite.email}}</span>
-          {{#if invite.bouncing}}<span class="bullet">\u2022</span> {{#t}}email address bounced{{/t}}{{/if}}
-        </span>
-      {{/feature}}
+        <span class="email">{{invite.email}}</span>
+        {{#if invite.bouncing}}<span class="bullet">\u2022</span> {{#t}}email address bounced{{/t}}{{/if}}
+      </span>
       </div>
 
       <span class="admin_invite_sent_date">
