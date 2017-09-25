@@ -13,16 +13,5 @@
     {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share in:{{/t}} </span>{{/if}}<i class="ts_icon ts_icon_channel_pane_hash"></i>{{item.name}} {{#if item.is_org_shared}}{{> shared_channel_icon}}{{else}}{{#isModelObExtShared item}}{{> shared_channels_icon}}{{/isModelObExtShared}}{{/if}}
   {{/if}}
 {{else}}
-
-  {{#shouldUseUnifiedMemberDisplay}}
-    {{> c-member member=item size="small" avatar=false short=true no_tip=true show_share_prefix=show_share_prefix}}
-  {{else}}
-    {{#if show_share_prefix}}<span class="share_prefix">{{#t}}Share with:{{/t}} </span>{{/if}}{{makeMemberPresenceIcon item}}{{#feature flag="feature_name_tagging_client"}}{{getPrefCompliantMemberName item}}{{#if item.is_self}} {{#t}}(you){{/t}}{{/if}}{{#feature flag="feature_shared_channels_client"}}{{#if item.is_external}} ({{getTeamNameByMember item}}){{/if}}{{/feature}}
-
-    {{#memberHasSecondaryName item}}<span class="preferred_name">{{getMemberSecondaryName item}}</span>{{/memberHasSecondaryName}}{{else}}{{getPrefCompliantMemberName item}}{{#if item.is_self}} {{#t}}(you){{/t}}{{/if}}{{#feature flag="feature_shared_channels_client"}}{{#if item.is_external}} ({{getTeamNameByMember item}}){{/if}}{{/feature}}{{/feature}}
-
-    <span class="current_status greigh">{{getMemberCurrentStatusForDisplay item}}</span>
-
-  {{/shouldUseUnifiedMemberDisplay}}
-
+  {{> c-member member=item size="small" avatar=false short=true no_tip=true show_share_prefix=show_share_prefix}}
 {{/if}}

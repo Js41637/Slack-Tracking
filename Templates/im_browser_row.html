@@ -1,67 +1,21 @@
 {{i18n_ns "ims"}}
-{{#shouldUseUnifiedMemberDisplay}}
-  {{#if item.disabled_dm}}{{#feature flag="feature_shared_channels_client"}}<div class="disabled_dm_warning float_right greigh small_left_margin">{{#t note="Warning that this external member cannot be added to this shared group DM"}}From another workspace{{/t}}</div>{{/feature}}
-  {{else if last_msg_time}}<div class="im_last_msg_time float_right greigh small_left_margin">{{last_msg_time}}</div>{{/if}}
-  <i class="ts_icon ts_icon_enter ts_icon_inherit enter_icon float_right blue_link small_top_margin"></i>
-  {{#if item.members}}
-    {{#if member_one}}
-      {{makeMemberPreviewLinkImage member_one.id 32 false true}}
-    {{/if}}
-    {{#if member_two}}
-      {{makeMemberPreviewLinkImage member_two.id 32 false true}}
-    {{/if}}
-    <div class="overflow_ellipsis bold im_display_name_container">
-      <i class="ts_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}} mpim_member_count"></i>
-      <span class="im_display_name">{{display_name}}</span>
-    </div>
-  {{else}}
-    {{> c-member member=item.member size="medium"}}
+{{#if item.disabled_dm}}{{#feature flag="feature_shared_channels_client"}}<div class="disabled_dm_warning float_right greigh small_left_margin">{{#t note="Warning that this external member cannot be added to this shared group DM"}}From another workspace{{/t}}</div>{{/feature}}
+{{else if last_msg_time}}<div class="im_last_msg_time float_right greigh small_left_margin">{{last_msg_time}}</div>{{/if}}
+<i class="ts_icon ts_icon_enter ts_icon_inherit enter_icon float_right blue_link small_top_margin"></i>
+{{#if item.members}}
+  {{#if member_one}}
+    {{makeMemberPreviewLinkImage member_one.id 32 false true}}
   {{/if}}
-  {{#if unread_cnt}}
-    <div class="im_unread_cnt float_right small_left_margin">{{unread_cnt}}</div>
+  {{#if member_two}}
+    {{makeMemberPreviewLinkImage member_two.id 32 false true}}
   {{/if}}
-{{else}}
-
-  {{#if item.members}}
-    {{#if member_one}}
-      {{makeMemberPreviewLinkImage member_one.id 32 false true}}
-    {{/if}}
-    {{#if member_two}}
-      {{makeMemberPreviewLinkImage member_two.id 32 false true}}
-    {{/if}}
-  {{else}}
-    {{#if item.member}}
-      {{makeMemberPreviewLinkImage item.member.id 36 false true}}
-    {{/if}}
-  {{/if}}
-
-  {{#if last_msg_time}}<div class="im_last_msg_time float_right greigh small_left_margin">{{last_msg_time}}</div>{{/if}}
-
-  {{#unless item.disabled_dm}}<i class="ts_icon ts_icon_enter ts_icon_inherit enter_icon float_right blue_link small_top_margin"></i> {{/unless}}
   <div class="overflow_ellipsis bold im_display_name_container">
-    {{#if model_ob.is_mpim}}<i class="ts_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}} mpim_member_count"></i>{{/if}}
-    <span class="im_display_name">{{display_name}}{{#if is_self}} {{#t note="Part of self DM label (placed next to user's own name)"}}(you){{/t}}{{/if}}</span>
-    {{#if item.member}}<span class="im_presence">{{makeMemberPresenceIcon item.member}}</span>{{/if}}
-    {{#if secondary_name}}<span class="greigh normal">{{secondary_name}}</span>{{/if}}
-    {{#if item.member}}
-      {{#or item.member.profile.status_emoji item.member.profile.status_text}}
-        <span class="current_status greigh normal">
-          {{getMemberCurrentStatusForDisplay item.member}}
-        </span>
-      {{/or}}
-    {{/if}}
+    <i class="ts_icon ts_icon_multiparty_dm_{{mpimMemberCount model_ob}} mpim_member_count"></i>
+    <span class="im_display_name">{{display_name}}</span>
   </div>
-  {{#if unread_cnt}}
-    <div class="im_unread_cnt float_right small_left_margin">{{unread_cnt}}</div>
-  {{/if}}
-  {{#if item.member.is_slackbot}}
-    <div class="im_slackbot_greeting italic greigh overflow_ellipsis">{{slackbot_msg}}</div>
-  {{else}}
-    {{#if last_msg}}
-      <div class="im_last_msg greigh overflow_ellipsis">{{last_msg}}</div>
-    {{/if}}
-    {{#if title}}
-      <div class="im_member_title italic greigh overflow_ellipsis {{#unless last_msg}}no_last_msg{{/unless}}">{{title}}</div>
-    {{/if}}
-  {{/if}}
-{{/shouldUseUnifiedMemberDisplay}}
+{{else}}
+  {{> c-member member=item.member size="medium"}}
+{{/if}}
+{{#if unread_cnt}}
+  <div class="im_unread_cnt float_right small_left_margin">{{unread_cnt}}</div>
+{{/if}}

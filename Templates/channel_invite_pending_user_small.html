@@ -2,23 +2,5 @@
 
 <div class="channel_invite_pending_user_small clearfix">
   <i class="enter_icon ts_icon ts_icon_enter blue_link not_in_token float_right small_top_margin"></i>
-  {{#shouldUseUnifiedMemberDisplay}}
-    {{> c-member member=invitee size="small" avatar=true pending_user=true}}
-  {{else}}
-    {{makePendingUserImage invitee 36}}
-    <div class="name_container overflow_ellipsis">
-      {{#and invitee.invite_prefs invitee.invite_prefs.real_name}}
-        <div>
-          <span class="bold">{{invitee.invite_prefs.real_name}}</span>
-          <span> {{#t}}(invitation pending){{/t}}</span>
-        </div>
-        <div class="subtle_silver not_in_token">{{invitee.email}}</div>
-      {{else}}
-        <div>
-          <span class="bold">{{invitee.email}}</span>
-          <span> {{#t}}(invitation pending){{/t}}</span>
-        </div>
-      {{/and}}
-    </div>
-  {{/shouldUseUnifiedMemberDisplay}}
+  {{> c-member member=invitee size="small" avatar=true pending_user=true}}
 </div>

@@ -3,73 +3,24 @@
 {{#each results as |result|}}
   {{#if result.is_broadcast_keyword}}
     <li class="tab_complete_ui_item" data-type="keyword" data-index="{{@index}}">
-      <span class="broadcast {{#shouldUseUnifiedMemberDisplay}}unify_broadcast{{/shouldUseUnifiedMemberDisplay}}">
-        {{#shouldUseUnifiedMemberDisplay}}
-          <i class="ts_icon ts_icon_broadcast"></i>
-        {{/shouldUseUnifiedMemberDisplay}}
+      <span class="broadcast unify_broadcast">
+        <i class="ts_icon ts_icon_broadcast"></i>
         @{{result.name}}
         <span class="broadcast_info">{{result.description}}</span>
       </span>
     </li>
   {{else if result.is_usergroup}}
     <li class="tab_complete_ui_item" data-type="usergroup" data-index="{{@index}}">
-      {{#shouldUseUnifiedMemberDisplay}}
-        {{> c-usergroup size="small" result=result}}
-      {{else}}
-        <span class="broadcast">@{{result.usergroup.handle}}</span>{{!
-        !}}<span class="realname">
-          {{~#t user_count=result.usergroup.user_count}}{user_count, plural, =1 {# Member} other {# Members}}{{/t~}}
-          {{#if result.members_not_in_channel}}
-            {{#t members_not_in_channel=result.members_not_in_channel}}({members_not_in_channel, number} not in channel){{/t}}
-          {{~/if~}}
-          <span class="bullet">&bull;</span>{{result.description}}
-        </span>
-      {{/shouldUseUnifiedMemberDisplay}}
+      {{> c-usergroup size="small" result=result}}
     </li>
   {{else if result.is_member}}
     <li class="tab_complete_ui_item" data-type="member" data-index="{{@index}}">
 
-    {{#shouldUseUnifiedMemberDisplay}}
-      {{#feature flag="feature_name_tagging_client"}}
-        {{> c-member member=member size="small" avatar=true context="not_in_channel" not_channel_member=member_does_not_belong_to_channel forced_primary="display_name" }}
-      {{else}}
-        {{> c-member member=member size="small" avatar=true context="not_in_channel" not_channel_member=member_does_not_belong_to_channel }}
-      {{/feature}}
+    {{#feature flag="feature_name_tagging_client"}}
+      {{> c-member member=member size="small" avatar=true context="not_in_channel" not_channel_member=member_does_not_belong_to_channel forced_primary="display_name" }}
     {{else}}
-      {{#if result.member.presence}}
-        {{> member_preview_link_image (getMemberPreviewLinkImageArgs result.member 20 false true)}}
-      {{/if}}
-
-      <span class="{{result.primary_name_classes}}">{{result.primary_name}}</span>{{!
-      !}}{{#unless result.member.is_app_user}}{{#if ../is_client}}{{makeMemberPresenceIcon result.member}}{{/if}}{{/unless}}
-      {{~#if result.secondary_name~}}
-        <span class="{{result.secondary_name_classes}}">{{result.secondary_name}}</span>
-      {{~/if~}}
-      {{#if result.team_name}}<span class="team_name">({{result.team_name}})</span>{{/if}}
-
-      {{~#if result.member.is_app_user~}}
-        <span class="app_label">{{#t note="label for app users in tabcomplete list"}}APP{{/t}}</span>
-        {{~#and membership_status_is_known member_does_not_belong_to_channel~}}
-          <span class="not_in_channel">{{#t}}(not in channel){{/t}}</span>
-        {{/and}}
-      {{~else~}}
-        {{#or member.profile.status_emoji member.profile.status_text}}
-          <span class="current_status greigh">
-            {{getMemberCurrentStatusForDisplay member}}
-          </span>
-        {{/or}}
-
-        {{#if result.show_channel_membership}}
-          {{#if result.membership_status_is_known}}
-            {{~#if member_does_not_belong_to_channel~}}
-              <span class="not_in_channel">{{#t}}(not in channel){{/t}}</span>
-            {{/if}}
-          {{else}}
-            {{! TBD - we might display some sort of marker here to indicate that the user's membership status is not known yet}}
-          {{/if}}
-        {{/if}}
-      {{~/if~}}
-    {{/shouldUseUnifiedMemberDisplay}}
+      {{> c-member member=member size="small" avatar=true context="not_in_channel" not_channel_member=member_does_not_belong_to_channel }}
+    {{/feature}}
     </li>
   {{/if}}
 {{/each}}

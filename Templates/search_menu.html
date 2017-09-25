@@ -200,9 +200,9 @@
       {{else}}
       <li data-replacement="{{#t}}from:{{/t}}@{{name}}" data-member-id="{{id}}">
       {{/feature}}
-        <button {{#shouldUseUnifiedMemberDisplay}}class="result_item_btn btn_unstyle unified"{{else}}class="result_item_btn btn_unstyle"{{/shouldUseUnifiedMemberDisplay}} type="button" tabindex="-1">
+        <button class="result_item_btn btn_unstyle unified" type="button" tabindex="-1">
           {{#if ../show_modifier}}
-            <span {{#shouldUseUnifiedMemberDisplay}}class="from_modifier"{{/shouldUseUnifiedMemberDisplay}}>{{#t}}from:{{/t}}</span>
+            <span class="from_modifier">{{#t}}from:{{/t}}</span>
           {{/if}}
 
           {{#feature flag="feature_name_tagging_client"}}
@@ -217,11 +217,7 @@
             {{else if this.is_broadcast_keyword}}
               <strong>@{{this.name}}</strong>
             {{else}}
-              {{#shouldUseUnifiedMemberDisplay}}
-                {{> c-member member=this size="small" avatar=true omit_status=true omit_presence=true}}
-              {{else}}
-                {{> member_menu_names}}
-              {{/shouldUseUnifiedMemberDisplay}}
+              {{> c-member member=this size="small" avatar=true omit_status=true omit_presence=true}}
             {{/if}}
           {{else}}
             {{#if real_name}}
@@ -250,16 +246,12 @@
         {{else}}
         <li data-replacement="{{#t}}from:{{/t}}@{{name}}" data-member-id="{{id}}" class="deleted">
         {{/feature}}
-          <button {{#shouldUseUnifiedMemberDisplay}}class="result_item_btn btn_unstyle unified"{{else}}class="result_item_btn btn_unstyle"{{/shouldUseUnifiedMemberDisplay}} type="button" tabindex="-1">
+          <button class="result_item_btn btn_unstyle unified" type="button" tabindex="-1">
             {{#if ../show_modifier}}
-              <span {{#shouldUseUnifiedMemberDisplay}}class="from_modifer"{{/shouldUseUnifiedMemberDisplay}}>{{#t}}from:{{/t}}</span>
+              <span class="from_modifer">{{#t}}from:{{/t}}</span>
             {{/if}}
             {{#feature flag="feature_name_tagging_client"}}
-              {{#shouldUseUnifiedMemberDisplay}}
-                {{> c-member member=this size="small" omit_status=true omit_presence=true}}
-              {{else}}
-                {{> member_menu_names}}
-              {{/shouldUseUnifiedMemberDisplay}}
+              {{> c-member member=this size="small" omit_status=true omit_presence=true}}
             {{else}}
               {{#if real_name}}
                 <strong>{{real_name}} </strong>
@@ -343,28 +335,7 @@
           {{/if}}
         >
           <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
-            {{#shouldUseUnifiedMemberDisplay}}
-              {{> c-member member=this size="medium" omit_status=true}}
-            {{else}}
-              <div class="profile_image float_left small_right_margin">{{makeMemberPreviewLinkImage this.id 32 false true}}</div>
-              <div class="search_mini overflow_ellipsis">
-                <span class="black profile_real_name">{{getPrefCompliantMemberName this}}</span>
-                <span class="search_mini normal {{makeMemberPresenceDomClass this}}">
-                  {{makeMemberPresenceIcon this}}
-                </span>
-                <span class="search_mini">
-                  {{#memberHasSecondaryName this}}
-                    {{getMemberSecondaryName this}}
-                  {{/memberHasSecondaryName}}
-                </span>
-              </div>
-              <div class="profile_title search_mini muted_text overflow_ellipsis">
-                {{#if this.profile.title}}
-                  {{this.profile.title}}
-                {{/if}}
-              </div>
-            {{/shouldUseUnifiedMemberDisplay}}
-
+            {{> c-member member=this size="medium" omit_status=true}}
             {{> ts_icon class="ts_icon_chevron_medium_right modifier_icon"}}
           </button>
         </li>
@@ -376,27 +347,7 @@
           {{/if}}
         >
           <button class="result_item_btn btn_unstyle" type="button" tabindex="-1">
-            {{#shouldUseUnifiedMemberDisplay}}
-              {{> c-member member=this size="medium" omit_status=true}}
-            {{else}}
-              <div class="profile_image float_left small_right_margin">{{makeMemberPreviewLinkImage this.id 32 false true}}</div>
-              <div class="search_mini overflow_ellipsis">
-                <span class="black profile_username">{{name}}</span>
-                <span class="search_mini normal {{makeMemberPresenceDomClass this}}">
-                  {{makeMemberPresenceIcon this}}
-                </span>
-                <span class="search_mini">
-                  {{#if real_name}}
-                    {{real_name}}
-                  {{/if}}
-                </span>
-              </div>
-              <div class="profile_title search_mini muted_text overflow_ellipsis">
-                {{#if this.profile.title}}
-                  {{this.profile.title}}
-                {{/if}}
-              </div>
-            {{/shouldUseUnifiedMemberDisplay}}
+            {{> c-member member=this size="medium" omit_status=true}}
             {{> ts_icon class="ts_icon_chevron_medium_right modifier_icon"}}
           </button>
         </li>

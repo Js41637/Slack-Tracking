@@ -1,26 +1,5 @@
 {{i18n_ns "channel_pages"}}
 
-  <div id="channel_page_member_{{member.id}}" class="channel_page_member_row {{#unless suppress_presence}}{{member.presence}}{{/unless}}">
-    {{#shouldUseUnifiedMemberDisplay}}
-      {{> c-member member=member size="small" short=true avatar=true linked=true}}
-    {{else}}
-      {{makeMemberPreviewLinkImage member.id 20 lazy false true}}
-      {{#unless suppress_presence}}{{makeMemberPresenceIcon member}}{{/unless}}
-      <a href="/team/{{~#feature flag="feature_name_tagging_client"~}}
-          {{member.id}}
-        {{~else~}}
-          {{~#feature flag="feature_shared_channels_client"~}}
-            {{member.id}}
-          {{~else~}}
-            {{member.name}}
-          {{~/feature~}}
-        {{~/feature~}}" data-member-id="{{member.id}}" class="member overflow_ellipsis ">{{getPrefCompliantMemberName member false}}{{#if member.is_self}} {{#t}}(you){{/t}}{{/if}}
-        {{#if member.profile}}
-          {{#or member.profile.status_emoji member.profile.status_text}}
-            {{> current_status classes="ts_tip_float"}}
-          {{/or}}
-        {{/if}}
-      </a>
-
-    {{/shouldUseUnifiedMemberDisplay}}
-  </div>
+<div id="channel_page_member_{{member.id}}" class="channel_page_member_row {{#unless suppress_presence}}{{member.presence}}{{/unless}}">
+  {{> c-member member=member size="small" short=true avatar=true linked=true}}
+</div>

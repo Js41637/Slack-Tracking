@@ -17323,7 +17323,7 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
   font-family: Slack;
   position: absolute;
   right: .7rem;
-  top: 3px;
+  top: 6px;
   font-size: 20px;
   pointer-events: none
 }
@@ -17366,6 +17366,10 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 
 .lazy_filter_select.single:not(.value) .lfs_value {
   display: none
+}
+
+.lazy_filter_select .lfs_value {
+  padding: .45rem 2.5rem .55rem .5rem
 }
 
 .lazy_filter_select .lfs_token .addl_text,
@@ -17683,6 +17687,10 @@ html:not(.supports_flexbox) #im_browser_tokens .member_token {
 #file_sharing_div .lazy_filter_select .lfs_item .ts_icon_shared_channel {
   position: relative;
   top: -3px
+}
+
+#file_sharing_div .lazy_filter_select.single .lfs_input_container:after {
+  top: 3px
 }
 
 label.select[data-lazy-filter-select]:after,

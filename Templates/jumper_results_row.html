@@ -8,9 +8,6 @@
   <span class="item_details overflow_ellipsis{{#if this.model_ob.is_shared}} jumper_item_details_shared_channel{{/if}}">
     {{#showDraftIcon this.model_ob}}
       {{#if this.model_ob.presence}}
-        {{#unlessUseUnifiedMemberDisplay}}
-          <ts-icon aria-hidden="true" class="ts_icon_pencil"></ts-icon>
-        {{/unlessUseUnifiedMemberDisplay}}
       {{else}}
         <ts-icon aria-hidden="true" class="ts_icon_pencil"></ts-icon>
       {{/if}}
@@ -26,15 +23,6 @@
           <ts-icon aria-hidden="true" class="ts_icon_channel_pane_hash"></ts-icon>
         {{/if}}
       {{/if}}
-      {{#if this.model_ob.presence}}
-        {{#unlessUseUnifiedMemberDisplay}}
-          {{#if this.model_ob.deleted}}
-            <ts-icon aria-hidden="true" class="ts_icon_archived_channel"></ts-icon>
-          {{else}}
-            {{makeMemberPresenceIcon this.model_ob}}
-          {{/if}}
-        {{/unlessUseUnifiedMemberDisplay}}
-      {{/if}}
       {{#if this.model_ob.domain}}
         {{#if this.model_ob.icon}}
           <img class="jumper_team_icon" aria-hidden="true" src="{{this.model_ob.icon.image_44}}">
@@ -44,22 +32,7 @@
       {{/if}}
     {{/showDraftIcon}}
     {{#if this.model_ob.presence}}
-      {{#shouldUseUnifiedMemberDisplay}}
-        {{> c-member member=this.model_ob size="small" context="unread_count" is_jumper=true show_scores=jumper.show_scores frecency_score=this.score}}
-      {{else}}
-        {{#feature flag="feature_name_tagging_client"}}
-          {{getMemberProfileFieldDisplayNameandRealNameInCorrectOrder this.model_ob}}
-        {{else}}
-          {{getMemberUsernameAndRealNameInCorrectOrder this.model_ob}}
-        {{/feature}}
-        {{#if this.model_ob.deleted}}<span class="member_deleted">{{#t note='Displayed after deleted user in jumper results'}}(deactivated){{/t}}</span>{{/if}}
-        {{#if this.model_ob.profile}}
-          {{#or this.model_ob.profile.status_emoji this.model_ob.profile.status_text}}
-            <span class="current_status">{{getMemberCurrentStatusForDisplay this.model_ob}}</span>
-          {{/or}}
-        {{/if}}
-      {{/shouldUseUnifiedMemberDisplay}}
-
+      {{> c-member member=this.model_ob size="small" context="unread_count" is_jumper=true show_scores=jumper.show_scores frecency_score=this.score}}
     {{else if this.model_ob.is_view}}
       {{#if_equal this.model_ob.id compare="Vall_unreads"}}
         <ts-icon class="ts_icon_list"></ts-icon>
@@ -95,14 +68,9 @@
         <span class="channel_not_member channel_renamed">{{#t note='Indicates renamed channels, #new-name (formerly #old-name)' previous_name=this.model_ob._jumper_previous_name_match}}(formerly #{previous_name}){{/t}}</span>
       {{/if}}
     {{/if}}
-    {{#shouldUseUnifiedMemberDisplay}}
-      <span class="jumper_item_info">
-    {{/shouldUseUnifiedMemberDisplay}}
+    <span class="jumper_item_info">
     {{#if jumper.show_scores}}
       {{#if this.model_ob.presence}}
-        {{#unlessUseUnifiedMemberDisplay}}
-          <span class="frecency_score">{{#if this.score}}{{roundToThree this.score}}{{else}}0{{/if}}</span>
-        {{/unlessUseUnifiedMemberDisplay}}
       {{else}}
         <span class="frecency_score">{{#if this.score}}{{roundToThree this.score}}{{else}}0{{/if}}</span>
       {{/if}}
@@ -112,11 +80,6 @@
         <span class="unread_count">{{this.model_ob.unread_cnt}}</span>
       {{/if}}
     {{else if this.model_ob.presence}}
-      {{#unlessUseUnifiedMemberDisplay}}
-        {{#memberHasImUnreadCount member=this.model_ob}}
-          <span class="unread_count">{{getUnreadCountForIMByMemberId this.model_ob.id}}</span>
-        {{/memberHasImUnreadCount}}
-      {{/unlessUseUnifiedMemberDisplay}}
     {{else if this.model_ob.is_view}}
       {{#if_equal this.model_ob.id compare="Vall_threads"}}
         {{#if jumper.threads_mention_count}}<span class="unread_count">{{jumper.threads_mention_count}}</span>{{/if}}
@@ -137,9 +100,7 @@
         {{/unless}}
       {{/if}}
     {{/unless}}
-    {{#shouldUseUnifiedMemberDisplay}}
-      {{!-- jumper_item_info --}}
-      </span>
-    {{/shouldUseUnifiedMemberDisplay}}
+    {{!-- jumper_item_info --}}
+    </span>
   </span>
 </li>

@@ -1,22 +1,5 @@
 {{i18n_ns "autocomplete"}}
 
 <li class="tab_complete_ui_item" data-index="{{index}}">
-{{#shouldUseUnifiedMemberDisplay}}
   {{> c-usergroup size="small" result=result}}
-{{else}}
-  <span class="broadcast">@{{usergroup.handle}}</span>
-  
-  <span class="realname">
-    {{#t}}{usergroup.user_count, plural, =1 {# Member} other {# Members}}{{/t}}
-    {{#if members_not_in_channel}}
-      {{#t}}({members_not_in_channel, number} not in channel){{/t}}
-    {{/if}}
-    {{#if usergroup.description}}
-      <span class="bullet">&bull;</span> {{usergroup.description}}
-    {{else}}
-      <span class="bullet">&bull;</span> {{usergroup.name}}
-    {{/if}}
-  </span>
-{{/shouldUseUnifiedMemberDisplay}}
-
 </li>

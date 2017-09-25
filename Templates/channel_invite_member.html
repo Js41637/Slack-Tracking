@@ -1,68 +1,6 @@
 {{i18n_ns "channels"}}
 <div class="channel_invite_member{{#if invite_exception_reason}} disabled{{/if}}">
-  {{#shouldUseUnifiedMemberDisplay}}
-    {{> c-member member=member size="medium"}}
-  {{else}}
-    {{makeMemberPreviewLinkImage member.id 36 false true}}
-    <div class="name_container overflow_ellipsis">
-      {{#feature flag="feature_name_tagging_client"}}
-        <div class="bold {{#unlessMemberHasSecondaryName member}}{{#unless member.profile.title}}vertically_center_full_name{{/unless}}{{/unlessMemberHasSecondaryName}}">
-          {{getPrefCompliantMemberName member}}
-          <span class="not_in_token">{{makeMemberPresenceIcon member}}</span>
-          {{#or member.profile.status_emoji member.profile.status_text}}
-            <span class="current_status greigh not_in_token normal">
-              {{getMemberCurrentStatusForDisplay member}}
-            </span>
-          {{/or}}
-        </div>
-        {{#memberHasSecondaryName member}}
-          <div class="greigh not_in_token">
-            {{getMemberSecondaryName member}}
-            {{~#if member.profile.title}}, {{member.profile.title}}{{/if}}
-            {{invite_exception_reason}}
-          </div>
-        {{else}}
-          <div class="greigh not_in_token">
-            {{#if member.profile.title}}
-              {{member.profile.title}}
-            {{/if}}
-            {{invite_exception_reason}}
-          </div>
-        {{/memberHasSecondaryName}}
-      {{else}}
-        {{#if member.profile.real_name}}
-          <div class="bold">
-            {{member.profile.real_name}}
-            <span class="not_in_token">{{makeMemberPresenceIcon member}}</span>
-            {{#or member.profile.status_emoji member.profile.status_text}}
-              <span class="current_status greigh not_in_token normal">
-                {{getMemberCurrentStatusForDisplay member}}
-              </span>
-            {{/or}}
-          </div>
-          <div class="greigh not_in_token">
-            @{{member.name~}}
-            {{~#if member.profile.title}}, {{member.profile.title}}{{/if}}
-            {{invite_exception_reason}}
-          </div>
-        {{else}}
-          <div class="bold">
-            {{member.name}}
-            <span class="not_in_token">{{makeMemberPresenceIcon member}}</span>
-            {{#or member.profile.status_emoji member.profile.status_text}}
-              <span class="current_status greigh not_in_token normal">
-                {{getMemberCurrentStatusForDisplay member}}
-              </span>
-            {{/or}}
-          </div>
-          {{#if member.profile.title}}
-            <div class="greigh not_in_token">{{member.profile.title}}</div>
-          {{/if}}
-          {{invite_exception_reason}}
-        {{/if}}
-      {{/feature}}
-    </div>
-  {{/shouldUseUnifiedMemberDisplay}}
+  {{> c-member member=member size="medium"}}
   <i class="add_icon ts_icon ts_icon_plus_circle ts_icon_inherit float_right not_in_token"></i>
   {{#if invite_exception_reason}}
     {{#feature flag="feature_shared_channels_client"}}<div class="disabled_warning float_right greigh small_left_margin">{{invite_exception_reason}}</div>{{/feature}}

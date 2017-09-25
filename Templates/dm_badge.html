@@ -4,88 +4,11 @@
 {{#if members}}
   <div class="mpdm_badge display_flex align_items_center">
   {{#each members}}
-    {{#shouldUseUnifiedMemberDisplay}}
-      {{> member_preview_link_image (getMemberPreviewLinkImageArgs this.id 56 false false)}}
-    {{else}}
-      {{> member_preview_link_image (getMemberPreviewLinkImageArgs this.id 72 false false)}}
-    {{/shouldUseUnifiedMemberDisplay}}
+    {{> member_preview_link_image (getMemberPreviewLinkImageArgs this.id 56 false false)}}
   {{/each}}
 {{else}}
   <div class="dm_badge display_flex align_items_center">
-  {{#shouldUseUnifiedMemberDisplay}}
-    {{> c-member member=member size="large" linked=true}}
-  {{else}}
-    {{> member_preview_link_image (getMemberPreviewLinkImageArgs member.id 72 false false)}}
-
-    {{#if member.profile}}
-      <p class="dm_badge_meta">
-        {{#feature flag="feature_name_tagging_client"}}
-          <span class="member_real_name bold"><a href="/team/{{member.id}}" class="member_preview_link member_real_name" data-member-id="{{member.id}}">{{getPrefCompliantMemberName member}}</a></span>
-        {{else}}
-          {{#if member.profile.real_name}}
-            <span class="member_real_name bold">{{member.profile.real_name}}</span>
-          {{/if}}
-        {{/feature}}
-        {{makeMemberPresenceIcon member}}
-
-        {{#feature flag="feature_name_tagging_client"}}
-        {{else}}
-          <span class="{{getMemberColorClassById member.id}}">
-            <a href="/team/{{member.name}}" target="/team/{{member.name}}"
-            {{#if member.profile.bot_id}}
-              class="app_preview_link member_name"
-              data-bot-id="{{member.profile.bot_id}}"
-            {{else}}
-              class="member_preview_link member_name"
-            {{/if}}
-            data-member-id="{{member.id}}">@{{member.name}}</a>
-          </span>
-        {{/feature}}
-
-        {{#if member.profile.title}}
-          <br />
-
-          {{member.profile.title}}
-        {{/if}}
-        {{#or member.profile.status_emoji member.profile.status_text}}
-          <br />
-          <span class="current_status">
-            {{getMemberCurrentStatusForDisplayWithoutAnimations member}}
-          </span>
-        {{/or}}
-        {{#pageNeedsEnterprise}}
-          {{#if member.is_restricted}}
-            <br />
-
-            <span class="member_type_and_description float_left old_petunia_grey">
-              <span class="overflow_ellipsis">
-                {{#if member.is_ultra_restricted}}
-                  {{#if ura_channel}}
-                    {{#t note="{ura_channel} is the channel a single-channel guest has membership to"}}Single-Channel Guest in #{ura_channel}{{/t}}
-                  {{else}}
-                    {{#t}}Single-Channel Guest{{/t}}
-                  {{/if}}
-                {{else}}
-                  {{#t}}Multi-Channel Guest{{/t}}
-                {{/if}}
-              </span>
-            </span>
-          {{else if member.is_bot}}
-            <br />
-
-            <span class="member_type_and_description float_left old_petunia_grey">
-              <span class="overflow_ellipsis">{{#t note="Description for bots"}}Non-sentient Bot{{/t}}</span>
-            </span>
-          {{/if}}
-        {{/pageNeedsEnterprise}}
-        {{#if member.is_external}}
-          <br />
-          <span class="member_team_name">{{getTeamNameByMember member}}</span>
-        {{/if}}
-        <br />
-      </p>
-    {{/if}}
-  {{/shouldUseUnifiedMemberDisplay}}
+  {{> c-member member=member size="large" linked=true}}
 {{/if}}
 </div>
 
