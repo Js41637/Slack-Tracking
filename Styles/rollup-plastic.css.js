@@ -11353,6 +11353,13 @@ html.fs_modal_active {
   background-clip: padding-box
 }
 
+.menu #menu_header .menu_header_generic {
+  padding: 9px 15px;
+  background-color: #F9F9F9;
+  font-size: .8125rem;
+  color: #717274
+}
+
 .menu #menu_header .menu_close {
   float: right;
   color: #555459;
@@ -11618,6 +11625,17 @@ html.fs_modal_active {
   font-weight: 400;
   font-size: 19px;
   content: '\E285'
+}
+
+.menu.onboarding_close_menu {
+  -webkit-transform: translate3d(0, 26px, 0);
+  -moz-transform: translate3d(0, 26px, 0);
+  -ms-transform: translate3d(0, 26px, 0);
+  transform: translate3d(0, 26px, 0)
+}
+
+.menu.onboarding_close_menu>.menu_content {
+  border-radius: 6px
 }
 
 #emoji_menu {

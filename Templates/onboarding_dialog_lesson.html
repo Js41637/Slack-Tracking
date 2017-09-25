@@ -1,6 +1,6 @@
 {{i18n_ns "dialogs_onboarding"}}
 {{#feature flag="feature_lesson_onboarding"}}
-<button type="button" class="c-modal__close--onboarding_dialog c-modal__close--onboarding_dialog_white no_padding no_margin no_border position_absolute" data-dismiss="close">&times;</button>
+
 <div class="c-modal__media_container--onboarding_dialog full_width {{modal_color_class}} position_relative">
   <div class="infinite_spinner infinite_spinner_medium no_margin position_absolute">
     <svg class="infinite_spinner_spinner" viewBox="0 0 100 100">
@@ -21,6 +21,10 @@
     {{#t}}Your browser does not support HTML5 Video. Try <a href="http://browsehappy.com/">a modern browser</a>.{{/t}}
   </video>
 </div>
+
+{{!-- this button must come after .c-modal__media_container--onboarding_dialog to appear on top and be visible --}}
+<button type="button" class="c-modal__close--onboarding_dialog c-modal__close--onboarding_dialog_white no_padding no_margin no_border position_absolute" data-dismiss="close">&times;</button>
+
 <div class="c-modal__copy--onboarding_dialog full_width align_right">
   <div class="c-modal__lesson_circle_buttons">
     {{#each lesson_circle_classes}}
