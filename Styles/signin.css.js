@@ -35,7 +35,7 @@ form .text_or {
   margin: -2.9rem auto 1.5rem;
   text-align: center;
   width: 3rem;
-  color: #9e9ea6;
+  color: #717274;
   font-size: 1rem
 }
 
@@ -47,7 +47,7 @@ form .text_or {
 
 #magic_login_cta .or:after,
 #magic_login_cta .or:before {
-  border-top: 1px solid #E8E8E8;
+  border-top: 1px solid #e8e8e8;
   content: '';
   display: table-cell;
   position: relative;
@@ -65,4 +65,10 @@ form .text_or {
 
 .taller_line_height {
   line-height: 2.25rem
+}
+
+@media only screen and (min-width:768px) {
+  .signed_out_two_thirds_callout_box {
+    max-width: 66.66%
+  }
 }

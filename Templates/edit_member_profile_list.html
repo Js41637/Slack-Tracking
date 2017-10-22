@@ -2,14 +2,9 @@
 <div class="edit_profile_drop_overlay hidden"></div>
 <div class="clearfix display_flex flex_wrap position_relative">
   <p class="col span_2_of_3">
-    {{#feature flag="feature_name_tagging_client"}}
-      <label for="real_name_profile_field">{{#t note="For a members profile"}}Full name{{/t}}</label>
-      <input type="text" class="no_bottom_margin" name="real_name" value="{{member.profile.real_name}}" data-validation="membername=required" data-validation-for="real_name_profile_field_warnings" data-validation-success placeholder="{{#t note='For a members profile'}}Full name{{/t}}" id="real_name_profile_field" />
-      <label for="real_name_profile_field_warnings"><span class="validation_message"></span></label>
-    {{else}}
-      <label for="first_name_profile_field">{{#t note="For a members profile"}}First name{{/t}}</label>
-      <input type="text" class="no_bottom_margin" name="first_name" value="{{member.profile.first_name}}" placeholder="{{#t note='For a members profile'}}First name{{/t}}" data-validation="maxlength=34" data-validation-for="first_name_profile_field" id="first_name_profile_field" />
-    {{/feature}}
+    <label for="real_name_profile_field">{{#t note="For a members profile"}}Full name{{/t}}</label>
+    <input type="text" class="no_bottom_margin" name="real_name" value="{{member.profile.real_name}}" data-validation="membername=required" data-validation-for="real_name_profile_field_warnings" data-validation-success placeholder="{{#t note='For a members profile'}}Full name{{/t}}" id="real_name_profile_field" />
+    <label for="real_name_profile_field_warnings"><span class="validation_message"></span></label>
   </p>
   <div id="edit_member_profile_photo_container" class="col">
     <label>{{#t note="Label for the profile fiend"}}Profile photo{{/t}}</label>
@@ -27,8 +22,8 @@
 </div>
 
 <div class="clearfix">
-  <p class="col span_2_of_3">
-    {{#feature flag="feature_name_tagging_client"}}
+  <div class="col span_2_of_3">
+    <p>
       {{#if lock_display_name}}
         <label for="display_name_profile_field">
           <ts-icon class="ts_icon_lock sk_light_grey ts_tip ts_tip_top ts_tip_multiline">
@@ -42,12 +37,21 @@
         <input type="text" class="no_bottom_margin" name="display_name" value="{{member.profile.display_name}}" placeholder="{{member.profile.real_name}}" id="display_name_profile_field" data-validation="membername" data-validation-for="display_name_profile_field_warnings" data-validation-success />
         <label for="display_name_profile_field_warnings"><span class="validation_message"></span></label>
         <span class="input_note">{{#t note="Helper note for setting a display name"}}This could be your first name, or a nickname \u2014 however you\u2019d like people to refer to you in Slack.{{/t}}</span>
+        {{#feature flag="feature_fix_displayname_guidelines"}}
+          {{#if custom_username_policy}}
+            <div id="custom_username_policy" class="large_bottom_margin">
+              {{#feature flag="feature_teams_to_workspaces"}}
+                <p class="bold small_bottom_margin">{{#t}}Custom rules for this workspace:{{/t}}</p>
+              {{else}}
+                <p class="bold small_bottom_margin">{{#t}}Custom rules for this team:{{/t}}</p>
+              {{/feature}}
+                <p class="sk_dark_grey no_bottom_margin">{{custom_username_policy}}</p>
+            </div>
+          {{/if}}
+        {{/feature}}
       {{/if}}
-    {{else}}
-      <label for="last_name_profile_field">{{#t note="For a members profile"}}Last name{{/t}}</label>
-      <input type="text" class="no_bottom_margin" name="last_name" value="{{member.profile.last_name}}" placeholder="{{#t note='For a members profile'}}Last name{{/t}}" data-validation="maxlength=35" data-validation-for="last_name_profile_field" id="last_name_profile_field" />
-    {{/feature}}
-  </p>
+    </p>
+  </div>
 </div>
 
 <div class="clearfix">

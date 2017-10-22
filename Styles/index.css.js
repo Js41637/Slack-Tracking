@@ -5,7 +5,7 @@
 }
 
 .btn {
-  background: #2ab27b;
+  background: #2ea664;
   color: #fff;
   line-height: 1.2rem;
   font-weight: 900;
@@ -53,7 +53,7 @@ a.btn {
 .btn.hover,
 .btn:focus,
 .btn:hover {
-  background: #2ab27b;
+  background: #2ea664;
   color: #fff
 }
 
@@ -74,14 +74,14 @@ a.btn {
 }
 
 .btn_outline {
-  background: #FBFBFA;
-  color: #555459!important;
+  background: #f9f9f9;
+  color: #2c2d30!important;
   font-weight: 700;
   text-shadow: none
 }
 
 .btn_outline:after {
-  border: 1px solid #C7CACD
+  border: 1px solid #c7cacd
 }
 
 .btn_outline.btn_transparent {
@@ -98,7 +98,7 @@ a.btn {
 .btn_outline.btn_transparent:active,
 .btn_outline.btn_transparent:focus,
 .btn_outline.btn_transparent:hover {
-  color: #0576B9!important;
+  color: #0576b9!important;
   background: rgba(255, 255, 255, .9)!important
 }
 
@@ -120,7 +120,7 @@ a.btn {
 .btn_outline:focus,
 .btn_outline:hover {
   background: #fff;
-  color: #0576B9!important
+  color: #0576b9!important
 }
 
 .btn_outline.hover:after,
@@ -130,7 +130,7 @@ a.btn {
 }
 
 .btn_outline:active {
-  color: #0576B9
+  color: #0576b9
 }
 
 .btn_outline:active:after {
@@ -145,7 +145,7 @@ a.btn {
 
 .btn.btn_outline.btn_danger,
 .btn.btn_outline.btn_warning {
-  background: #FBFBFA!important
+  background: #f9f9f9!important
 }
 
 .btn.btn_outline.btn_danger:focus,
@@ -157,22 +157,22 @@ a.btn {
 
 .btn.btn_outline.btn_warning:focus,
 .btn.btn_outline.btn_warning:hover {
-  color: #DFA941!important
+  color: #ff9000!important
 }
 
 .btn.btn_outline.btn_warning:focus:after,
 .btn.btn_outline.btn_warning:hover:after {
-  border-color: #DFA941
+  border-color: #ff9000
 }
 
 .btn.btn_outline.btn_danger:focus,
 .btn.btn_outline.btn_danger:hover {
-  color: #eb4d5c!important
+  color: #d72b3f!important
 }
 
 .btn.btn_outline.btn_danger:focus:after,
 .btn.btn_outline.btn_danger:hover:after {
-  border-color: #eb4d5c
+  border-color: #d72b3f
 }
 
 .btn.btn_outline.disabled,
@@ -210,7 +210,7 @@ a.btn {
 
 .btn_basic:focus,
 .btn_basic:hover {
-  color: #005E99
+  color: #005e99
 }
 
 .btn_link {
@@ -224,14 +224,14 @@ a.btn {
   font-weight: inherit;
   line-height: inherit;
   outline: 0;
-  color: #0576B9;
+  color: #0576b9;
   vertical-align: baseline;
   cursor: pointer
 }
 
 .btn_link:focus,
 .btn_link:hover {
-  color: #005E99;
+  color: #005e99;
   text-decoration: underline
 }
 
@@ -298,23 +298,23 @@ a.btn {
 }
 
 .btn_info {
-  background: #2D9EE0!important
+  background: #2d9ee0!important
 }
 
 .btn_warning {
-  background: #DFA941!important
+  background: #ff9000!important
 }
 
 .btn_danger {
-  background: #eb4d5c!important
+  background: #d72b3f!important
 }
 
 .btn_twitter {
-  background: #55ACEE!important
+  background: #2d9ee0!important
 }
 
 .btn_facebook {
-  background: #3b5998!important
+  background: #005e99!important
 }
 
 .btn_transparent {
@@ -322,12 +322,12 @@ a.btn {
 }
 
 .btn.btn_success {
-  background-color: #56B68B
+  background-color: #56b68b
 }
 
 .btn.btn_success.disabled,
 .btn.btn_success:disabled {
-  background-color: #56B68B!important
+  background-color: #56b68b!important
 }
 
 .btn .ts_icon,
@@ -428,9 +428,9 @@ a.btn {
 
 .btn.btn_attachment {
   vertical-align: middle;
-  background-color: transparent;
+  background-color: #fff;
   border: 1px solid rgba(160, 160, 162, .5);
-  color: #565759;
+  color: #2c2d30;
   max-width: 220px;
   font-size: 13px;
   font-weight: 700;
@@ -448,8 +448,8 @@ a.btn {
 
 .btn.btn_attachment:focus,
 .btn.btn_attachment:hover {
-  background-color: #F9F9F9;
-  border-color: #A0A0A2
+  background-color: #f9f9f9;
+  border-color: #a0a0a2
 }
 
 .btn.btn_attachment:focus::after,
@@ -459,7 +459,7 @@ a.btn {
 
 .btn.btn_attachment:active {
   background-color: rgba(160, 160, 162, .05);
-  border-color: #A0A0A2;
+  border-color: #a0a0a2;
   box-shadow: inset 0 1px 1px 0 rgba(160, 160, 162, .2)
 }
 
@@ -479,54 +479,54 @@ a.btn {
 .btn.btn_attachment.loading {
   background-color: rgba(160, 160, 162, .05)!important;
   border-color: rgba(160, 160, 162, .5);
-  color: rgba(86, 87, 89, .8);
+  color: rgba(113, 114, 116, .8);
   opacity: 1!important
 }
 
 .btn.btn_attachment.btn_primary {
   background-color: transparent!important;
-  border-color: rgba(42, 178, 123, .5);
-  color: #2ab27b
+  border-color: rgba(46, 166, 100, .5);
+  color: #2ea664
 }
 
 .btn.btn_attachment.btn_primary:focus,
 .btn.btn_attachment.btn_primary:hover {
-  border-color: #2ab27b
+  border-color: #2ea664
 }
 
 .btn.btn_attachment.btn_primary:active {
-  background-color: rgba(42, 178, 123, .04)!important;
-  box-shadow: inset 0 1px 1px 0 rgba(42, 178, 123, .2);
-  border-color: #2ab27b
+  background-color: rgba(46, 166, 100, .04)!important;
+  box-shadow: inset 0 1px 1px 0 rgba(46, 166, 100, .2);
+  border-color: #2ea664
 }
 
 .btn.btn_attachment.btn_primary.loading {
-  background-color: rgba(42, 178, 123, .04)!important;
-  border-color: rgba(42, 178, 123, .5);
-  color: rgba(42, 178, 123, .8)
+  background-color: rgba(46, 166, 100, .04)!important;
+  border-color: rgba(46, 166, 100, .5);
+  color: rgba(46, 166, 100, .8)
 }
 
 .btn.btn_attachment.btn_danger {
   background-color: transparent!important;
-  border-color: rgba(235, 77, 92, .5);
-  color: #eb4d5c
+  border-color: rgba(215, 43, 63, .5);
+  color: #d72b3f
 }
 
 .btn.btn_attachment.btn_danger:focus,
 .btn.btn_attachment.btn_danger:hover {
-  border-color: #eb4d5c
+  border-color: #d72b3f
 }
 
 .btn.btn_attachment.btn_danger:active {
-  background-color: rgba(235, 77, 92, .02)!important;
-  box-shadow: inset 0 1px 1px 0 rgba(235, 77, 92, .2);
-  border-color: #eb4d5c
+  background-color: rgba(215, 43, 63, .02)!important;
+  box-shadow: inset 0 1px 1px 0 rgba(215, 43, 63, .2);
+  border-color: #d72b3f
 }
 
 .btn.btn_attachment.btn_danger.loading {
-  background-color: rgba(235, 77, 92, .02)!important;
-  border-color: rgba(235, 77, 92, .5);
-  color: rgba(235, 77, 92, .8)
+  background-color: rgba(215, 43, 63, .02)!important;
+  border-color: rgba(215, 43, 63, .5);
+  color: rgba(215, 43, 63, .8)
 }
 
 .btn_ios,
@@ -642,6 +642,31 @@ a.link_btn {
 
 .link_btn:hover {
   filter: brightness(75%)
+}
+
+.btn_container .btn {
+  display: block
+}
+
+@media screen and (min-width:480px) {
+  .btn_container .btn {
+    display: inline-block
+  }
+  .btn_container .btn+.btn {
+    margin-left: 1rem
+  }
+  .btn_container.med_space .btn+.btn {
+    margin-left: 1.5rem
+  }
+  .btn_container.large_space .btn+.btn {
+    margin-left: 2rem
+  }
+  .btn_container.larger_space .btn+.btn {
+    margin-left: 3rem
+  }
+  .btn_container.very_large_space .btn+.btn {
+    margin-left: 4rem
+  }
 }
 
 .index .authcode {

@@ -10,19 +10,17 @@
 
   <div class="{{#if title}}medium_bottom_margin{{else}}large_bottom_margin{{/if}}">
     <h1 class="channel_modal_header no_bottom_margin">
-      {{#feature flag="feature_shared_channels_client"}}
-        {{#if title}}{{title}}{{else}}{{#t}}Direct Messages{{/t}}{{/if}}
+      {{#if title}}
+        {{title}}
       {{else}}
         {{#t}}Direct Messages{{/t}}
-      {{/feature}}
+      {{/if}}
     </h1>
   </div>
 
-  {{#feature flag="feature_shared_channels_client"}}
-    {{#if subtitle}}
-      <p class="large_bottom_margin">{{subtitle}}</p>
-    {{/if}}
-  {{/feature}}
+  {{#if subtitle}}
+    <p class="large_bottom_margin">{{subtitle}}</p>
+  {{/if}}
 
   <div class="im_browser_filter_container full_width">
     <div class="float_right left_margin">
@@ -51,17 +49,19 @@
     </div>
   {{/canUserCreateGroups}}
 
-  {{#feature flag="feature_shared_channels_client"}}
-    {{#if is_admin_only_mode}}
-      <div class="bold small small_bottom_margin">{{#t team_name=team_name}}Admins{{/t}}</div>
-    {{else}}
-      <div class="recent_label greigh mini small_bottom_margin">{{#t}}Recent conversations{{/t}}</div>
-    {{/if}}
+  {{#if is_admin_only_mode}}
+    <div class="bold small small_bottom_margin">{{#t team_name=team_name}}Admins{{/t}}</div>
   {{else}}
-  <div class="recent_label greigh mini small_bottom_margin">{{#t}}Recent conversations{{/t}}</div>
-  {{/feature}}
+    <div class="recent_label greigh mini small_bottom_margin">{{#t}}Recent conversations{{/t}}</div>
+  {{/if}}
 
-  <div id="im_list_container" class="channel_modal_list"></div>
+  <div id="im_list_container" class="channel_modal_list">
+    {{#feature flag="feature_ms_latest"}}
+      {{!-- hbslint-disable syntax --}}
+      {{{loadingHTML}}}
+      {{!-- hbslint-enable syntax --}}
+    {{/feature}}
+  </div>
 </div>
 
 <div id="new_channel_container" class="hidden"></div>

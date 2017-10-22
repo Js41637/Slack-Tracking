@@ -3,3 +3,8 @@
 <div class="member_info">
   {{> c-member member=member size="large" linked=true}}
 </div>
+{{#unless member.is_slackbot}}
+  {{#unless member.is_bot}}
+    <div class="member_info_timezone"><span class="sk_dark_gray">{{#t}}Time zone {{/t}}</span><span class="timezone" data-member-id="{{member.id}}">{{memberLocalTime member}}</span></div>
+  {{/unless}}
+{{/unless}}

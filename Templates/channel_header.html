@@ -19,9 +19,20 @@
   {{else if home_screen.is_showing}}
     {{#feature flag="feature_sli_home"}}
       <div id="channel_name_container" class="channel_name_container">
-        <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t rough-draft=true}}Welcome Home{{/t}}</h2>
+        {{#if home_screen.name}}
+          <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t name=home_screen.name rough-draft=true}}Welcome back, {name}!{{/t}}</h2>
+        {{else}}
+          <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t rough-draft=true}}Welcome Home{{/t}}</h2>
+        {{/if}}
       </div>
       <div id="channel_header_info" class="channel_header_info threads_channel_header_info">{{#t rough-draft=true}}Catch up on what you've missed.{{/t}}</div>
+    {{/feature}}
+  {{else if apps_dashboard.is_showing}}
+    {{#feature flag="feature_app_canvases"}}
+      <div id="channel_name_container" class="channel_name_container">
+        <h2 id="channel_name" class="channel_name cursor_default" data-qa="channel_name">{{#t rough-draft=true}}Dashboard{{/t}}</h2>
+      </div>
+      <div id="channel_header_info" class="channel_header_info threads_channel_header_info">{{#t rough-draft=true}}Apps at a glance{{/t}}</div>
     {{/feature}}
   {{else if is_app}}
     <div id="channel_name_container" class="channel_name_container">
@@ -53,7 +64,7 @@
       {{/if}}
       </span>{{#unless is_dm_or_mpdm}}
       {{#if is_org_shared}}
-        {{> shared_channel_icon tooltip=true tooltip_position='bottom'}}
+        {{> shared_channel_icon model_ob=model_ob tooltip=true tooltip_position='bottom'}}
       {{else if is_shared}}
         {{> shared_channels_icon tooltip=true tooltip_position="bottom"}}
       {{/if}}{{/unless}}{{!--
@@ -77,11 +88,9 @@
         {{/unless}}
 
         <div class="channel_header_info_item channel_header_member_alt_name">
-          {{#feature flag="feature_name_tagging_client"}}
-            {{#memberHasSecondaryName member}}
-              {{getMemberSecondaryName member}}
-            {{/memberHasSecondaryName}}
-          {{/feature}}
+          {{#memberHasSecondaryName member}}
+            {{getMemberSecondaryName member}}
+          {{/memberHasSecondaryName}}
         </div>
         {{#if member.is_external}}
           <div class="channel_header_info_item channel_header_team_name">
@@ -113,20 +122,18 @@
         --}}</button>
       </div>
 
-      {{~#feature flag="feature_shared_channels_client"}}
-        {{#and is_shared (makeTeamNameList shared_team_ids)}}
-          {{#unless is_org_shared}}
-            <div class="channel_header_info_item overflow_ellipsis">
-              <button type="button" id="channel_share_info" class="btn_unstyle blue_on_hover ts_tip ts_tip_float ts_tip_bottom">
-                <span id="channel_header_info_share_info">{{#t team_names=(makeTeamNameList shared_team_ids)}}Shared with {team_names}{{/t}}</span>
-                <span class="ts_tip_tip">
-                  {{#t}}View channel details{{/t}}
-                </span>
-              </button>
-            </div>
-          {{/unless}}
-        {{/and}}
-      {{/feature}}
+      {{~#and is_shared (makeTeamNameList shared_team_ids)}}
+        {{#unless is_org_shared}}
+          <div class="channel_header_info_item overflow_ellipsis">
+            <button type="button" id="channel_share_info" class="btn_unstyle blue_on_hover ts_tip ts_tip_float ts_tip_bottom">
+              <span id="channel_header_info_share_info">{{#t team_names=(makeTeamNameList shared_team_ids)}}Shared with {team_names}{{/t}}</span>
+              <span class="ts_tip_tip">
+                {{#t}}View channel details{{/t}}
+              </span>
+            </button>
+          </div>
+        {{/unless}}
+      {{/and}}
 
       {{~#if show_topic~}}
         <div class="channel_header_info_item channel_topic_container">
@@ -154,9 +161,24 @@
     {{! Nothing yet }}
   {{else if app_space.is_showing}}
     {{! Nothing yet }}
+  {{else if apps_dashboard.is_showing}}
+    {{! Nothing yet }}
   {{else}}
     <!-- calls button -->
     <div id="channel_calls_container" class="hidden channel_calls_container"></div>
+
+    {{#feature flag="feature_app_canvases"}}
+      {{#if canvases.is_enabled}}
+        <button type="button" id="canvases_toggle" class="channel_header_icon btn_unstyle blue_on_hover ts_tip ts_tip_bottom {{#if canvases.is_showing}}active{{/if}}">
+          {{#if canvases.is_showing}}
+            <span class="ts_tip_tip">{{#t}}Hide Apps{{/t}}</span>
+          {{else}}
+            <span class="ts_tip_tip">{{#t}}Show Apps{{/t}}</span>
+          {{/if}}
+          {{> ts_icon class="ts_icon_bolt"}}
+        </button>
+      {{/if}}
+    {{/feature}}
 
     <!--channel details icon  -->
     <button type="button" id="details_toggle" class="channel_header_icon btn_unstyle blue_on_hover channel_details_toggle ts_tip ts_tip_bottom {{#if details_showing}}active{{/if}}">

@@ -1,0 +1,47 @@
+{{!-- This is a temporary campaign to deprecate Screenhero (which was never internationalized). --}}
+{{!-- It is a short-term project that will be finished by the end of 2017. --}}
+{{!-- This template should be removed when feature_deprecate_screenhero is finished. --}}
+
+{{!-- hbslint-disable unwrapped --}}
+<section>
+  <div class="section_contents_narrow almost_ready">
+    <h1 class="title">You've applied $250 to {{team.name}}</h1>
+    <h2 class="subtitle">
+      {{#if team.is_paid}}
+        We'll deduct this amount from your billing statement.
+      {{else}}
+        {{#if user_is_owner}}
+          You can use these credits to upgrade your workspace.
+        {{else}}
+          We'll pass the good news along to the owners of your workspace.
+        {{/if}}
+      {{/if}}
+    </h2>
+  </div>
+</section>
+
+<section>
+  <div class="section_contents_narrow">
+    <div id="thank_you_block" class="action_block">
+      Thanks again for believing in and supporting Screenhero. We hope you enjoy screen sharing in Slack.
+      <br/>
+
+      {{#if team.is_paid}}
+        <a href="https://{{team.domain}}.{{#if is_dev}}dev.{{/if}}slack.com/open">
+          <button id="launch_team" class="btn btn_large">Launch {{team.name}}</button>
+        </a>
+      {{else}}
+        {{#if user_is_owner}}
+          <a href="https://{{team.domain}}.{{#if is_dev}}dev.{{/if}}slack.com/admin/billing">
+            <button id="upgrade_team" class="btn btn_large">Upgrade Now</button>
+          </a>
+        {{else}}
+          <a href="https://{{team.domain}}.{{#if is_dev}}dev.{{/if}}slack.com/open">
+            <button id="launch_team" class="btn btn_large">Launch {{team.name}}</button>
+          </a>
+        {{/if}}
+      {{/if}}
+    </div>
+  </div>
+</section>
+{{!-- hbslint-enable unwrapped --}}

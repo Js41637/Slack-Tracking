@@ -41,10 +41,10 @@ nav h1 {
   float: left;
   margin: 20px 0 0 20px;
   padding: 0 20px;
-  border-left: 1px solid #BABBBF;
+  border-left: 1px solid #a0a0a2;
   font-size: .96rem;
   line-height: 1.86rem;
-  color: #555459
+  color: #2c2d30
 }
 
 nav.top {
@@ -199,20 +199,20 @@ nav.top.fixed h1 {
 
 nav.top.fixed h1,
 nav.top.fixed ul a {
-  color: #404B55
+  color: #717274
 }
 
 nav.top.fixed .btn_sticky {
-  box-shadow: inset 0 0 0 2px #404B55
+  box-shadow: inset 0 0 0 2px #717274
 }
 
 nav.top.fixed .btn_sticky:hover {
-  box-shadow: inset 0 0 0 2px #404B55;
+  box-shadow: inset 0 0 0 2px #717274;
   background: 0 0
 }
 
 nav.top.fixed .mobile_btn a {
-  color: #48BA87
+  color: #48ba87
 }
 
 nav.top.fixed .mobile_btn a:hover {
@@ -221,11 +221,11 @@ nav.top.fixed .mobile_btn a:hover {
 }
 
 nav.top.fixed .mobile_btn a.btn_sticky {
-  box-shadow: inset 0 0 0 2px #48BA87
+  box-shadow: inset 0 0 0 2px #48ba87
 }
 
 nav.top.fixed .mobile_btn a.btn_sticky:hover {
-  box-shadow: inset 0 0 0 2px #48BA87;
+  box-shadow: inset 0 0 0 2px #48ba87;
   background: 0 0
 }
 
@@ -240,7 +240,7 @@ nav.top.with_color:not(.fixed) {
 }
 
 nav.top.with_color .mobile_btn a {
-  color: #48BA87
+  color: #48ba87
 }
 
 nav.top.with_color .mobile_btn a:hover {
@@ -249,23 +249,23 @@ nav.top.with_color .mobile_btn a:hover {
 }
 
 nav.top.with_color .mobile_btn a.btn_sticky {
-  box-shadow: inset 0 0 0 2px #48BA87
+  box-shadow: inset 0 0 0 2px #48ba87
 }
 
 nav.top.with_color .mobile_btn a.btn_sticky:hover {
-  box-shadow: inset 0 0 0 2px #48BA87;
+  box-shadow: inset 0 0 0 2px #48ba87;
   background: 0 0
 }
 
 nav.top.with_color .mobile_btn a.btn_sticky_filled {
   color: #fff;
-  background: #48BA87;
+  background: #48ba87;
   box-shadow: none
 }
 
 nav.top.with_color .mobile_btn a.btn_sticky_filled:hover {
   box-shadow: none;
-  background: #48BA87
+  background: #48ba87
 }
 
 nav.top.persistent,
@@ -281,7 +281,7 @@ nav.top.with_color .logo {
 
 nav.top.persistent ul a,
 nav.top.with_color ul a {
-  color: #404B55
+  color: #717274
 }
 
 nav.top.persistent ul a:hover,
@@ -291,26 +291,26 @@ nav.top.with_color ul a:hover {
 
 nav.top.persistent .btn_sticky,
 nav.top.with_color .btn_sticky {
-  box-shadow: inset 0 0 0 2px #404B55
+  box-shadow: inset 0 0 0 2px #717274
 }
 
 nav.top.persistent .btn_sticky:hover,
 nav.top.with_color .btn_sticky:hover {
-  box-shadow: inset 0 0 0 2px #404B55;
+  box-shadow: inset 0 0 0 2px #717274;
   background: 0 0
 }
 
 nav.top.persistent .btn_sticky_filled,
 nav.top.with_color .btn_sticky_filled {
   color: #fff;
-  background: #48BA87;
+  background: #48ba87;
   box-shadow: none
 }
 
 nav.top.persistent .btn_sticky_filled:hover,
 nav.top.with_color .btn_sticky_filled:hover {
   box-shadow: none;
-  background: #48BA87
+  background: #48ba87
 }
 
 nav.top.subdued h1 {
@@ -366,7 +366,7 @@ nav.top.apps_nav.splash .logo {
 }
 
 nav.top.apps_nav.splash ul a {
-  color: #404B55
+  color: #717274
 }
 
 nav.top.apps_nav.splash ul a:hover {
@@ -376,12 +376,12 @@ nav.top.apps_nav.splash ul a:hover {
 nav.top.apps_nav.clear_nav .logo,
 nav.top.apps_nav.clear_nav .nav_title,
 nav.top.apps_nav.clear_nav ul li {
-  box-shadow: 0 0 20px 10px #4d6dc3;
-  background-color: rgba(77, 109, 195, .8)
+  box-shadow: 0 0 20px 10px #596dc0;
+  background-color: rgba(89, 109, 192, .8)
 }
 
 nav.top.apps_nav .nav_title a {
-  color: #2C2D30
+  color: #2c2d30
 }
 
 nav.top.apps_nav.clear_nav .nav_title a {
@@ -393,7 +393,7 @@ nav.top.apps_nav ul {
 }
 
 nav.top.apps_nav ul a.active {
-  color: #2C2D30;
+  color: #2c2d30;
   opacity: 1
 }
 
@@ -511,7 +511,7 @@ nav.top.apps_nav #mobile_search #mobile_search_close:hover {
   padding: .25rem;
   margin: 0rem;
   display: block;
-  color: #555459;
+  color: #2c2d30;
   border-radius: .25rem;
   font-size: 1rem;
   height: 2.75rem
@@ -533,7 +533,7 @@ nav.top.apps_nav #mobile_search #mobile_search_close:hover {
 }
 
 #signup_dropdown .divider {
-  border-bottom: 1px solid #E8E8E8;
+  border-bottom: 1px solid #e8e8e8;
   margin: .25rem
 }
 
@@ -543,8 +543,8 @@ nav.top.apps_nav #mobile_search #mobile_search_close:hover {
 
 #signup_dropdown ul li.highlighted a,
 #signup_dropdown ul li:hover a {
-  background: #F9F9F9;
-  color: #555459;
+  background: #f9f9f9;
+  color: #2c2d30;
   text-decoration: none;
   text-shadow: none
 }
@@ -572,7 +572,7 @@ nav.mobile_menu {
   left: 0;
   width: 100%;
   height: 100%;
-  background: #492D78;
+  background: #492d78;
   z-index: 999
 }
 
@@ -639,7 +639,7 @@ nav.mobile_menu .sign_up {
   bottom: 0;
   left: 0;
   text-align: center;
-  background: #3E1D56;
+  background: #3e1d56;
   color: #fff;
   text-decoration: none
 }
@@ -724,7 +724,7 @@ nav.mobile_menu .mobile_menu_wrapper .mobile_menu_header {
 }
 
 nav.mobile_menu .mobile_menu_wrapper .mobile_menu_footer {
-  background: #3E1D56;
+  background: #3e1d56;
   z-index: 10
 }
 
@@ -746,7 +746,7 @@ nav.mobile_menu .mobile_menu_wrapper .mobile_menu_footer li a {
 
 nav.mobile_menu .mobile_menu_wrapper .mobile_menu_footer li a .signup_icon {
   background: #fff;
-  color: #3E1D56
+  color: #3e1d56
 }
 
 @media only screen and (max-width:768px) {
@@ -765,7 +765,7 @@ nav.mobile_menu.apps_nav .close {
 
 nav.mobile_menu.apps_nav .mobile_menu_teams_list_icon {
   background: #fff;
-  color: #4D394B;
+  color: #4d394b;
   display: inline-block;
   height: 36px;
   line-height: 2rem;
@@ -776,7 +776,7 @@ nav.mobile_menu.apps_nav .mobile_menu_teams_list_icon {
 }
 
 nav.mobile_menu.apps_nav .mobile_menu_footer {
-  background: #2b427f
+  background: #314182
 }
 
 @media screen and (max-width:390px) {

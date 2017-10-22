@@ -1,0 +1,61 @@
+{{!-- This is a tempoaray campaign to deprecate Screenhero (which was never internationalized). --}}
+{{!-- It is a short-term project that will be finished by the end of 2017. --}}
+{{!-- This template should be removed when feature_deprecate_screenhero is finished. --}}
+
+{{!-- hbslint-disable unwrapped --}}
+<div id="credit_or_trial_block" class="action_block">
+    {{#if teams.length}}
+        <div id="credit_or_trial_info" class="axn_blk_sub_header">
+            {{#if is_credits}}
+                Select a workspace to apply your $250 in credits:
+            {{else}}
+                Select a workspace:
+            {{/if}}
+        </div>
+        <div id="credit_or_trial_chooser" class="workspace_chooser_container">
+            {{#each teams}}
+            <label class="interactive_label">
+                <span class="team_icon_block small_right_margin">
+                    {{#if this.icon}}
+                        <i class="team_icon small" style="background-image: url('{{this.icon}}');" aria-hidden="true"></i>
+                    {{else}}
+                        <i class="team_icon small default" aria-hidden="true">{{initialsSafe this.name}}</i>
+                    {{/if}}
+                </span>
+                <span class="flex_one">{{ this.name }}</span>
+                <input type="radio" name="team" aria-checked="true" value="{{this.id}}">
+            </label>
+            {{/each}}
+        </div>
+    {{else}}
+        <p id="no_teams_warning" class="c-alert c-alert--boxed c-alert--level_warning">
+            <i class="c-alert__icon c-icon c-icon--warning"></i>
+            <span class="c-alert__message">
+                This promo code looks good, but you don\u2019t seem to have any eligible workspaces where you can apply it.
+                To use your code, you can <a href="/create">create a new workspace</a>, or <a href="get-started">search for another workspace</a> by confirming a different email address.
+            </span>
+        </p>
+    {{/if}}
+
+    {{#unless is_credits}}
+        <div id="free_trial_owner_warning">
+            <div class="pre-selection-warning fine_print">
+                Please note that an <b>owner has to approve a free trial upgrade</b> before it can start.
+            </div>
+            {{!-- This warning starts out hidden --}}
+            <p class="hidden post-selection-warning c-alert c-alert--boxed c-alert--level_warning">
+                <i class="c-alert__icon c-icon c-icon--warning"></i>
+                <span class="c-alert__message">
+                    Your workspace owner has to approve the free trial before it can start. (We\u2019ll notify them for you!)
+                </span>
+            </p>
+        </div>
+    {{/unless}}
+    <button id="credit_or_trial_submit" class="btn_large btn disabled">
+        {{#if is_credits}} Apply Credits {{else}} Apply Promo Code {{/if}}
+    </button>
+    <div class="fine_print">
+        You can also <a href="get-started">search for another workspace</a>, or <a href="/create">create a new one</a> for free. Be sure to return to this page by December 10th to use your promo code.
+    </div>
+</div>
+{{!-- hbslint-enable unwrapped --}}

@@ -47,57 +47,16 @@
   {{makeMemberPreviewLinkImage member.id 512 false true true true}}
 
   <div class="member_name_and_presence">
-    {{#feature flag="feature_name_tagging_client"}}
-      {{#if member.deleted}}
-        {{#if member.is_external}}
-          <span class="member_name">{{getMemberRealName member}}</a>
-        {{else}}
-          <a href="/team/{{member.id}}" target="{{newWindowName}}" class="member_name">{{getMemberRealName member}}</a>
-        {{/if}}
-      {{else}}
-        {{#if member.is_self}}
-          {{#isClient}}
-            <a href="/team/{{member.id}}" target={{newWindowName}} class="member_name">{{getMemberRealName member}}</a>
-          {{else}}
-            <span class="member_name">{{getMemberRealName member}}</span>
-          {{/isClient}}
-        {{else}}
-          <a href="/messages/@{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link">{{getMemberRealName member}}</a>
-        {{/if}}
-        {{#unless member.is_stranger}}
-          {{#isClient}}
-            {{makeMemberPresenceIcon member}}
-          {{/isClient}}
-        {{/unless}}
-      {{/if}}
+    {{#and member.deleted member.is_external}}
+      <span class="member_name">{{getMemberRealName member}}</a>
     {{else}}
-      {{#if member.deleted}}
-        <a href="/team/{{~#feature flag="feature_shared_channels_client"~}}
-            {{member.id}}
-          {{~else~}}
-            {{member.name}}
-          {{~/feature~}}" target="{{newWindowName}}" class="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
-      {{else}}
-        {{#if member.is_self}}
-          {{#isClient}}
-            <a href="/team/{{~#feature flag="feature_shared_channels_client"~}}
-                {{member.id}}
-              {{~else~}}
-                {{member.name}}
-              {{~/feature~}}" target={{newWindowName}} class="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
-          {{else}}
-            <span class="member_name">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</span>
-          {{/isClient}}
-        {{else}}
-          <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-id="{{member.id}}" class="member_name internal_im_link">{{#if member.profile.real_name}}{{member.profile.real_name}}{{else}}@{{member.name}}{{/if}}</a>
-        {{/if}}
-        {{#unless member.is_stranger}}
-          {{#isClient}}
-            {{makeMemberPresenceIcon member}}
-          {{/isClient}}
-        {{/unless}}
-      {{/if}}
-    {{/feature}}
+      <a href="/messages/@{{member.id}}" target="/messages/{{member.id}}" data-member-id="{{member.id}}" class="member_name internal_im_link">{{getMemberRealName member}}</a>
+      {{#unless member.is_stranger}}
+        {{#isClient}}
+          {{makeMemberPresenceIcon member}}
+        {{/isClient}}
+      {{/unless}}
+    {{/and}}
   </div>
 
   {{#if member.profile}}
@@ -146,17 +105,9 @@
           {{/if}}
           {{#isClient}}
             {{#if show_call_action}}<a class="btn btn_outline internal_im_call_link" data-member-id="{{member.id}}">{{#t}}Call{{/t}}</a>{{/if}}
-            {{#feature flag="feature_name_tagging_client"}}
-              <a href="/messages/@{{member.id}}" target="/messages/@{{member.id}}" data-member-id="{{member.id}}" class="btn btn_outline internal_im_link">{{#t}}Message{{/t}}</a>
-            {{else}}
-              <a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-id="{{member.id}}" class="btn btn_outline internal_im_link">{{#t}}Message{{/t}}</a>
-            {{/feature}}
+            <a href="/messages/@{{member.id}}" target="/messages/@{{member.id}}" data-member-id="{{member.id}}" class="btn btn_outline internal_im_link">{{#t}}Message{{/t}}</a>
           {{else}}
-            {{#feature flag="feature_name_tagging_client"}}
-              <a href="/messages/@{{member.id}}" target="new" class="btn btn_outline">{{#t}}Message{{/t}}</a>
-            {{else}}
-              <a href="/messages/@{{member.name}}" target="new" class="btn btn_outline">{{#t}}Message{{/t}}</a>
-            {{/feature}}
+            <a href="/messages/@{{member.id}}" target="new" class="btn btn_outline">{{#t}}Message{{/t}}</a>
             {{#memberHasIm member=member}}
               <a href="/archives/{{member.name}}" class="btn btn_outline">{{#t}}View Archives{{/t}}</a>
             {{/memberHasIm}}
@@ -197,57 +148,28 @@
       {{/seesCurrentStatusInProfileView}}
 
       <table class="member_data_table">
-        {{#feature flag="feature_name_tagging_client"}}
-          {{#if member.profile.display_name}}
-            <tr>
-              <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Display name{{/t}}">{{#t}}Display name{{/t}}</span></td>
-              {{#if member.deleted}}
-                {{#memberHasIm member=member}}
-                  <td><a href="/archives/{{member.id}}" target="{{newWindowName}}">{{getMemberProfileFieldDisplayName member}}</a></td>
-                {{else}}
-                  <td><a href="/team/{{member.id}}" target="{{newWindowName}}">{{getMemberProfileFieldDisplayName member}}</a></td>
-                {{/memberHasIm}}
+        {{#if member.profile.display_name}}
+          <tr>
+            <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Display name{{/t}}">{{#t}}Display name{{/t}}</span></td>
+            {{#if member.deleted}}
+              {{#memberHasIm member=member}}
+                <td><a href="/archives/{{member.id}}" target="{{newWindowName}}">{{getMemberProfileFieldDisplayName member}}</a></td>
               {{else}}
-                {{#if member.is_self}}
-                  <td><span title="{{getMemberProfileFieldDisplayName member}}">{{getMemberProfileFieldDisplayName member}}</span></td>
-                {{else}}
-                  {{#isClient}}
-                    <td><a href="/messages/@{{member.id}}" target="/messages/@{{member.id}}" data-member-id="{{member.id}}" title="{{getMemberProfileFieldDisplayName member}}" class="internal_im_link">{{getMemberProfileFieldDisplayName member}}</a></td>
-                  {{else}}
-                    <td><a href="/messages/@{{member.id}}" target="new" title="{{getMemberProfileFieldDisplayName member}}">{{getMemberProfileFieldDisplayName member}}</a></td>
-                  {{/isClient}}
-                {{/if}}
-              {{/if}}
-            </tr>
-          {{/if}}
-        {{else}}
-          {{#if member.profile.real_name}}
-            <tr>
-              <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Username{{/t}}">{{#t}}Username{{/t}}</span></td>
-              {{#if member.deleted}}
-                {{#memberHasIm member=member}}
-                  <td><a href="/archives/{{member.name}}" target="{{newWindowName}}">@{{member.name}}</a></td>
-                {{else}}
-                  <td><a href="/team/{{~#feature flag="feature_shared_channels_client"~}}
-                      {{member.id}}
-                    {{~else~}}
-                      {{member.name}}
-                    {{~/feature~}}" target="{{newWindowName}}">@{{member.name}}</a></td>
-                {{/memberHasIm}}
+                <td><a href="/team/{{member.id}}" target="{{newWindowName}}">{{getMemberProfileFieldDisplayName member}}</a></td>
+              {{/memberHasIm}}
+            {{else}}
+              {{#if member.is_self}}
+                <td><span title="{{getMemberProfileFieldDisplayName member}}">{{getMemberProfileFieldDisplayName member}}</span></td>
               {{else}}
-                {{#if member.is_self}}
-                  <td><span title="@{{member.name}}">@{{member.name}}</span></td>
+                {{#isClient}}
+                  <td><a href="/messages/@{{member.id}}" target="/messages/@{{member.id}}" data-member-id="{{member.id}}" title="{{getMemberProfileFieldDisplayName member}}" class="internal_im_link">{{getMemberProfileFieldDisplayName member}}</a></td>
                 {{else}}
-                  {{#isClient}}
-                    <td><a href="/messages/@{{member.name}}" target="/messages/@{{member.name}}" data-member-id="{{member.id}}" title="@{{member.name}}" class="internal_im_link">@{{member.name}}</a></td>
-                  {{else}}
-                    <td><a href="/messages/@{{member.name}}" target="new" title="@{{member.name}}">@{{member.name}}</a></td>
-                  {{/isClient}}
-                {{/if}}
+                  <td><a href="/messages/@{{member.id}}" target="new" title="{{getMemberProfileFieldDisplayName member}}">{{getMemberProfileFieldDisplayName member}}</a></td>
+                {{/isClient}}
               {{/if}}
-            </tr>
-          {{/if}}
-        {{/feature}}
+            {{/if}}
+          </tr>
+        {{/if}}
         {{#unless member.is_slackbot}}
           {{#unless member.is_bot}}
             <tr>
@@ -301,36 +223,13 @@
 
   {{#pageNeedsEnterprise}}
     {{#pageNeedsEnterprise}}
-      {{#feature flag="feature_lazy_grid_teams"}}
-        {{#if shared_teams}}
-          <hr class="member_details_divider">
+      {{#if shared_teams}}
+        <hr class="member_details_divider">
 
-          <table id="member_data_table_shared_teams" class="member_data_table">
-            {{> member_shared_teams lazy_load_shared_teams=lazy_load_shared_teams shared_teams=shared_teams}}
-          </table>
-        {{/if}}
-      {{else}}
-        {{#if teams}}
-          {{#if teams.shared}}
-            <hr class="member_details_divider">
-
-            <table class="member_data_table">
-                <tr>
-                  {{#feature flag="feature_teams_to_workspaces"}}
-                    <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Workspaces{{/t}}">{{#t}}Shared Workspaces{{/t}}</span></td>
-                  {{else}}
-                    <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Teams{{/t}}">{{#t}}Shared Teams{{/t}}</span></td>
-                  {{/feature}}
-                  <td>
-                    {{#each teams.shared}}
-                      {{name}}<br/>
-                    {{/each}}
-                  </td>
-                </tr>
-            </table>
-          {{/if}}
-        {{/if}}
-      {{/feature}}
+        <table id="member_data_table_shared_teams" class="member_data_table">
+          {{> member_shared_teams lazy_load_shared_teams=lazy_load_shared_teams shared_teams=shared_teams}}
+        </table>
+      {{/if}}
     {{/pageNeedsEnterprise}}
   {{/pageNeedsEnterprise}}
 

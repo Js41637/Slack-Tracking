@@ -4,8 +4,8 @@
 
 {{!-- hbslint-disable unwrapped --}}
 <section>
-  <div class="section_contents almost_ready">
-    <h1 class="title">You've started a 60-day free trial {{tada}}</h1>
+  <div class="section_contents_med almost_ready">
+    <h1 class="title">You've started a 60-day free <span class="no_wrap">trial {{tada}}</span></h1>
     <h2 class="subtitle">{{team_name}} is now on the Standard plan.</h2>
   </div>
 </section>
@@ -18,9 +18,11 @@
       <li>Unlimited app integrations</li>
       <li>Guest accounts for contractors or vendors</li>
       <li>Priority customer support</li>
-      <button id="almost_ready_launch_team" class="btn btn_large">Launch {{team_name}}</button>
+      <a href="https://{{team_domain}}.{{#if is_dev}}dev.{{/if}}slack.com/open">
+        <button id="almost_ready_launch_team" class="btn btn_large">Launch {{team_name}}</button>
+      </a>
       <div class="fine_print">
-        Your trial of the Standard place will end on <b>{{date}}</b>. After that, your workspace will return to the Free plan. Upgrade anytime by visiting: <a href="https://{{team_domain}}.slack.com/admin/billing">https://{{team_domain}}.slack.com/admin/billing</a>
+        Your trial of the Standard plan will end on <b>{{date}}</b>. After that, your workspace will return to the Free plan. Upgrade anytime by visiting: <a href="https://{{team_domain}}.slack.com/admin/billing">https://{{team_domain}}.slack.com/admin/billing</a>
       </div>
     </div>
   </div>

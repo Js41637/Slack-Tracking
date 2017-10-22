@@ -3,13 +3,13 @@
 <div id="channel_invite_modal" class="channel_modal_with_list channel_modal">
   <h1 class="large_bottom_margin channel_modal_header">
     {{#if is_private}}
-      {{#t icon="ts_icon_lock"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}} {{#if is_org_shared}}{{> shared_channel_icon org=true}}{{else if is_shared}}{{> shared_channels_icon tooltip=true}}{{/if}}
+      {{#t icon="ts_icon_lock"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}} {{#if is_org_shared}}{{> shared_channel_icon org=true}}{{else if is_shared}}{{> shared_channels_icon model_ob=model_ob tooltip=true}}{{/if}}
     {{else}}
-      {{#t icon="ts_icon_channel"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}} {{#if is_org_shared}}{{> shared_channel_icon org=true}}{{else if is_shared}}{{> shared_channels_icon tooltip=true}}{{/if}}
+      {{#t icon="ts_icon_channel"}}Invite others to <i class="ts_icon {icon}"></i>{channel_name}{{/t}} {{#if is_org_shared}}{{> shared_channel_icon org=true}}{{else if is_shared}}{{> shared_channels_icon model_ob=model_ob tooltip=true}}{{/if}}
     {{/if}}
   </h1>
 
-  {{#if is_private}}
+  {{#if create_child_option}}
     <div id="private_channel_invite_step_one" class="">
       {{#t}}
         <p class="bold">Should new members be allowed to see the channel\u2019s message history?</p>
@@ -31,7 +31,7 @@
   {{/if}}
 
   {{#if async_data}}
-    <div class="channel_invite_filter_container full_width{{#if is_private}} hidden{{/if}}">
+    <div class="channel_invite_filter_container full_width{{#if create_child_option}} hidden{{/if}}">
       <div class="float_right left_margin">
         <button class="btn btn_primary btn_large {{#unless preselected}}disabled{{/unless}} invite_go ladda-button" data-style="zoom-in">
           <span class="ladda-label">{{#t}}Invite{{/t}}</span>
@@ -46,5 +46,5 @@
     </div>
   {{/if}}
 
-  <div id="channel_invite_container" class="{{#if async_data}}page_needs_enterprise channel_modal_list {{/if}}{{#if is_private}}hidden{{/if}}"></div>
+  <div id="channel_invite_container" class="{{#if async_data}}page_needs_enterprise channel_modal_list {{/if}}{{#if create_child_option}}hidden{{/if}}"></div>
 </div>

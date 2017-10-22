@@ -1,0 +1,13 @@
+{{i18n_ns 'shared_channels'}}
+
+{{#feature flag="feature_esc_cancel_invitations_button"}}
+    <div class="p-channel_revoke_share_invite_dialog__contents">
+        <p class="p-revoke_share_invite_dialog__description">
+            {{#unless invite_sent_by_user}} 
+                {{#t channel_name=(makeModelObNameForDisplay model_ob inherit_font_size=true)}}Are you sure you want to cancel? This invitation to share <strong>{channel_name}</strong> was sent to <strong>{target_team.name}</strong> by another administrator on your workspace ({inviter_name}).{{/t}}
+            {{else}}
+                {{#t channel_name=(makeModelObNameForDisplay model_ob inherit_font_size=true)}}Are you sure you want to cancel your invitation to share <strong>{channel_name}</strong> with <strong>{target_team.name}</strong>?{{/t}} 
+            {{/unless}}
+        </p>
+    </div>
+{{/feature}}

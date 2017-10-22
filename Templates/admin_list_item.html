@@ -46,24 +46,25 @@
 
         <span class="admin_member_display_name_and_email">
             {{#memberHasProfileFieldDisplayName member}}
-                {{#if show_rename}}
+                {{#if show_displayname_edit}}
                     <span class="inline_display_name indifferent_grey" title="{{#t}}Click to edit display name{{/t}}">
                 {{else}}
                     <span class="indifferent_grey">
                 {{/if}}
                         {{getMemberProfileFieldDisplayName member}}
+                        <span class="bullet">\u2022</span>
                     </span>
             {{else}}
-                {{#if show_rename}}
-                    <span class="inline_display_name indifferent_grey" title="{{#t}}Click to edit display name{{/t}}">{{#t}}Click to add a display name{{/t}}</span>
+                {{#if show_displayname_edit}}
+                    <span class="inline_display_name indifferent_grey" title="{{#t}}Click to edit display name{{/t}}">{{#t}}Click to add a display name{{/t}}<span class="bullet">\u2022</span></span>
                 {{/if}}
             {{/memberHasProfileFieldDisplayName}}
             <form class="inline_display_name_edit_form hidden inline_block no_bottom_margin" onsubmit="TS.web.admin.submitDisplayNameForm('{{member.id}}');">
                 {{! no need for crumb_input }}
                 <input type="text" name="display_name" placeholder="{{#t}}Display name{{/t}}" value="{{getMemberProfileFieldDisplayName member}}" />
                 <span class="inline_edit_form_actions">{{#t}}<a onclick="$(this).closest('form').submit();">save</a> or <a onclick="TS.web.admin.cancelDisplayNameForm(''{member.id}'');">cancel</a>{{/t}}</span>
+                <span class="bullet">\u2022</span>
             </form>
-            <span class="bullet">\u2022</span>
 
             {{#unless member.is_bot}}
                 <span{{#if show_email_edit}} class="inline_email" title="{{#t}}Click to edit email{{/t}} {{member.profile.email}}"{{/if}}>{{member.profile.email}}</span>
@@ -106,7 +107,7 @@
                     {{#each channels}}
                         <a class="channel pill inline_block api_change_ura_channel" title="{{#t member_name=../member.name}}Change the channel that {member_name} can access{{/t}}">#{{this.name}}
                             {{#isModelObExtShared this}}
-                                {{> shared_channels_icon tooltip=true shared_team_ids=this.shared_team_ids}}
+                                {{> shared_channels_icon model_ob=this tooltip=true shared_team_ids=this.shared_team_ids}}
                             {{/isModelObExtShared}}
                             <i class="ts_icon ts_icon_pencil ts_icon_inherit pill_action edit"></i>
                         </a>
@@ -168,7 +169,7 @@
                 {{/memberIsSelf}}
             {{else}}
                 {{#memberIsSelf id=member.id}}
-                    {{#if show_username_edit}}
+                    {{#if show_displayname_edit}}
                         {{#if show_email_edit}}
                             {{#t}}There aren't any actions for you to take on yourself. Click your name or email address to edit.{{/t}}
                         {{else}}
@@ -179,13 +180,13 @@
                     {{/if}}
                 {{else}}
                     {{#if show_email_edit}}
-                        {{#if show_username_edit}}
+                        {{#if show_displayname_edit}}
                             {{#t}}There aren't any actions for you to take on <strong>@{member.name}</strong> ({member_type}). Click their name or email address to edit.{{/t}}
                         {{else}}
                             {{#t}}There aren't any actions for you to take on <strong>@{member.name}</strong> ({member_type}). Click their email address to edit.{{/t}}
                         {{/if}}
                     {{else}}
-                        {{#if show_username_edit}}
+                        {{#if show_displayname_edit}}
                             {{#t}}There aren't any actions for you to take on <strong>@{member.name}</strong> ({member_type}). Click their name to edit.{{/t}}
                         {{else}}
                             {{#t}}There aren't any actions for you to take on <strong>@{member.name}</strong> ({member_type}).{{/t}}
@@ -219,7 +220,7 @@
                                 <span class="channel pill">
                                     #{{this.name}}
                                     {{#isModelObExtShared this}}
-                                        {{> shared_channels_icon tooltip=true shared_team_ids=this.shared_team_ids}}
+                                        {{> shared_channels_icon model_ob=this tooltip=true shared_team_ids=this.shared_team_ids}}
                                     {{/isModelObExtShared}}
                                     {{#if_gt ../total_memberships compare=1}}
                                         {{#canKickFromChannels}}

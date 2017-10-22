@@ -49,23 +49,14 @@
             {{#t start_time=(toTime room.date_start)}}Started at {start_time}{{/t}}
             {{#if room.participants.length}}<span class="participant_count"><i class="ts_icon ts_icon_user"></i>{{room.participants.length}}</span>
               {{#each participants}}
-                {{#feature flag="feature_name_tagging_client"}}
-                  <span class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline participant">
-                    {{makeMemberPreviewLinkImage this.id 24 false false false true}}
-                    <span class="ts_tip_tip">
-                      <span class="ts_tip_multiline_inner">
-                        {{getPrefCompliantMemberName this}}
-                      </span>
-                    </span>
-                  </span>
-                {{else}}
-                  <span class="ts_tip ts_tip_top participant">
-                    {{makeMemberPreviewLinkImage this.id 24 false false false true}}
-                    <span class="ts_tip_tip">
+                <span class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline participant">
+                  {{makeMemberPreviewLinkImage this.id 24 false false false true}}
+                  <span class="ts_tip_tip">
+                    <span class="ts_tip_multiline_inner">
                       {{getPrefCompliantMemberName this}}
                     </span>
                   </span>
-                {{/feature}}
+                </span>
               {{/each}}
             {{/if}}
           {{/if}}

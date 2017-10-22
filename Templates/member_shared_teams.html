@@ -1,18 +1,14 @@
 {{i18n_ns 'team'}}
 
-{{#feature flag="feature_lazy_grid_teams"}}
-
-  <tr>
-    <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Workspaces{{/t}}">{{#t}}Shared Workspaces{{/t}}</span></td>
-    <td>
-      {{#if lazy_load_shared_teams}}
-        {{> loading_indicator}}
-      {{else}}
-        {{#each shared_teams}}
-          {{name}}<br/>
-        {{/each}}
-      {{/if}}
-    </td>
-  </tr>
-
-{{/feature}}
+<tr>
+  <td><span class="small_right_padding old_petunia_grey" title="{{#t}}Shared Workspaces{{/t}}">{{#t}}Shared Workspaces{{/t}}</span></td>
+  <td>
+    {{#if lazy_load_shared_teams}}
+      {{> loading_indicator}}
+    {{else}}
+      {{#each shared_teams}}
+        {{name}}<br/>
+      {{/each}}
+    {{/if}}
+  </td>
+</tr>

@@ -1,9 +1,9 @@
 {{i18n_ns 'shared_channels'}}
 
-{{#feature flag="feature_shared_channels_client"}}
-
 <div class="medium_bottom_margin">
-  <label for="email_address">{{#t note="Input label for share channel form"}}Admin\u2019s email address{{/t}}</label>
+  <label class="p-share_channel_dialog__input_label" for="email_address">
+    <span class="inline_block small_right_margin">{{#t note="Input label for share channel form"}}Admin\u2019s email address{{/t}}</span>
+  </label>
   <div class="p-share_channel_dialog__input_wrapper">
     <input
       class="tiny_bottom_margin"
@@ -75,5 +75,3 @@
     >{{#if custom_message}}{{custom_message}}{{/if}}</textarea>
   </div>
 </div>
-
-{{/feature}}

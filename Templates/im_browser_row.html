@@ -1,5 +1,5 @@
 {{i18n_ns "ims"}}
-{{#if item.disabled_dm}}{{#feature flag="feature_shared_channels_client"}}<div class="disabled_dm_warning float_right greigh small_left_margin">{{#t note="Warning that this external member cannot be added to this shared group DM"}}From another workspace{{/t}}</div>{{/feature}}
+{{#if item.disabled_dm}}<div class="disabled_dm_warning float_right greigh small_left_margin">{{#t note="Warning that this external member cannot be added to this shared group DM"}}From another workspace{{/t}}</div>
 {{else if last_msg_time}}<div class="im_last_msg_time float_right greigh small_left_margin">{{last_msg_time}}</div>{{/if}}
 <i class="ts_icon ts_icon_enter ts_icon_inherit enter_icon float_right blue_link small_top_margin"></i>
 {{#if item.members}}

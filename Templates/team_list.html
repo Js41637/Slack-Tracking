@@ -1,8 +1,8 @@
   {{i18n_ns "team"}}
 
   <div id="team_list">
-    <div class="tab_panels {{#isClient}}no_bottom_margin{{else}}large_bottom_margin{{/isClient}}">
-      <div class="{{#isClient}}panel{{else}}tab_pane{{/isClient}} selected active" id="active_members" data-tab="active">
+    <div class="tab_panels no_bottom_margin">
+      <div class="panel selected active" id="active_members" data-tab="active">
         <div id="active_members_list"{{#if is_long_list_view}} class="members_long_list"{{/if}}>
           {{#unless is_long_list_view}}
             {{#each members}}
@@ -21,16 +21,14 @@
         <div id="active_no_results" class="no_results hidden"></div>
       </div>
       {{#if show_user_groups}}
-        {{#isClient}}
-          <div id="user_groups_list" data-tab="user_groups" class="{{#isClient}}panel{{else}}tab_pane{{/isClient}}">
-            {{!--
-              {{> user_group_list is_flexpane="true"}}
-            --}}
-          </div>
-        {{/isClient}}
+        <div id="user_groups_list" data-tab="user_groups" class="panel">
+          {{!--
+            {{> user_group_list is_flexpane="true"}}
+          --}}
+        </div>
       {{/if}}
       {{#if show_restricted_members}}
-        <div class="{{#isClient}}panel{{else}}tab_pane{{/isClient}}" id="restricted_members" data-tab="restricted">
+        <div class="panel" id="restricted_members" data-tab="restricted">
           <div id="restricted_members_list"{{#if is_long_list_view}} class="members_long_list"{{/if}}>
             {{#unless is_long_list_view}}
               {{#if restricted_members}}
@@ -56,8 +54,8 @@
                 {{#t}}These team members are restricted to the channels that they are invited to join.{{/t}}
               {{/feature}}
               {{#currentUserIsAdmin}}
-                <br />{{#isClient}}<br />{{/isClient}}
-                <a href="/admin?tab=restricted" {{#isClient}}target="new"{{/isClient}} class="bold">{{#t}}Manage multi-channel guests{{/t}}</a>
+                <br /><br />
+                <a href="/admin?tab=restricted" target="new" class="bold">{{#t}}Manage multi-channel guests{{/t}}</a>
               {{/currentUserIsAdmin}}
             </p>
           {{/isWeb}}
@@ -65,7 +63,7 @@
       {{/if}}
 
       {{#if show_disabled_members}}
-        <div class="{{#isClient}}panel{{else}}tab_pane{{/isClient}}" id="disabled_members" data-tab="disabled">
+        <div class="panel" id="disabled_members" data-tab="disabled">
           <div id="deleted_members_list"{{#if is_long_list_view}} class="members_long_list"{{/if}}>
             {{#unless is_long_list_view}}
               {{#each disabled_members}}

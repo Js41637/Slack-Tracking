@@ -1,7 +1,6 @@
-webpackJsonp([53], {
-  20376: function(t, c) {
+webpackJsonp([199], {
+  1600: function(t, c) {
     $(function() {
-      "use strict";
       $("footer .links .col").click(function(t) {
         if (!$(t.target).closest("a").length) $(this).toggleClass("open");
       });
@@ -18,4 +17,4 @@ webpackJsonp([53], {
       });
     }());
   }
-}, [20376]);
+}, [1600]);

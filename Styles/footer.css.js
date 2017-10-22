@@ -14,14 +14,14 @@ body {
 }
 
 footer {
-  border-top: 1px solid #E8E8E8;
+  border-top: 1px solid #e8e8e8;
   bottom: 0;
   left: 0;
   width: 100%;
   z-index: 10;
   background: #fff;
   padding: 40px 0 0;
-  color: #9e9ea6
+  color: #717274
 }
 
 footer section {
@@ -62,12 +62,12 @@ footer .ts_icon_slack_pillow {
   display: inline-block;
   width: 28px;
   height: 28px;
-  color: #A0A0A2;
+  color: #a0a0a2;
   margin-left: -3px
 }
 
 footer .ts_icon_slack_pillow:hover {
-  color: #8C8C94
+  color: #8c8c94
 }
 
 footer .ts_icon_slack_pillow:before {
@@ -100,12 +100,12 @@ footer ul a,
 footer ul a:link,
 footer ul a:visited {
   font-size: .82rem;
-  color: #9e9ea6;
+  color: #717274;
   text-decoration: none
 }
 
 footer ul a:hover {
-  color: #8C8C94;
+  color: #8c8c94;
   text-decoration: none!important
 }
 
@@ -120,7 +120,7 @@ footer ul .cat_4 {
 }
 
 footer ul .cat_1 {
-  color: #EDB431
+  color: #ff9000
 }
 
 footer ul .cat_2 {
@@ -134,11 +134,11 @@ footer ul .ts_icon_heart:before {
 }
 
 footer ul .cat_3 {
-  color: #2ab27b
+  color: #2ea664
 }
 
 footer ul .cat_4 {
-  color: #4B6BC6
+  color: #4b6bc6
 }
 
 footer .footnote {
@@ -185,7 +185,7 @@ footer.apps_footer #apps_footer_content {
 footer.apps_footer #apps_footer_content a {
   display: inline-block;
   text-decoration: none;
-  color: #9e9ea6
+  color: #717274
 }
 
 footer.apps_footer #apps_footer_content .slack_twitter {
@@ -224,11 +224,11 @@ footer.apps_footer #apps_footer_content .slack_twitter ts-icon {
 }
 
 footer:not(.footer_dark) .footnote .ts_icon_twitter:hover {
-  color: #4FA9F1
+  color: #4fa9f1
 }
 
 footer:not(.footer_dark) .footnote .ts_icon_youtube:hover {
-  color: #D11F10
+  color: #d11f10
 }
 
 footer.footer_dark {

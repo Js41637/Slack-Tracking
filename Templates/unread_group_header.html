@@ -12,11 +12,7 @@
 </div>
 <div class="unread_group_header_name">
   {{#if is_im}}
-    {{#feature flag="feature_name_tagging_client"}}
-      <a href="/messages/{{model_ob.id}}" target="/messages/{{model_ob.id}}" class="internal_im_link" data-member-id="{{im_member.id}}">{{getDisplayNameOfUserForIm model_ob}}</a>
-    {{else}}
-      <a href="/messages/@{{im_member.name}}" target="/messages/@{{im_member.name}}" class="internal_im_link" data-member-id="{{im_member.id}}">{{getDisplayNameOfUserForIm model_ob}}</a>
-    {{/feature}}
+    <a href="/messages/{{model_ob.id}}" target="/messages/{{model_ob.id}}" class="internal_im_link" data-member-id="{{im_member.id}}">{{getDisplayNameOfUserForIm model_ob}}</a>
   {{else}}
     {{makeChannelOrGroupLinkById model_ob.id true}}
   {{/if}}

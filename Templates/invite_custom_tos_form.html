@@ -1,0 +1,45 @@
+{{i18n_ns 'invite'}}
+
+{{#feature flag="feature_enterprise_custom_tos"}}
+
+  <p class="align_center">
+    <img src="{{versioned_tos_book_illustration '2x'}}" srcset="{{versioned_tos_book_illustration '1x'}} 1x, {{versioned_tos_book_illustration '2x'}} 2x" alt="{{#t}}Terms of Service{{/t}}" />
+  </p>
+
+  <h1 class="custom_tos__header align_center medium_top_margin medium_bottom_margin">
+    {{#t}}Please review and accept the terms of service{{/t}}
+  </h1>
+
+  {{!-- Desktop variations start --}}
+  <p class="custom_tos__body hide_on_mobile">
+    {{#t
+      team=team_name
+      enterprise=enterprise_name
+      preview=tos_view_link
+      url=abs_root_url
+    }}
+      <strong>{team}</strong> is a Slack workspace managed by <strong>{enterprise}</strong>. By choosing <strong>I Agree</strong>, you understand and agree to 
+      <a href="{url}privacy-policy" target="_blank" rel="noopener noreferrer">Slack\u2019s Privacy Policy</a> and 
+      <a href="{url}cookie-policy" target="_blank" rel="noopener noreferrer">Cookie Policy</a>, and 
+      <a href="{preview}" target="_blank" rel="noopener noreferrer">{enterprise}\u2019s Terms of Service</a>.
+    {{/t}}
+  </p>
+  {{!-- Desktop variations end --}}
+
+  {{!-- Mobile variations start --}}
+  <p class="custom_tos__body show_on_mobile">
+    {{#t
+      team=team_name
+      enterprise=enterprise_name
+      preview=tos_view_link
+      url=abs_root_url
+    }}
+      <strong>{team}</strong> is a Slack workspace managed by <strong>{enterprise}</strong>. By tapping <strong>I Agree</strong>, you understand and agree to 
+      <a href="{url}privacy-policy" target="_blank" rel="noopener noreferrer">Slack\u2019s Privacy Policy</a> and 
+      <a href="{url}cookie-policy" target="_blank" rel="noopener noreferrer">Cookie Policy</a>, and 
+      <a href="{preview}" target="_blank" rel="noopener noreferrer">{enterprise}\u2019s Terms of Service</a>.
+    {{/t}}
+  </p>
+  {{!-- Mobile variations end --}}
+{{/feature}}
+

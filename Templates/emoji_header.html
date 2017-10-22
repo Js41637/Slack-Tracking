@@ -1,5 +1,0 @@
-{{!-- hbslint-disable syntax --}}
-{{!-- Todo: enable syntax linter and enable safeString --}}
-  {{#each emoji_groups~}}
-    <a class="emoji_grouping_tab {{#if_equal this.name compare=../active_group}}active{{/if_equal}}" data-group-name="{{this.name}}">{{{this.tab_html}}}</a>
-  {{~/each}}

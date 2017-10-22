@@ -1,7 +1,13 @@
 {{i18n_ns 'channel_invite'}}
 
 <p class="top_margin no_bottom_margin invite_channels">
-    <label for="select_invite_channels" class="inline_block lazy_filter_select">{{#t}}Invite to{{/t}}</label>
+    <label for="select_invite_channels" class="inline_block lazy_filter_select">
+      {{#feature flag="feature_client_app_menu_cleanup"}}
+        {{#t}}Add to{{/t}}
+      {{else}}
+        {{#t}}Invite to{{/t}}
+      {{/feature}}
+    </label>
     <select id="select_invite_channels" name="select_invite_channels" class="file_share_select no_margin">
         <option value="ts_null_value">{{#t}}Select a channel{{/t}}</option>
         {{#each channels}}

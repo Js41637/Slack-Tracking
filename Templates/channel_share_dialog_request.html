@@ -1,7 +1,5 @@
 {{i18n_ns 'shared_channels'}}
 
-{{#feature flag="feature_shared_channels_client"}}
-
 <div class="p-share_channel_dialog__contents">
     <h1 class="share_channel_modal_heading">
       {{#t}}Shared channel invitation{{/t}}</h1>
@@ -51,9 +49,27 @@
         {{#t}}<input type="radio" name="channel_privacy" value="public" checked="checked" aria-checked="true">Public <span class="normal small_left_margin">Any member of your workspace can join</span>{{/t}}
       </label>
 
-      <label class="radio disabled small_top_margin">
-        <input type="radio" name="channel_privacy" value="private" disabled="disabled" aria-disabled="true">{{#t note="Channel privacy option"}}Private <span class="normal small_left_margin">Not available in beta</span>{{/t}}
-      </label>
+      {{#feature flag="feature_esc_connecting_private_shared_channels"}}
+        <label class="radio small_top_margin">
+          <input
+            type="radio"
+            name="channel_privacy"
+            value="private"
+          />
+          {{#t note="Channel privacy option"}}Private <span class="normal small_left_margin">This channel can only be joined or viewed by invite</span>{{/t}}
+        </label>
+      {{else}}
+        <label class="radio disabled small_top_margin">
+          <input
+            type="radio"
+            name="channel_privacy"
+            value="private"
+            disabled="disabled"
+            aria-disabled="true"
+          />
+          {{#t note="Channel privacy option"}}Private <span class="normal small_left_margin">Not available in beta</span>{{/t}}
+        </label>
+      {{/feature}}
 
       <div class="alert alert_warning top_margin hidden" data-alert="private_channel">
         <ts-icon class="ts_icon_warning"></ts-icon>
@@ -96,5 +112,3 @@
       </div>
     </div>
 </div>
-
-{{/feature}}

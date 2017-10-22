@@ -82,9 +82,7 @@
         {{/t}}
       </label>
       <div id="invite_members_container"></div>
-      {{#feature flag="feature_limit_thirty_invites"}}
-        <span class="modal_input_note margin_auto">{{#t}}Select up to 30 people to add to this channel.{{/t}}</span>
-      {{/feature}}
+      <span class="modal_input_note margin_auto">{{#t fallback_hash="3fde5caed0aff77994b91f3d021687d40e2972f5"}}Select up to 100 people to add to this channel.{{/t}}</span>
     </div>
   </div>
   <div class="new_channel_modal_footer">

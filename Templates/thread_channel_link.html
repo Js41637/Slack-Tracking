@@ -9,6 +9,6 @@
   </div>
 {{else}}
   <div class="thread_channel_link_container">
-    <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="thread_channel_link">{{model_ob_name}}{{#if model_ob.is_org_shared}}{{> shared_channel_icon}}{{else if model_ob.is_shared}}{{> shared_channels_icon tooltip=true shared_team_ids=model_ob.shared_team_ids}}{{/if}}</{{#if permalink}}a{{else}}span{{/if}}>
+    <{{#if permalink}}a href="{{permalink}}" target="{{newWindowName}}"{{else}}span{{/if}} class="thread_channel_link">{{model_ob_name}}{{#if model_ob.is_org_shared}}{{> shared_channel_icon}}{{else}}{{#isModelObExtShared model_ob}}{{> shared_channels_icon model_ob=model_ob tooltip=true shared_team_ids=model_ob.shared_team_ids}}{{/isModelObExtShared}}{{/if}}</{{#if permalink}}a{{else}}span{{/if}}>
   </div>
 {{/if}}

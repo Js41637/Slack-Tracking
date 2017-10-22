@@ -1,14 +1,12 @@
-webpackJsonp([413], {
-  19619: function(e, r) {
+webpackJsonp([307], {
+  190: function(e, r) {
     (function() {
-      "use strict";
       TS.registerModule("i18n", {
-        DEFAULT_LOCALE: "en-US",
         onStart: function e() {
           g();
-          S();
-          C();
-          if (TS.prefs) TS.prefs.keyboard_changed_sig.add(w);
+          p();
+          U();
+          if (TS.prefs) TS.prefs.keyboard_changed_sig.add(E);
           if (window.signals) TS.i18n.keyboard_changed_sig = new signals.Signal;
           else TS.i18n.keyboard_changed_sig = {
             add: function e() {},
@@ -18,34 +16,34 @@ webpackJsonp([413], {
         },
         locale: function e() {
           g();
-          return a;
+          return n;
         },
         keyboard: function e() {
           return v();
         },
         canAutoGetKeyboard: function e() {
-          if (void 0 !== i) return i;
-          i = TS.model && TS.model.is_our_app && desktop && desktop.app && desktop.app.getLocaleInformation && desktop.app.getLocaleInformation().currentKeyboardLayout;
-          return i;
+          if (void 0 !== s) return s;
+          s = TS.model && TS.model.is_our_app && desktop && desktop.app && desktop.app.getLocaleInformation && desktop.app.getLocaleInformation().currentKeyboardLayout;
+          return s;
         },
         supportedKeyboards: function e() {
-          return l;
+          return f;
         },
         getDefaultLocale: function e() {
-          return TS.i18n.DEFAULT_LOCALE;
+          return TS.interop.I18n.DEFAULT_LOCALE;
         },
         localesEnabled: function e() {
           var r = {};
-          if (TS.boot_data.feature_locale_de_DE) r["de-DE"] = "Deutsch";
+          r["de-DE"] = "Deutsch";
           r["en-US"] = "English (US)";
-          if (TS.boot_data.feature_locale_es_ES) r["es-ES"] = "Español";
-          if (TS.boot_data.feature_locale_fr_FR) r["fr-FR"] = "Français";
+          r["es-ES"] = "Español";
+          r["fr-FR"] = "Français";
           if (TS.boot_data.feature_locale_ja_JP) r["ja-JP"] = "日本語";
           if (TS.boot_data.feature_pseudo_locale) r.pseudo = "Þsèúδôtřáñsℓátïôñ";
           return r;
         },
         localeOrPseudo: function e() {
-          if (n) return "pseudo";
+          if (a) return "pseudo";
           return TS.i18n.locale();
         },
         isLocaleCJK: function e() {
@@ -53,40 +51,41 @@ webpackJsonp([413], {
         },
         zdLocale: function e() {
           g();
-          var r = TS.i18n.DEFAULT_LOCALE.toLowerCase();
-          if (c && c[a.toLowerCase()]) r = c[a.toLowerCase()];
+          var r = TS.interop.I18n.DEFAULT_LOCALE.toLowerCase();
+          if (c && c[n.toLowerCase()]) r = c[n.toLowerCase()];
           return r;
         },
-        t: function e(o, i) {
+        t: function e(o, s) {
           g();
-          if (!i && r) {
-            var s = TS.error ? TS.error : console.error;
-            s.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + i + ".");
+          if (!s && r) {
+            var i = TS.error ? TS.error : console.error;
+            i.call(this, "TS.i18n.t requires a namespace string as the second argument. Currently " + s + ".");
             return function() {
               return "";
             };
           }
-          var c = a + ":" + i + ":" + o;
+          var c = n + ":" + s + ":" + o;
           if (void 0 === u[c]) {
-            if (n || "pseudo" === a) u[c] = new MessageFormat(a, F(o)).format;
+            if (a || "pseudo" === n) u[c] = new MessageFormat(n, P(o)).format;
             else {
-              if (r && i && window.sha1 && window.tsTranslations && window.tsTranslations[i]) {
-                o = window.tsTranslations[i][window.sha1(o)] || o;
+              if (r && s && window.sha1 && window.tsTranslations && window.tsTranslations[s]) {
+                o = window.tsTranslations[s][window.sha1(o)] || o;
                 o = o.replace(/\[{3}/g, '<span class="no_wrap">').replace(/\]{3}/g, "</span>");
               }
-              u[c] = new MessageFormat(a, o).format;
+              u[c] = new MessageFormat(n, o).format;
             }
-            if (r && t) u[c].toString = j(c, i);
+            if (r && t) u[c].toString = F(c, s);
           }
           return u[c];
         },
-        number: function e(r) {
+        number: function e(r, t) {
+          if (isNaN(r)) return NaN;
           g();
-          return Intl.NumberFormat(a).format(r);
+          return Intl.NumberFormat(n, t).format(r);
         },
         percent: function e(r, t) {
           g();
-          return Intl.NumberFormat(a, {
+          return Intl.NumberFormat(n, {
             style: "percent",
             maximumFractionDigits: t
           }).format(r);
@@ -94,14 +93,14 @@ webpackJsonp([413], {
         sorter: function e(r, t) {
           g();
           if (!r || !t) return !r ? -1 : 1;
-          if (s) return s.compare(r, t);
+          if (i) return i.compare(r, t);
           return r.localeCompare(t);
         },
         mappedSorter: function e(r) {
           return function(e, t) {
             if (!e || !t) return !e ? -1 : 1;
-            var n = ("" + r).split(".");
-            if (n.length > 1) n.forEach(function(r) {
+            var a = ("" + r).split(".");
+            if (a.length > 1) a.forEach(function(r) {
               e = e[r];
               t = t[r];
             });
@@ -114,6 +113,7 @@ webpackJsonp([413], {
         },
         possessive: function e(r) {
           g();
+          if (!r) r = "";
           switch (TS.i18n.locale()) {
             case "fr-FR":
               var t = _.deburr(r);
@@ -140,53 +140,47 @@ webpackJsonp([413], {
         },
         listify: function e(r, t) {
           g();
-          var n;
+          var a;
           var o = [];
-          var i = r.length;
-          var s = t && "or" === t.conj ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
-          var u = i > 2 ? "," : "";
+          var s = r.length;
+          var i = t && "or" === t.conj ? TS.i18n.t("or", "general")() : TS.i18n.t("and", "general")();
+          var u = s > 2 ? "," : "";
           var c = t && t.strong ? "<strong>" : "";
-          var f = t && t.strong ? "</strong>" : "";
-          var l = t && t.no_escape;
+          var l = t && t.strong ? "</strong>" : "";
+          var f = t && t.no_escape;
           var d = t && t.item_prefix ? t.item_prefix : "";
-          switch (a) {
+          switch (n) {
             case "ja-JP":
-              n = ", ";
+              a = ", ";
               break;
             case "en-US":
-              n = u + " " + s + " ";
+              a = u + " " + i + " ";
               break;
             default:
-              n = " " + s + " ";
+              a = " " + i + " ";
           }
           r.forEach(function(e, r) {
-            if (!l) e = _.escape(e);
-            o.push(c + d + e + f);
-            if (r < i - 2) o.push(", ");
-            else if (r < i - 1) o.push(n);
+            if (!f) e = _.escape(e);
+            o.push(c + d + e + l);
+            if (r < s - 2) o.push(", ");
+            else if (r < s - 1) o.push(a);
           });
           return o;
         },
-        deburr: function e(r) {
-          r = _.deburr(r);
-          r = A(r);
-          r = O(r);
-          return r;
-        },
         setUpStaticTranslations: function e() {
-          return p();
+          return S();
         },
         getStaticTranslation: function e(r, t) {
-          if (!U()) return null;
-          var n = TS.storage.fetchStaticTranslations();
-          var a = _.get(n, "data." + t);
-          if (!a || !a[r]) return null;
-          return a[r];
+          if (!C()) return null;
+          var a = TS.storage.fetchStaticTranslations();
+          var n = _.get(a, "data." + t);
+          if (!n || !n[r]) return null;
+          return n[r];
         },
         keyEquivalent: function e(r) {
           var t = v();
           if ("en-US" === t) return r;
-          if (k[r] && k[r][t]) return k[r][t];
+          if (j[r] && j[r][t]) return j[r][t];
           return r;
         },
         keyCodeEquivalent: function e(r) {
@@ -198,7 +192,7 @@ webpackJsonp([413], {
         keyCodeEquivalentReverse: function e(r) {
           var t = v();
           if ("en-US" === t) return r;
-          if (f[t] && f[t][r]) return f[t][r];
+          if (l[t] && l[t][r]) return l[t][r];
           return r;
         },
         start_of_the_week: {
@@ -247,7 +241,7 @@ webpackJsonp([413], {
           },
           "es-ES": {
             decimal_symbol: ",",
-            thousands_separator: " "
+            thousands_separator: "."
           },
           "fr-FR": {
             decimal_symbol: ",",
@@ -264,24 +258,24 @@ webpackJsonp([413], {
         },
         test: {
           setLocale: function e(r) {
-            a = r;
-            if (Intl.Collator) s = Intl.Collator(a);
-            if (window.moment) window.moment.locale(a);
+            n = r;
+            if (Intl.Collator) i = Intl.Collator(n);
+            if (window.moment) window.moment.locale(n);
           }
         }
       });
       var e;
       var r;
       var t;
-      var n;
       var a;
+      var n;
       var o;
-      var i;
       var s;
+      var i;
       var u = {};
       var c;
-      var f = {};
-      var l = {
+      var l = {};
+      var f = {
         de: "Deutsch",
         "en-US": "English (US)",
         es: "Español",
@@ -292,20 +286,22 @@ webpackJsonp([413], {
         if (e) return;
         r = location.host.match(/^([^.]+\.)?(?:enterprise\.)?(dev[0-9]*)\.slack\.com/);
         t = TS.qs_args && TS.qs_args.local_assets || TS.qs_args && TS.qs_args.js_path;
-        var i = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
-        if (i) a = i[1];
-        if (!a) a = document.documentElement.lang || TS.i18n.DEFAULT_LOCALE;
-        if ("pseudo" === a) n = true;
-        if (Intl.Collator) s = Intl.Collator(a);
-        else s = null;
+        var s = location.search.match(new RegExp("\\?locale=(.*?)($|&)", "i"));
+        if (s) n = s[1];
+        if (!n) n = document.documentElement.lang || _.get(TS, "interop.I18n.DEFAULT_LOCALE", "en-US");
+        if ("pseudo" === n) a = true;
+        if (Intl.Collator) i = Intl.Collator(n);
+        else i = null;
         e = true;
       };
-      var S = function e() {
-        if (TS.boot_data && TS.boot_data.slack_to_zd_locale) c = TS.boot_data.slack_to_zd_locale;
-      };
       var p = function e() {
-        if (!TS.boot_data.feature_localization || TS.i18n.locale() === TS.i18n.DEFAULT_LOCALE) return;
-        if (U()) return Promise.resolve();
+        if (TS.boot_data) {
+          if (TS.boot_data.slack_to_zd_locale) c = TS.boot_data.slack_to_zd_locale;
+          if (TS.boot_data.feature_locale_ja_JP) f.ja = "日本語";
+        }
+      };
+      var S = function e() {
+        if (C()) return Promise.resolve();
         return TS.api.call("i18n.translations.get").then(function(e) {
           var r = e.data;
           if (!r || !r.ok) {
@@ -323,38 +319,41 @@ webpackJsonp([413], {
       var v = function e() {
         if (!o)
           if (TS.i18n.canAutoGetKeyboard()) {
-            o = y(desktop.app.getLocaleInformation().currentKeyboardLayout);
-            desktop.app.onDidChangeKeyboardLayout(E);
+            o = w(desktop.app.getLocaleInformation().currentKeyboardLayout);
+            desktop.app.onDidChangeKeyboardLayout(k);
           } else if (TS.prefs.prefs_loaded) o = TS.prefs.getPref("keyboard") || "en-US";
         else return "en-US";
         return o;
       };
-      var h = /german/;
+      var m = /german/;
       var T = /french/;
-      var m = /spanish/;
+      var h = /spanish/;
       var b = /iso/;
-      var y = function e(r) {
+      var y = /japanese/;
+      var w = function e(r) {
         var t = r.toLowerCase();
-        if (h.test(t)) return "de";
+        if (m.test(t)) return "de";
         else if (T.test(t)) return "fr";
-        else if (m.test(t) && b.test(t)) return "es";
+        else if (h.test(t) && b.test(t)) return "es";
+        else if (TS.boot_data.feature_locale_ja_JP && y.test(t)) return "ja";
         return "en-US";
       };
-      var E = function e(r) {
-        o = y(r);
+      var k = function e(r) {
+        o = w(r);
         TS.i18n.keyboard_changed_sig.dispatch();
       };
-      var w = function e() {
+      var E = function e() {
         if (!TS.model.is_our_app) {
           o = TS.prefs.getPref("keyboard");
           TS.i18n.keyboard_changed_sig.dispatch();
         }
       };
-      var k = {
+      var j = {
         "`": {
           es: "º",
           fr: "@",
-          de: "^"
+          de: "^",
+          ja: "@"
         },
         "~": {
           es: "ª",
@@ -364,12 +363,14 @@ webpackJsonp([413], {
         "/": {
           es: "'",
           fr: ",",
-          de: "ö"
+          de: "ö",
+          ja: "・"
         },
         "\\": {
           es: "¡",
           fr: "`",
-          de: "#"
+          de: "#",
+          ja: "_"
         },
         ".": {
           fr: ";"
@@ -386,54 +387,55 @@ webpackJsonp([413], {
         },
         220: {
           es: 187,
-          de: 222
+          de: 222,
+          ja: 189
         }
       };
-      var C = function e() {
+      var U = function e() {
         Object.keys(L).forEach(function(e) {
           Object.keys(L[e]).forEach(function(r) {
-            f[r] = f[r] || {};
-            f[r][L[e][r]] = parseInt(e, 10);
+            l[r] = l[r] || {};
+            l[r][L[e][r]] = parseInt(e, 10);
           });
         });
       };
-      var U = function e() {
+      var C = function e() {
         var r = TS.storage.fetchStaticTranslations();
         if (!r) return false;
         if (TS.model.static_translations_cache_ts !== r.cache_ts) return false;
         if (TS.i18n.locale() !== r.locale) return false;
         return true;
       };
-      var j = function e(r, t) {
+      var F = function e(r, t) {
         return function() {
           var e = t + "." + r;
           if (d.indexOf(e) >= 0) return;
           d.push(e);
-          var n = "TS.i18n.t(" + JSON.stringify(r) + ", " + JSON.stringify(t) + ")";
-          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + n + " when you meant to do " + n + "()");
+          var a = "TS.i18n.t(" + JSON.stringify(r) + ", " + JSON.stringify(t) + ")";
+          TS.console.logStackTrace("Tried to use an i18n function as a string — you probably did " + a + " when you meant to do " + a + "()");
           alert("Dev-only alert: tried to use an i18n function as a string! See console for stack trace.\n\nNamespace: " + t + "\nString: " + r);
           return "";
         };
       };
-      var F = function e(r) {
+      var P = function e(r) {
         var t = false;
         if (r.endsWith(":")) {
           t = true;
           r = r.substr(0, r.length - 1);
         }
-        var n = /(<[^>]+>)|(&\w+;)/gi;
-        var a = r.match(n) || [];
-        r = r.replace(n, "<>");
+        var a = /(<[^>]+>)|(&\w+;)/gi;
+        var n = r.match(a) || [];
+        r = r.replace(a, "<>");
         var o = parseMessageFormatString(r);
         if (o.error) TS.error(o.error);
-        var i;
+        var s;
         r = o.tokens.map(function(e) {
           if ("text" === e[0]) {
-            i = e[1];
+            s = e[1];
             _.forOwn(D, function(e) {
-              i = i.replace(e[0], e[1]);
+              s = s.replace(e[0], e[1]);
             });
-            return i.split(" ").map(function(e) {
+            return s.split(" ").map(function(e) {
               e += new Array(Math.floor(.3 * e.length) + 1).join("~");
               return e;
             }).join(" ");
@@ -441,7 +443,7 @@ webpackJsonp([413], {
           return e[1];
         }).join("");
         r = r.split("<>").map(function(e, r) {
-          return e + (a[r] || "");
+          return e + (n[r] || "");
         }).join("");
         if (t) r += ":";
         return r;
@@ -484,189 +486,6 @@ webpackJsonp([413], {
         U: [/U/g, "Û"],
         Y: [/Y/g, "Ý"]
       };
-      var A = function e(r) {
-        return r && r.replace(/([\u3000-\u301f\u30a0-\u30ff\uff00-\uffef])/g, J);
-      };
-      var J = function e(r) {
-        var t = {
-          "ガ": "ｶﾞ",
-          "ギ": "ｷﾞ",
-          "グ": "ｸﾞ",
-          "ゲ": "ｹﾞ",
-          "ゴ": "ｺﾞ",
-          "ザ": "ｻﾞ",
-          "ジ": "ｼﾞ",
-          "ズ": "ｽﾞ",
-          "ゼ": "ｾﾞ",
-          "ゾ": "ｿﾞ",
-          "ダ": "ﾀﾞ",
-          "ヂ": "ﾁﾞ",
-          "ヅ": " ﾂﾞ",
-          "デ": "ﾃﾞ",
-          "ド": "ﾄﾞ",
-          "バ": "ﾊﾞ",
-          "パ": "ﾊﾟ",
-          "ビ": "ﾋﾞ",
-          "ピ": "ﾋﾟ",
-          "ブ": "ﾌﾞ",
-          "プ": "ﾌﾟ",
-          "ベ": "ﾍﾞ",
-          "ペ": "ﾍﾟ",
-          "ボ": "ﾎﾞ",
-          "ポ": "ﾎﾟ",
-          "ヴ": "ｳﾞ",
-          "ァ": "ｧ",
-          "ア": "ｱ",
-          "ィ": "ｨ",
-          "イ": "ｲ",
-          "ゥ": "ｩ",
-          "ウ": "ｳ",
-          "ェ": "ｪ",
-          "エ": "ｴ",
-          "ォ": "ｫ",
-          "オ": "ｵ",
-          "カ": "ｶ",
-          "キ": "ｷ",
-          "ク": "ｸ",
-          "ケ": "ｹ",
-          "コ": "ｺ",
-          "サ": "ｻ",
-          "シ": "ｼ",
-          "ス": "ｽ",
-          "セ": "ｾ",
-          "ソ": "ｿ",
-          "タ": "ﾀ",
-          "チ": "ﾁ",
-          "ッ": "ｯ",
-          "ツ": "ﾂ",
-          "テ": "ﾃ",
-          "ト": "ﾄ",
-          "ナ": "ﾅ",
-          "ニ": "ﾆ",
-          "ヌ": "ﾇ",
-          "ネ": "ﾈ",
-          "ノ": "ﾉ",
-          "ハ": "ﾊ",
-          "ヒ": "ﾋ",
-          "フ": "ﾌ",
-          "ヘ": "ﾍ",
-          "ホ": "ﾎ",
-          "マ": "ﾏ",
-          "ミ": "ﾐ",
-          "ム": "ﾑ",
-          "メ": "ﾒ",
-          "モ": "ﾓ",
-          "ャ": "ｬ",
-          "ヤ": "ﾔ",
-          "ュ": "ｭ",
-          "ユ": "ﾕ",
-          "ョ": "ｮ",
-          "ヨ": "ﾖ",
-          "ラ": "ﾗ",
-          "リ": "ﾘ",
-          "ル": "ﾙ",
-          "レ": "ﾚ",
-          "ロ": "ﾛ",
-          "ワ": "ﾜ",
-          "ヲ": "ｦ",
-          "ン": "ﾝ",
-          "。": "｡",
-          "「": "｢",
-          "」": "｣",
-          "、": "､",
-          "・": "･",
-          "ー": "ｰ",
-          "゛": "ﾞ",
-          "゜": "ﾟ",
-          "　": " ",
-          "￠": "¢",
-          "￡": "£",
-          "￢": "¬",
-          "￣": "¯",
-          "￤": "¦",
-          "￥": "¥",
-          "￦": "₩"
-        };
-        var n = r.charCodeAt(0);
-        if (r in t) return t[r];
-        else if (n >= 65280 && n <= 65374) return String.fromCharCode(n - 65248);
-        return r;
-      };
-      var O = function e(r) {
-        return r && r.replace(/([\u0400-\u04ff])/g, P);
-      };
-      var P = function e(r) {
-        var t = {
-          "А": "A",
-          "Б": "B",
-          "В": "V",
-          "Г": "G",
-          "Д": "D",
-          "Е": "E",
-          "Ё": "Jo",
-          "Ж": "Zh",
-          "З": "Z",
-          "И": "I",
-          "Й": "J",
-          "К": "K",
-          "Л": "L",
-          "М": "M",
-          "Н": "N",
-          "О": "O",
-          "П": "P",
-          "Р": "R",
-          "С": "S",
-          "Т": "T",
-          "У": "U",
-          "Ф": "F",
-          "Х": "H",
-          "Ц": "C",
-          "Ч": "Ch",
-          "Ш": "Sh",
-          "Щ": "Sch",
-          "Ъ": "",
-          "Ы": "Y",
-          "Ь": "",
-          "Э": "Je",
-          "Ю": "Ju",
-          "Я": "Ja",
-          "а": "a",
-          "б": "b",
-          "в": "v",
-          "г": "g",
-          "д": "d",
-          "е": "e",
-          "ё": "jo",
-          "ж": "zh",
-          "з": "z",
-          "и": "i",
-          "й": "j",
-          "к": "k",
-          "л": "l",
-          "м": "m",
-          "н": "n",
-          "о": "o",
-          "п": "p",
-          "р": "r",
-          "с": "s",
-          "т": "t",
-          "у": "u",
-          "ф": "f",
-          "х": "h",
-          "ц": "c",
-          "ч": "ch",
-          "ш": "sh",
-          "щ": "sch",
-          "ъ": "",
-          "ы": "y",
-          "ь": "",
-          "э": "je",
-          "ю": "ju",
-          "я": "ja"
-        };
-        if (r in t) return t[r];
-        return r;
-      };
     })();
   }
-}, [19619]);
+}, [190]);

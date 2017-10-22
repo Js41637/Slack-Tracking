@@ -1,7 +1,5 @@
 {{i18n_ns 'shared_channels'}}
 
-{{#feature flag="feature_shared_channels_client"}}
-
 <div class="p-share_channel_dialog__contents">
 
   <h3 class="p-share_channel_dialog__subheading">
@@ -18,11 +16,45 @@
 
   <div class="medium_bottom_margin">
     <label class="radio">
-      <input type="radio" name="channel_privacy" value="public" {{#unless is_private}}checked="checked" aria-checked="true"{{/unless}}>{{#t}}Public <span class="normal small_left_margin">Any member of your workspace can join</span>{{/t}}
+      <input
+        type="radio"
+        name="channel_privacy"
+        value="public"
+        {{#unless is_private}}
+          checked="checked"
+          aria-checked="true"
+        {{/unless}}
+      />{{#t}}Public <span class="normal small_left_margin">Any member of your workspace can join</span>{{/t}}
     </label>
-    <label class="radio disabled small_top_margin">
-      <input type="radio" name="channel_privacy" value="private" disabled="disabled" aria-disabled="true" {{#if is_private}}checked="checked" aria-checked="true"{{/if}}>{{#t note="Channel privacy option"}}Private <span class="normal small_left_margin">Not available in beta</span>{{/t}}
-    </label>
+    {{#feature flag="feature_esc_connecting_private_shared_channels"}}
+      <label class="radio small_top_margin">
+        <input
+          type="radio"
+          name="channel_privacy"
+          value="private"
+          {{#if is_private}}
+            checked="checked"
+            aria-checked="true"
+          {{/if}}
+        />
+          {{#t note="Channel privacy option"}}Private <span class="normal small_left_margin">This channel can only be joined or viewed by invite</span>{{/t}}
+      </label>
+    {{else}}
+      <label class="radio disabled small_top_margin">
+        <input
+          type="radio"
+          name="channel_privacy"
+          value="private"
+          disabled="disabled"
+          aria-disabled="true"
+          {{#if is_private}}
+            checked="checked"
+            aria-checked="true"
+          {{/if}}
+        />
+        {{#t note="Channel privacy option"}}Private <span class="normal small_left_margin">Not available in beta</span>{{/t}}
+      </label>
+    {{/feature}}
     <div class="alert alert_warning top_margin hidden" data-alert="private_channel">
       <ts-icon class="ts_icon_warning"></ts-icon>
       {{#t}}<strong>Note:</strong> This setting only applies to <strong>{team.name}</strong>. The channel won\u2019t necessarily be private on other workspaces.{{/t}}
@@ -65,6 +97,3 @@
 
   {{> shared_channels_retention_disclaimer}}
 </div>
-
-{{/feature}}
-

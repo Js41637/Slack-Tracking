@@ -135,7 +135,15 @@
     {{#if has_interactive_messages}}
       <tr class="no_border">
         <td colspan="2">
-          <h4 class="very_large_top_margin no_bottom_margin">{{#t}}Interactive Messages{{/t}}</h4>
+          <h4 class="very_large_top_margin no_bottom_margin">
+            {{#feature flag="feature_app_forms"}}
+              {{#t}}
+                Interactive Components
+              {{/t}}
+            {{else}}
+              {{#t}}Interactive Messages{{/t}}
+            {{/feature}}
+          </h4>
         </td>
       </tr>
       {{#or interactive_messages.actions_url deleted.interactive_messages.actions_url}}

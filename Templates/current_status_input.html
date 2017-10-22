@@ -15,11 +15,7 @@
         </a>
       </div>
     {{/unless}}
-    {{#feature flag="feature_texty_takes_over"}}
-      <div class="texty_single_line_input current_status_input no_bottom_margin{{#unless for_edit_profile}} small{{/unless}}" id="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}" data-validation="maxlength=100" data-validation-for="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}"></div>
-    {{else}}
-      <input type="text" class="current_status_input no_bottom_margin{{#unless for_edit_profile}} small{{/unless}}" name="status_text" id="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}" value="{{#if member}}{{unFormatMessage member.profile.status_text}}{{else}}{{unFormatMessage status_text}}{{/if}}" placeholder="{{#if for_team_site}}{{#t}}e.g. Gone to lunch{{/t}}{{else}}{{#t}}What\u2019s your status?{{/t}}{{/if}}" data-validation="maxlength=100" data-validation-for="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}" />
-    {{/feature}}
+    <div class="texty_single_line_input current_status_input no_bottom_margin{{#unless for_edit_profile}} small{{/unless}}" id="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}" data-validation="maxlength=100" data-validation-for="current_status{{#if index}}_{{index}}{{/if}}{{#if for_team_menu}}_for_team_menu{{/if}}{{#if for_edit_profile}}_for_edit_profile{{/if}}"></div>
     <a class="current_status_emoji_picker">
       <div class="current_status_emoji">
         {{#if member}}

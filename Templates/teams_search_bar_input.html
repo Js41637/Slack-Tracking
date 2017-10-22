@@ -1,13 +1,7 @@
 {{i18n_ns 'team'}}
 
-{{#feature flag="feature_lazy_grid_teams"}}
 <div class="p-searchable_enterprise_team_list__search position_relative">
-  {{#feature flag="feature_teams_to_workspaces"}}
-    <input type="text" class="p-searchable_enterprise_team_list__input no_margin small" name="team_filter" placeholder="{{#t note='Placeholder text for enterprise team search input field'}}Search teams{{/t}}"/>
-  {{else}}
-    <input type="text" class="p-searchable_enterprise_team_list__input no_margin small" name="team_filter" placeholder="{{#t note='Placeholder text for enterprise team search input field'}}Search teams{{/t}}"/>
-  {{/feature}}
+  <input type="text" class="p-searchable_enterprise_team_list__input no_margin small" name="team_filter" placeholder="{{#t note='Placeholder text for enterprise workspace search input field'}}Search workspaces{{/t}}"/>
   <i class="icon_search ts_icon ts_icon_search"></i>
   <a class="ts_icon ts_icon_times_circle icon_close hidden"></a>
 </div>
-{{/feature}}

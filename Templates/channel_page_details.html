@@ -25,20 +25,18 @@
           <div class="team_name team_name--org_shared">{{this.name}}</div>
         </div>
       {{/each}}
-      {{#feature flag="feature_lazy_grid_teams"}}
-        {{#if shared_teams_loading}}
-          {{> infinite_spinner size="medium" text="" color="white"}}
-        {{/if}}
-        {{#if show_more_teams_link}}
-          <button type="button" id="see_all_teams" class="btn btn_small btn_outline small_top_margin">
-            {{#feature flag="feature_teams_to_workspaces"}}
-              {{#t}}See all {total_teams_count, number} workspaces{{/t}}
-            {{else}}
-              {{#t}}See all {total_teams_count, number} teams{{/t}}
-            {{/feature}}
-          </button>
-        {{/if}}
-      {{/feature}}
+      {{#if shared_teams_loading}}
+        {{> infinite_spinner size="medium" text="" color="white"}}
+      {{/if}}
+      {{#if show_more_teams_link}}
+        <button type="button" id="see_all_teams" class="btn btn_small btn_outline small_top_margin">
+          {{#feature flag="feature_teams_to_workspaces"}}
+            {{#t}}See all {total_teams_count, number} workspaces{{/t}}
+          {{else}}
+            {{#t}}See all {total_teams_count, number} teams{{/t}}
+          {{/feature}}
+        </button>
+      {{/if}}
     {{/if}}
   </div>
 {{else if model_ob.is_shared}}
@@ -58,9 +56,7 @@
         <div class="team_name">{{this.name}}</div>
         <div class="team_member_count mini">
           {{#if this.is_pending_ext_shared}}
-            {{#feature flag="feature_shared_channels_client"}}
-              {{#t}}Waiting for them to join\u2026{{/t}}
-            {{/feature}}
+            {{#t}}Waiting for them to join\u2026{{/t}}
           {{else if ../is_loading_members}}
             {{#t note="Placeholder for loading team channel membership"}}\u2013 members{{/t}}
           {{else}}

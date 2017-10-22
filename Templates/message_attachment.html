@@ -199,13 +199,11 @@
     {{/if}}
 
     {{! Special Client Button Attachment Actions}}
-    {{#feature flag="feature_shared_channels_client"}}
     {{#if client_buttons}}
       <div class="msg_inline_attachment_row attachment_actions">
         {{> attachment_actions attachment=client_buttons message_ts=msg.ts}}
       </div>
     {{/if}}
-    {{/feature}}
 
   </div>
 

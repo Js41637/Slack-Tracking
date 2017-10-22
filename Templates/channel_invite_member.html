@@ -3,6 +3,6 @@
   {{> c-member member=member size="medium"}}
   <i class="add_icon ts_icon ts_icon_plus_circle ts_icon_inherit float_right not_in_token"></i>
   {{#if invite_exception_reason}}
-    {{#feature flag="feature_shared_channels_client"}}<div class="disabled_warning float_right greigh small_left_margin">{{invite_exception_reason}}</div>{{/feature}}
+    <div class="disabled_warning float_right greigh small_left_margin">{{invite_exception_reason}}</div>
   {{/if}}
 </div>

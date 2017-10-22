@@ -17,44 +17,21 @@
     {{/feature}}
 
     <div class="names_container" id="names_container">
-        {{#feature flag="feature_name_tagging_client"}}
-          <label>{{#t}}Full name{{/t}}</label>
-            <div class="name_field" id="real_name_wrapper">
-                <input type="text" name="full_name" placeholder="{{#t}}Full name{{/t}}" id="invite_real_name" autocomplete="off" data-qa="real_name_field" {{#if real_name}}value="{{real_name}}"{{/if}} data-validation="membername=required" data-validation-for="real_name_profile_field_warnings" data-validation-success/>
-                <label for="real_name_profile_field_warnings"><span class="validation_message"></span></label>
-            </div>
-        {{else}}
-            <label>{{#t}}Your name{{/t}}</label>
-            <div class="col span_1_of_2 no_padding no_bottom_margin name_field" id="first_name_wrapper">
-                <input type="text" placeholder="{{#t}}First name{{/t}}" id="invite_first_name" maxlength="35" autocomplete="off" data-qa="first_name_field" value="{{first_name}}"/>
-                <p class="error_message small_bottom_margin"></p>
-            </div>
-            <div class="col span_1_of_2 no_padding no_bottom_margin name_field" id="last_name_wrapper">
-                <input type="text" placeholder="{{#t}}Last name{{/t}}" id="invite_last_name" maxlength="35" autocomplete="off" data-qa="last_name_field" value="{{last_name}}"/>
-                <p class="error_message small_bottom_margin"></p>
-            </div>
-            <p class="description clear_both">{{#t}}Your name will be displayed along with your messages in Slack.{{/t}}</p>
-        {{/feature}}
+        <label>{{#t}}Full name{{/t}}</label>
+        <div class="name_field" id="real_name_wrapper">
+            <input type="text" name="full_name" placeholder="{{#t}}Full name{{/t}}" id="invite_real_name" autocomplete="off" data-qa="real_name_field" {{#if real_name}}value="{{real_name}}"{{/if}} data-validation="membername=required" data-validation-for="real_name_profile_field_warnings" data-validation-success/>
+            <label for="real_name_profile_field_warnings"><span class="validation_message"></span></label>
+        </div>
     </div>
 
     <div id="username_container">
-        {{#feature flag="feature_name_tagging_client"}}
-          <label for="display_name_overlay">{{#t}}Display name (optional){{/t}}</label>
-             <div class="input_wrapper display_name">
-                <p id="display_name_overlay" class="input_overlay"></p>
-                <input type="text" name="display_name" id="invite_display_name" autocomplete="off" data-qa="display_name_field" placeholder="{{#if display_name_placeholder_prefill}}{{display_name_placeholder_prefill}}{{else}}{{#t}}Display name{{/t}}{{/if}}" data-validation="membername" data-validation-for="display_name_profile_field_warnings" data-validation-success/>
-            </div>
-            <label for="display_name_profile_field_warnings"><span class="validation_message"></span></label>
-            <p class="subtle_silver">{{#t}}By default, Slack will use your full name \u2014 but you can choose something shorter if you\u2019d like.{{/t}}</p>
-        {{else}}
-           <label for="invite_username">{{#t}}Username (required){{/t}}</label>
-            <div class="input_wrapper username">
-                <p id="username_overlay" class="input_overlay"></p>
-                <input type="text" id="invite_username" maxlength="21" autocomplete="off" data-qa="username_field" placeholder="{{#t}}username{{/t}}" value="{{#if username_prefill}}{{username_prefill}}{{/if}}"/>
-            </div>
-            <p class="error_message" id="username_error_message"></p>
-            <p class="description">{{#t}}Please choose a username that is all lowercase, containing only letters, numbers, periods, hyphens, and underscores.{{/t}}</p>
-        {{/feature}}
+        <label for="display_name_overlay">{{#t}}Display name (optional){{/t}}</label>
+            <div class="input_wrapper display_name">
+            <p id="display_name_overlay" class="input_overlay"></p>
+            <input type="text" name="display_name" id="invite_display_name" autocomplete="off" data-qa="display_name_field" placeholder="{{#if display_name_placeholder_prefill}}{{display_name_placeholder_prefill}}{{else}}{{#t}}Display name{{/t}}{{/if}}" data-validation="membername" data-validation-for="display_name_profile_field_warnings" data-validation-success/>
+        </div>
+        <label for="display_name_profile_field_warnings"><span class="validation_message"></span></label>
+        <p class="sk_dark_grey">{{#t}}By default, Slack will use your full name \u2014 but you can choose something shorter if you\u2019d like.{{/t}}</p>
 
         {{#if custom_username_policy}}
             <div id="custom_username_policy" class="large_bottom_margin">
@@ -63,7 +40,7 @@
                 {{else}}
                     <p class="bold small_bottom_margin">{{#t}}Custom rules for this team:{{/t}}</p>
                 {{/feature}}
-                <p class="no_bottom_margin">{{custom_username_policy}}</p>
+                <p class="sk_dark_grey no_bottom_margin">{{custom_username_policy}}</p>
             </div>
         {{/if}}
     </div>
@@ -73,23 +50,24 @@
         <input type="password" id="invite_password" data-qa="password-field" placeholder="{{#t}}Password{{/t}}" name="password"/>
         <p class="error_message small_bottom_margin" id="password_error_message"></p>
 
-        <p class="description">{{#t}}Passwords must be at least 6 characters long, and can't be things like <i>password</i>, <i>123456</i> or <i>abcdef</i>.{{/t}}</p>
+        <p class="sk_dark_grey">{{#t}}Passwords must be at least 6 characters long, and can't be things like <i>password</i>, <i>123456</i> or <i>abcdef</i>.{{/t}}</p>
     </div>
 
     {{#if collect_guest_user_role}}
         {{> invite_inc_guest_user_role}}
     {{/if}}
 
-    <div id="submit" class="align_center">
+    <div id="submit">
         <div id="email_checkbox">
-            <input type="checkbox" id="email_misc" data-qa="email_checkbox" {{#if uncheck_email}}{{else}}checked{{/if}}>
-            <label for="email_misc">{{#t}}It's ok to send me (very occasional)<br class="hide_on_mobile" /> email about the Slack service.{{/t}}</label>
+            <input class="spf_input" type="checkbox" id="email_misc" data-qa="email_checkbox" {{#if uncheck_email}}{{else}}checked{{/if}}>
+            <label class="spf_label" for="email_misc">{{#t}}It's ok to send me email about the Slack service.{{/t}}</label>
         </div>
 
-
-        <button id="submit_btn" type="submit" class="{{#unless email_reminded}}disabled{{/unless}} btn btn_large ladda-button submit_setting" data-style="expand-right" data-qa="submit_button">
-            <span class="ladda-label">{{#t}}Next{{/t}}<i class="ts_icon ts_icon_arrow_right"></i></span>
-        </button>
+        <div class="align_center">
+            <button id="submit_btn" type="submit" class="{{#unless email_reminded}}disabled{{/unless}} btn btn_large ladda-button submit_setting" data-style="expand-right" data-qa="submit_button">
+                <span class="ladda-label">{{#t}}Next{{/t}}</span>
+            </button>
+        </div>
     </div>
 
 </div>

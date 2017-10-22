@@ -11,7 +11,7 @@
         </span>
       {{/if}}
     </span>
-    {{~#isModelObExtShared result}}{{~#unless result.is_org_shared}}{{> shared_channels_icon tooltip=true shared_team_ids=result.shared_team_ids}}{{/unless}}{{/isModelObExtShared}}
+    {{~#isModelObExtShared result}}{{~#unless result.is_org_shared}}{{> shared_channels_icon model_ob=result tooltip=true shared_team_ids=result.shared_team_ids}}{{/unless}}{{/isModelObExtShared}}
   </li>
 {{/each}}
 </ul>

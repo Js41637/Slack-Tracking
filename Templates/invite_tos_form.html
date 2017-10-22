@@ -1,38 +1,50 @@
 {{i18n_ns 'invite'}}
 
-<div class="fs_split_header"></div>
+{{#if has_custom_tos}}
+  <div class="fs_grey">
+    <div class="custom_tos__contents margin_auto">
+      {{terms_of_service}}
 
-<div id="invite_form_body" class="{{#if is_split_pane}}fs_split_body{{else}}fs_grey{{/if}}">
-
-  {{#unless is_split_pane}}<div id="tos_graphics"></div>{{/unless}}
-
-  <h1 class="tos_title_form">{{#t}}Please review the User Terms of Service{{/t}}</h1>
-
-  <div class="tos_contents">
-    {{terms_of_service}}
-
-    <p class="align_center">
-      <img {srcset src="/img/signup/tos_raised_hands.png" sizes="1x, 2x"} alt="{{#t}}User Terms of Service{{/t}}" />
-    </p>
-  </div>
-</div>
-
-
-<div class="tos_i_agree_banner invite_flow {{#unless is_split_pane}}full_width{{/unless}}">
-  <div class="tos_full_width col span_4_of_6 margin_auto float_none">
-    <div class="col span_2_of_3">
-      <p class="tos_disclaimer">
-        {{#t}}By choosing <strong>I Agree</strong>, you understand and agree to 
-        Slack's User Terms of Service, <a href="{abs_root_url}privacy-policy" target="_blank">Privacy Policy</a>, and <a href="/cookie-policy" target="_blank">Cookie Policy</a>.{{/t}}
-      </p>
-    </div>
-
-    <div class="col span_1_of_3 justify_content_center">
-      <button id="submit_btn" type="submit" class="btn btn_large ladda-button submit_setting" data-style="expand-right" data-qa="submit_button">
+      <button id="submit_btn" type="button" class="btn btn_large ladda-button full_width" data-style="expand-right">
         <span class="ladda-label">{{#t}}I Agree{{/t}}</span>
       </button>
     </div>
-
-    <div class="clear_both"></div>
   </div>
-</div>
+{{else}}
+  <div class="fs_split_header"></div>
+
+  <div id="invite_form_body" class="{{#if is_split_pane}}fs_split_body{{else}}fs_grey{{/if}}">
+
+    {{#unless is_split_pane}}<div id="tos_graphics" class="tos_graphics"></div>{{/unless}}
+
+    <h1 class="tos_title_form">{{#t}}Please review the User Terms of Service{{/t}}</h1>
+
+    <div class="tos_contents">
+      {{terms_of_service}}
+
+      <p class="align_center">
+        <img {srcset src="/img/signup/tos_raised_hands.png" sizes="1x, 2x"} alt="{{#t}}User Terms of Service{{/t}}" />
+      </p>
+    </div>
+  </div>
+
+
+  <div class="tos_i_agree_banner invite_flow {{#unless is_split_pane}}full_width{{/unless}}">
+    <div class="tos_full_width col span_4_of_6 margin_auto float_none">
+      <div class="col span_2_of_3">
+        <p class="tos_disclaimer">
+          {{#t}}By choosing <strong>I Agree</strong>, you understand and agree to 
+          Slack's User Terms of Service, <a href="{abs_root_url}privacy-policy" target="_blank">Privacy Policy</a>, and <a href="/cookie-policy" target="_blank">Cookie Policy</a>.{{/t}}
+        </p>
+      </div>
+
+      <div class="col span_1_of_3 justify_content_center">
+        <button id="submit_btn" type="submit" class="btn btn_large ladda-button submit_setting" data-style="expand-right" data-qa="submit_button">
+          <span class="ladda-label">{{#t}}I Agree{{/t}}</span>
+        </button>
+      </div>
+
+      <div class="clear_both"></div>
+    </div>
+  </div>
+{{/if}}

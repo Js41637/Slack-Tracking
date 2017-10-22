@@ -1,9 +1,6 @@
 {{i18n_ns "channel_created"}}
 
-{{#feature flag="feature_teams_to_workspaces"}}
-
 {{#if shared.ext_shared}}
-  {{#feature flag="feature_shared_channels_client"}}
   {{#if shared.is_pending}}
     {{#t
       pending_teams=(listify shared.pending_teams map="name" strong="true")
@@ -13,32 +10,16 @@
       shared_teams=(listify shared.shared_teams map="name" strong="true")
     }}This is a shared channel between {shared_teams}.{{/t}}
   {{/if}}
-  {{/feature}}
 
 {{else}}{{#if creator.is_self}}
 
   {{#if shared}}
     {{#if shared.all_teams}}
-      {{#feature flag="feature_lazy_grid_teams"}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}You created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>all workspaces</button> in your organization {date}.{{/t}}
-      {{else}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}You created this {private, select, true {private} other {}} channel across all workspaces in your organization {date}.{{/t}}
-      {{/feature}}
+      {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}You created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>all workspaces</button> in your organization {date}.{{/t}}
     {{else}}
-    {{#feature flag="feature_lazy_grid_teams"}}
       {{#t
         note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"
       }}You created this channel across <button class="btn_link" data-channel-shared-teams>{shared.model_ob.shared_team_ids.length, plural, =1 {# workspace} other {# workspaces}}</button> {date}.{{/t}}
-    {{else}}
-      {{#t
-        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"
-        teams_shared_with=(listify shared.teams_shared_with map="name")
-      }}You created this channel across <a class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline">{shared.model_ob.shared_team_ids.length, plural, =1 {# workspace} other {# workspaces}}
-        <span class="ts_tip_tip">
-          <span class="ts_tip_multiline_inner">{teams_shared_with}</span>
-        </span>
-      </a> {date}.{{/t}}
-    {{/feature}}
     {{/if}}
   {{else}}
     {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}You created this {private, select, true {private} other {}} channel {date}.{{/t}}
@@ -48,26 +29,11 @@
 
   {{#if shared}}
     {{#if shared.all_teams}}
-      {{#feature flag="feature_lazy_grid_teams"}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"}}{creator.user} created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>all workspaces</button> in your organization {date}.{{/t}}
-      {{else}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"}}{creator.user} created this {private, select, true {private} other {}} channel across all workspaces in your organization {date}.{{/t}}
-      {{/feature}}
+      {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"}}{creator.user} created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>all workspaces</button> in your organization {date}.{{/t}}
     {{else}}
-    {{#feature flag="feature_lazy_grid_teams"}}
       {{#t
         note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"
       }}{creator.user} created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>{shared.model_ob.shared_team_ids.length, plural, =1 {# workspace} other {# workspaces}}</button> {date}.{{/t}}
-    {{else}}
-      {{#t
-        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"
-        teams_shared_with=(listify shared.teams_shared_with map="name")
-      }}{creator.user} created this {private, select, true {private} other {}} channel across <a class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline">{shared.model_ob.shared_team_ids.length, plural, =1 {# workspace} other {# workspaces}}
-        <span class="ts_tip_tip">
-          <span class="ts_tip_multiline_inner">{teams_shared_with}</span>
-        </span>
-      </a> {date}.{{/t}}
-    {{/feature}}
     {{/if}}
   {{else}}
     {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"}}{creator.user} created this {private, select, true {private} other {}} channel {date}.{{/t}}
@@ -77,26 +43,11 @@
 
   {{#if shared}}
     {{#if shared.all_teams}}
-      {{#feature flag="feature_lazy_grid_teams"}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}Unknown created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>all workspaces</button> in your organization {date}.{{/t}}
-      {{else}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}Unknown created this {private, select, true {private} other {}} channel across all workspaces in your organization {date}.{{/t}}
-      {{/feature}}
+      {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}Unknown created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>all workspaces</button> in your organization {date}.{{/t}}
     {{else}}
-    {{#feature flag="feature_lazy_grid_teams"}}
       {{#t
         note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"
       }}Unknown created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>{shared.model_ob.shared_team_ids.length, plural, =1 {# workspace} other {# workspaces}}</button> {date}.{{/t}}
-    {{else}}
-      {{#t
-        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"
-        teams_shared_with=(listify shared.teams_shared_with map="name")
-      }}Unknown created this {private, select, true {private} other {}} channel across <a class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline">{shared.model_ob.shared_team_ids.length, plural, =1 {# workspace} other {# workspaces}}
-        <span class="ts_tip_tip">
-          <span class="ts_tip_multiline_inner">{teams_shared_with}</span>
-        </span>
-      </a> {date}.{{/t}}
-    {{/feature}}
     {{/if}}
   {{else}}
     {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}Unknown created this {private, select, true {private} other {}} channel {date}.{{/t}}
@@ -104,109 +55,3 @@
 
 
 {{/if}}{{/if}}{{/if}}
-
-{{else}}
-
-{{#if shared.ext_shared}}
-  {{#feature flag="feature_shared_channels_client"}}
-  {{#if shared.is_pending}}
-    {{#t
-      pending_teams=(listify shared.pending_teams map="name" strong="true")
-    }}This is a shared channel. Waiting for {pending_teams} to join...{{/t}}
-  {{else}}
-    {{#t
-      shared_teams=(listify shared.shared_teams map="name" strong="true")
-    }}This is a shared channel between {shared_teams}.{{/t}}
-  {{/if}}
-  {{/feature}}
-
-{{else}}{{#if creator.is_self}}
-
-  {{#if shared}}
-    {{#if shared.all_teams}}
-      {{#feature flag="feature_lazy_grid_teams"}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}You created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>all teams</button> in your organization {date}.{{/t}}
-      {{else}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}You created this {private, select, true {private} other {}} channel across all teams in your organization {date}.{{/t}}
-      {{/feature}}
-    {{else}}
-    {{#feature flag="feature_lazy_grid_teams"}}
-      {{#t
-        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"
-      }}You created this channel across <button class="btn_link" data-channel-shared-teams>{shared.model_ob.shared_team_ids.length, plural, =1 {# team} other {# teams}}</button> {date}.{{/t}}
-    {{else}}
-      {{#t
-        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"
-        teams_shared_with=(listify shared.teams_shared_with map="name")
-      }}You created this channel across <a class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline">{shared.model_ob.shared_team_ids.length, plural, =1 {# team} other {# teams}}
-        <span class="ts_tip_tip">
-          <span class="ts_tip_multiline_inner">{teams_shared_with}</span>
-        </span>
-      </a> {date}.{{/t}}
-    {{/feature}}
-    {{/if}}
-  {{else}}
-    {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}You created this {private, select, true {private} other {}} channel {date}.{{/t}}
-  {{/if}}
-
-{{else}}{{#if creator.user}}
-
-  {{#if shared}}
-    {{#if shared.all_teams}}
-      {{#feature flag="feature_lazy_grid_teams"}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"}}{creator.user} created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>all teams</button> in your organization {date}.{{/t}}
-      {{else}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"}}{creator.user} created this {private, select, true {private} other {}} channel across all teams in your organization {date}.{{/t}}
-      {{/feature}}
-    {{else}}
-    {{#feature flag="feature_lazy_grid_teams"}}
-      {{#t
-        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"
-      }}{creator.user} created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>{shared.model_ob.shared_team_ids.length, plural, =1 {# team} other {# teams}}</button> {date}.{{/t}}
-    {{else}}
-      {{#t
-        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"
-        teams_shared_with=(listify shared.teams_shared_with map="name")
-      }}{creator.user} created this {private, select, true {private} other {}} channel across <a class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline">{shared.model_ob.shared_team_ids.length, plural, =1 {# team} other {# teams}}
-        <span class="ts_tip_tip">
-          <span class="ts_tip_multiline_inner">{teams_shared_with}</span>
-        </span>
-      </a> {date}.{{/t}}
-    {{/feature}}
-    {{/if}}
-  {{else}}
-    {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'. Also, {creator.user} is always third person, e.g. 'UserA created this...'"}}{creator.user} created this {private, select, true {private} other {}} channel {date}.{{/t}}
-  {{/if}}
-
-{{else}}
-
-  {{#if shared}}
-    {{#if shared.all_teams}}
-      {{#feature flag="feature_lazy_grid_teams"}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}Unknown created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>all teams</button> in your organization {date}.{{/t}}
-      {{else}}
-        {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}Unknown created this {private, select, true {private} other {}} channel across all teams in your organization {date}.{{/t}}
-      {{/feature}}
-    {{else}}
-    {{#feature flag="feature_lazy_grid_teams"}}
-      {{#t
-        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"
-      }}Unknown created this {private, select, true {private} other {}} channel across <button class="btn_link" data-channel-shared-teams>{shared.model_ob.shared_team_ids.length, plural, =1 {# team} other {# teams}}</button> {date}.{{/t}}
-    {{else}}
-      {{#t
-        note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"
-        teams_shared_with=(listify shared.teams_shared_with map="name")
-      }}Unknown created this {private, select, true {private} other {}} channel across <a class="ts_tip ts_tip_top ts_tip_float ts_tip_multiline">{shared.model_ob.shared_team_ids.length, plural, =1 {# team} other {# teams}}
-        <span class="ts_tip_tip">
-          <span class="ts_tip_multiline_inner">{teams_shared_with}</span>
-        </span>
-      </a> {date}.{{/t}}
-    {{/feature}}
-    {{/if}}
-  {{else}}
-    {{#t note="{date} is either a date e.g. 'on July 14th', or 'yesterday' or 'today'"}}Unknown created this {private, select, true {private} other {}} channel {date}.{{/t}}
-  {{/if}}
-
-{{/if}}{{/if}}{{/if}}
-
-{{/feature}}

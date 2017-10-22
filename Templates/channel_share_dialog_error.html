@@ -1,7 +1,5 @@
 {{i18n_ns 'shared_channels'}}
 
-{{#feature flag="feature_shared_channels_client"}}
-
 {{#if_equal error compare="invalid_target_domain"}}
     {{#t}}<strong>{target_domain}.slack.com doesn\u2019t appear to be in use.</strong> If you\u2019re sure you entered it correctly, you may need to ask your contact to double-check their Slack URL.{{/t}}
 {{/if_equal}}
@@ -17,5 +15,3 @@
 {{#if_equal error compare="target_team_is_enterprise"}}
     {{#t}}<strong>During the beta, you can\u2019t share channels with organizations on Enterprise Grid.</strong> This is one of those rough edges we\u2019re still smoothing over \u2014 stay tuned.{{/t}}
 {{/if_equal}}
-
-{{/feature}}

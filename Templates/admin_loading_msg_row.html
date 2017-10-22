@@ -5,34 +5,14 @@
     {{message}}
     <span class="show_on_mobile small_top_margin">{{> member_preview_link_image (getMemberPreviewLinkImageArgs user 24)}}
 
-    <a href="/team/{{~#feature flag="feature_name_tagging_client"~}}
-        {{user.id}}
-      {{~else~}}
-        {{~#feature flag="feature_shared_channels_client"~}}
-          {{user.id}}
-        {{~else~}}
-          {{user.name}}
-        {{~/feature~}}
-      {{~/feature~}}"
-      class="align_top very_small_left_margin break_word bold">
-
+    <a href="/team/{{user.id}}" class="align_top very_small_left_margin break_word bold">
       {{getPrefCompliantMemberName user}}
     </a>
     </span>
   </td>
   <td class="author_cell hide_on_mobile">
     <span class="small_top_margin">{{makeProfileImage user size="24"}}
-    <a href="/team/{{~#feature flag="feature_name_tagging_client"~}}
-        {{user.id}}
-      {{~else~}}
-        {{~#feature flag="feature_shared_channels_client"~}}
-          {{user.id}}
-        {{~else~}}
-          {{user.name}}
-        {{~/feature~}}
-      {{~/feature~}}"
-      class="align_top very_small_left_margin break_word bold">
-
+    <a href="/team/{{user.id}}" class="align_top very_small_left_margin break_word bold">
       {{getPrefCompliantMemberName user}}
     </a>
     </span>

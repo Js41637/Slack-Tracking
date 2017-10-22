@@ -41,13 +41,11 @@
           {{> message_member_image}}
         {{/if}}
         {{#unless is_tombstone}}
-        {{#feature flag="feature_shared_channels_client"}}
-            {{#unless member.is_unknown}}
+          {{#unless member.is_unknown}}
             {{#if member.is_external}}
               {{> team_icon team=(getTeamById member.team_id) size=16 with_tooltip=true}}
             {{/if}}
-            {{/unless}}
-        {{/feature}}
+          {{/unless}}
           {{#if member}}
             {{{makeMemberPreviewLink member}}}
             {{> current_status for_message=true}}
@@ -57,7 +55,7 @@
             </span>
             {{~/if~}}
           {{else}}
-            <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="bot_label">{{#t note="short tag on a message that indicates the sender is an application"}}APP{{/t}}</span>{{/if}}</span>
+            <span class="message_sender {{getBotColorClassByUserName msg.username}}"> {{{getBotNameWithLink msg}}} {{#if is_bot}}<span class="{{#feature flag="feature_unified_app_display"}}c-app_label{{else}}bot_label{{/feature}}">{{#t note="short tag on a message that indicates the sender is an application"}}APP{{/t}}</span>{{/if}}</span>
           {{/if}}
           {{#if for_top_results_search_display}}
             {{#sliFileSearchIsEnabled}}
@@ -341,7 +339,7 @@
         {{#canPostInModelOb model_ob}}
           <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send"}}(this message send failed, would you like to <nobr><button type="button" class="btn_link resend_temp_msg">resend</button> \u2022 <button type="button" class="btn_link remove_temp_msg">remove</button>?)</nobr>{{/t}}</span>
         {{else}}
-          <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send and they don't have permissions to post in the channel anymore" fallback_hash='3536365b5060bec0d20c21ebe8f336fc651538c6'}}(this message send failed, would you like to <nobr><button type="button" class="btn_link remove_temp_msg">remove</button> it?)</nobr>{{/t}}</span>
+          <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send and they don't have permissions to post in the channel anymore"}}(this message send failed, would you like to <nobr><button type="button" class="btn_link remove_temp_msg">remove</button> it?)</nobr>{{/t}}</span>
         {{/canPostInModelOb}}
       {{else}}
         <span class="temp_msg_controls {{#unless show_resend_controls}}hidden{{/unless}}">{{#t note="shown on a message when it fails to send"}}(this message send failed, would you like to <nobr><button type="button" class="btn_link resend_temp_msg">resend</button> \u2022 <button type="button" class="btn_link remove_temp_msg">remove</button>?)</nobr>{{/t}}</span>

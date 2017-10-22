@@ -16,21 +16,30 @@
             <span class="ss_controls__reaction--name"></span>
         </div>
         <span class="ss_controls__help_text">
-                <span data-action="end_share">{{#t}}Stop sharing your screen{{/t}}</span>
-                <span data-action="options">{{#t}}More options{{/t}}</span>
-                <span data-action="mute_on">{{#t}}Mute your microphone{{/t}}</span>
-                <span data-action="mute_off">{{#t}}Enable your microphone{{/t}}</span>
-                <span data-action="interactive_on">{{#t fallback_hash=e422d0e2bd5d0fa2fce9ebbd12890cb35d1337cb}}Stop sharing control{{/t}}</span>
-                <span data-action="interactive_off">{{#t fallback_hash=22764871de9c3a5e2579c06d7f126b02b10bfa97}}Share control of your screen{{/t}}</span>
-                <span data-action="video_on">{{#t}}Disable camera{{/t}}</span>
-                <span data-action="video_off">{{#t}}Enable camera{{/t}}</span>
+            {{!-- These translations need to live here because we don't have TS.i18n in the mini panel --}}
+            <span name="end_share">{{#t}}Stop sharing your screen{{/t}}</span>
+            <span name="options">{{#t}}More options{{/t}}</span>
+            <span name="mute_on">{{#t}}Mute your microphone{{/t}}</span>
+            <span name="mute_off">{{#t}}Enable your microphone{{/t}}</span>
+            <span name="doodle_on">{{#t}}Don't let others draw on your screen{{/t}}</span>
+            <span name="doodle_off">{{#t}}Let others draw on your screen{{/t}}</span>
+            <span name="doodle_disabled_linux">{{#t}}Allowing others to draw on your screen is not supported on Linux{{/t}}</span>
+            <span name="interactive_on">{{#t fallback_hash=e422d0e2bd5d0fa2fce9ebbd12890cb35d1337cb}}Stop sharing control{{/t}}</span>
+            <span name="interactive_off">{{#t fallback_hash=22764871de9c3a5e2579c06d7f126b02b10bfa97}}Share control of your screen{{/t}}</span>
+            <span name="interactive_disabled_linux">{{#t}}Sharing control of your screen is not supported on Linux{{/t}}</span>
+            <span name="interactive_disabled_mas">{{#t}}Download the Slack app from our website to use this feature{{/t}}</span>
+            <span name="video_on">{{#t}}Disable camera{{/t}}</span>
+            <span name="video_off">{{#t}}Enable camera{{/t}}</span>
         </span>
     </div>
 
     <div class="ss_controls__button_container">
         <button data-action="mute" class="ss_controls__button ss_controls__button--mute"></button>
         {{#if is_host }}
-        <button data-action="interactive" class="ss_controls__button ss_controls__button--interactive"></button>
+        <button data-action="doodle" class="ss_controls__button ss_controls__button--doodle
+            {{#if is_linux }}ss_controls__button--disabled disabled_linux{{/if}}"></button>
+        <button data-action="interactive" class="ss_controls__button ss_controls__button--interactive
+            {{#if is_linux }}ss_controls__button--disabled disabled_linux{{/if}}"></button>
         <button data-action="end_share" class="ss_controls__button ss_controls__button--end_share"></button>
         {{else}}
         <button data-action="video" class="ss_controls__button ss_controls__button--video"></button>
