@@ -17,7 +17,7 @@
 
     <p class="p-share_channel_dialog__description--channel-options-menu">
       {{#feature flag="feature_warn_harder_when_sharing_existing_channels"}}
-        <div class="c-alert c-alert--inline c-alert--level_warning bottom_margin">
+        <div class="c-alert c-alert--boxed c-alert--level_warning bottom_margin">
           <ts-icon class="c-alert__icon c-icon c-icon--warning"></ts-icon>
           <div class="c-alert__message">
             {{#t}}This will give another workspace access to all of the files, messages, and apps in <strong>{channel_name}</strong>.{{/t}}
@@ -26,23 +26,32 @@
           </div>
         </div>
 
+        <div class="c-alert c-alert--boxed c-alert--level_error large_bottom_margin hidden" data-label="shared_channel_form_error">
+          <ts-icon class="c-alert__icon c-icon c-icon--warning"></ts-icon>
+          <span data-label="shared_channel_form_error_label"></span>
+        </div>
+
         {{#t}}To share this channel, you\u2019ll need the contact info of an admin at the other workspace.{{/t}}
       {{else}}
+        <div class="c-alert c-alert--boxed c-alert--level_error large_bottom_margin hidden" data-label="shared_channel_form_error">
+          <ts-icon class="c-alert__icon c-icon c-icon--warning"></ts-icon>
+          <span data-label="shared_channel_form_error_label"></span>
+        </div>
+
         {{#t}}To share this channel, you\u2019ll need the contact info of an admin at the other workspace. <strong>Note:</strong> this will also share all of the existing messages and files in the channel.{{/t}}
       {{/feature}}
     </p>
-
 
   {{else}}
     <p class="p-share_channel_dialog__description">
       {{#t}}Next, invite another workspace. You\u2019ll need an admin\u2019s contact info, and they\u2019ll receive this via Slackbot.{{/t}}
     </p>
-  {{/if}}
 
-  <div class="alert alert_error large_bottom_margin hidden" data-label="shared_channel_form_error">
-    <ts-icon class="ts_icon_warning"></ts-icon>
-    <span data-label="shared_channel_form_error_label"></span>
-  </div>
+    <div class="c-alert c-alert--boxed c-alert--level_error large_bottom_margin hidden" data-label="shared_channel_form_error">
+      <ts-icon class="c-alert__icon c-icon c-icon--warning"></ts-icon>
+      <span data-label="shared_channel_form_error_label"></span>
+    </div>
+  {{/if}}
 
   {{> channel_share_dialog_invite_fields}}
 
