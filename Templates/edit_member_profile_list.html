@@ -40,12 +40,8 @@
         {{#feature flag="feature_fix_displayname_guidelines"}}
           {{#if custom_username_policy}}
             <div id="custom_username_policy" class="large_bottom_margin">
-              {{#feature flag="feature_teams_to_workspaces"}}
-                <p class="bold small_bottom_margin">{{#t}}Custom rules for this workspace:{{/t}}</p>
-              {{else}}
-                <p class="bold small_bottom_margin">{{#t}}Custom rules for this team:{{/t}}</p>
-              {{/feature}}
-                <p class="sk_dark_grey no_bottom_margin">{{custom_username_policy}}</p>
+              <p class="bold small_bottom_margin">{{#t}}Custom rules for this workspace:{{/t}}</p>
+              <p class="sk_dark_grey no_bottom_margin">{{custom_username_policy}}</p>
             </div>
           {{/if}}
         {{/feature}}

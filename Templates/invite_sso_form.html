@@ -7,27 +7,15 @@
     <div id="sso_container">
         {{#if_equal auth_mode compare="google"}}
             {{#if sso_required}}
-                {{#feature flag="feature_teams_to_workspaces"}}
-                    <p>{{#t}}This workspace requires you to sign up with your <strong>@{email_domain}</strong> Google account.{{/t}}</p>
-                {{else}}
-                    <p>{{#t}}This team requires you to sign up with your <strong>@{email_domain}</strong> Google account.{{/t}}</p>
-                {{/feature}}
+                <p>{{#t}}This workspace requires you to sign up with your <strong>@{email_domain}</strong> Google account.{{/t}}</p>
             {{else}}
                 {{#if domain_match}}
                     <p>
-                        {{#feature flag="feature_teams_to_workspaces"}}
-                            {{#if_gt allowed_domains_count compare=1}}
-                                {{#t}}This workspace allows you to sign up with your <strong>Google Apps</strong> account.{{/t}}
-                            {{else}}
-                                {{#t}}This workspace allows you to sign up with your <strong>@{google_sso_domain}</strong> Google account.{{/t}}
-                            {{/if_gt}}
+                        {{#if_gt allowed_domains_count compare=1}}
+                            {{#t}}This workspace allows you to sign up with your <strong>Google Apps</strong> account.{{/t}}
                         {{else}}
-                            {{#if_gt allowed_domains_count compare=1}}
-                                {{#t}}This team allows you to sign up with your <strong>Google Apps</strong> account.{{/t}}
-                            {{else}}
-                                {{#t}}This team allows you to sign up with your <strong>@{google_sso_domain}</strong> Google account.{{/t}}
-                            {{/if_gt}}
-                        {{/feature}}
+                            {{#t}}This workspace allows you to sign up with your <strong>@{google_sso_domain}</strong> Google account.{{/t}}
+                        {{/if_gt}}
                     </p>
                 {{/if}}
             {{/if}}
@@ -49,19 +37,11 @@
             {{/if}}
         {{else}}
             <p>
-                {{#feature flag="feature_teams_to_workspaces"}}
-                    {{#if sso_required}}
-                        {{#t}}This workspace requires you to sign in with your {saml_provider_label} account.{{/t}}
-                    {{else}}
-                        {{#t}}This workspace allows you to sign in with your {saml_provider_label} account.{{/t}}
-                    {{/if}}
+                {{#if sso_required}}
+                    {{#t}}This workspace requires you to sign in with your {saml_provider_label} account.{{/t}}
                 {{else}}
-                    {{#if sso_required}}
-                        {{#t}}This team requires you to sign in with your {saml_provider_label} account.{{/t}}
-                    {{else}}
-                        {{#t}}This team allows you to sign in with your {saml_provider_label} account.{{/t}}
-                    {{/if}}
-                {{/feature}}
+                    {{#t}}This workspace allows you to sign in with your {saml_provider_label} account.{{/t}}
+                {{/if}}
             </p>
             <p>
                 <a href="{{invite_sso_url}}?action=invite&redir=%2Finvite%2F{{invite_code}}" class="btn btn_info btn_large btn_with_icon full_width">

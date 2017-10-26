@@ -6,15 +6,8 @@
       You are viewing a thread from an archived channel
     {{/t}}
   {{else}}
-    {{#feature flag="feature_teams_to_workspaces"}}
     {{#t note="shown at bottom of a thread if user can't post in channel"}}
       Your Workspace Owners have limited who can post to <strong>{channel_name}</strong>
     {{/t}}
-    {{else}}
-    {{#t note="shown at bottom of a thread if user can't post in channel"}}
-      Your Team Owners have limited who can post to <strong>{channel_name}</strong>
-    {{/t}}
-    {{/feature}}
-
   {{/if}}
 </p>

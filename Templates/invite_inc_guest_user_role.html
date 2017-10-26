@@ -3,9 +3,5 @@
 <div id="guest_user_role_container">
     <label class="normal" for="invite_guest_user_role">{{#t note="asking the user about their role in the company"}}What I do{{/t}}</label>
     <input type="text" id="invite_guest_user_role" data-qa="guest_user_role-field" placeholder="{{#t}}What I do{{/t}}" name="guest_user_role" data-validation="maxlength=249" data-validation-for="invite_guest_user_role" />
-    {{#feature flag="feature_teams_to_workspaces"}}
-        <p class="subtle_silver">{{#t}}This information will be displayed in your workspace on your profile. You may change it later.{{/t}}</p>
-    {{else}}
-        <p class="subtle_silver">{{#t}}This information will be displayed to your team on your profile. You may change it later.{{/t}}</p>
-    {{/feature}}
+    <p class="subtle_silver">{{#t}}This information will be displayed in your workspace on your profile. You may change it later.{{/t}}</p>
 </div>

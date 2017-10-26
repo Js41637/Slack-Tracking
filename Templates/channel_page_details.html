@@ -2,21 +2,13 @@
 
 {{#if model_ob.is_org_shared}}
   <div class="channel_shared_teams_section bottom_margin {{#channelInsightsIsEnabled}}feature_sli_channel_insights{{/channelInsightsIsEnabled}}">
-    {{#feature flag="feature_teams_to_workspaces"}}
-      <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Workspaces{{/t}}</div>
-    {{else}}
-      <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
-    {{/feature}}
+    <div class="bold greigh shared_teams_label mini small_bottom_margin">{{#t}}Workspaces{{/t}}</div>
     {{#if is_globally_shared}}
       <p>
         <span class="c-org_icon float_left small_right_margin">
           <img class="" src="{{enterprise_org_icon.image_68}}" srcset="{{enterprise_org_icon.image_34}} 1x, {{enterprise_org_icon.image_68}} 2x"/>
         </span>
-        {{#feature flag="feature_teams_to_workspaces"}}
-          {{#t}}Shared with all workspaces in the {enterprise_org_name} organization{{/t}}
-        {{else}}
-          {{#t}}Shared with all teams in the {enterprise_org_name} organization{{/t}}
-        {{/feature}}
+        {{#t}}Shared with all workspaces in the {enterprise_org_name} organization{{/t}}
       </p>
     {{else}}
       {{#each shared_teams}}
@@ -30,22 +22,14 @@
       {{/if}}
       {{#if show_more_teams_link}}
         <button type="button" id="see_all_teams" class="btn btn_small btn_outline small_top_margin">
-          {{#feature flag="feature_teams_to_workspaces"}}
-            {{#t}}See all {total_teams_count, number} workspaces{{/t}}
-          {{else}}
-            {{#t}}See all {total_teams_count, number} teams{{/t}}
-          {{/feature}}
+          {{#t}}See all {total_teams_count, number} workspaces{{/t}}
         </button>
       {{/if}}
     {{/if}}
   </div>
 {{else if model_ob.is_shared}}
   <div class="channel_shared_teams_section bottom_margin">
-    {{#feature flag="feature_teams_to_workspaces"}}
-      <div class="bold black greigh shared_teams_label mini small_bottom_margin">{{#t}}Workspaces{{/t}}</div>
-    {{else}}
-      <div class="bold black greigh shared_teams_label mini small_bottom_margin">{{#t}}Teams{{/t}}</div>
-    {{/feature}}
+    <div class="bold black greigh shared_teams_label mini small_bottom_margin">{{#t}}Workspaces{{/t}}</div>
     {{#each shared_teams}}
       <div class="shared_team_details small_top_margin">
         {{#if this.is_pending_ext_shared}}

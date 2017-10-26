@@ -1,11 +1,6 @@
 {{i18n_ns 'channel_options'}}
 
-{{#feature flag="feature_teams_to_workspaces"}}
-  <p>{{#t}}This message retention policy will only affect this {model_type, select, conversation {conversation} other {channel}}. Retention policies can also be set on a workspace-wide basis in your <a target="new" href="/admin/settings#data_retention">workspace settings</a>.{{/t}}</p>
-{{else}}
-  <p>{{#t}}This message retention policy will only affect this {model_type, select, conversation {conversation} other {channel}}. Retention policies can also be set on a team-wide basis in your <a target="new" href="/admin/settings#data_retention">team settings</a>.{{/t}}</p>
-{{/feature}}
-
+<p>{{#t}}This message retention policy will only affect this {model_type, select, conversation {conversation} other {channel}}. Retention policies can also be set on a workspace-wide basis in your <a target="new" href="/admin/settings#data_retention">workspace settings</a>.{{/t}}</p>
 
 <p id="retention_duration_warning" class="alert alert_warning hidden {{#isWeb}}small{{/isWeb}}">
   <i class="ts_icon ts_icon_warning"></i>
@@ -19,11 +14,7 @@
       <label for="retention_type" class="select small">
         {{#t}}Retention Type{{/t}}
         <select name="retention_type" class="small">
-          {{#feature flag="feature_teams_to_workspaces"}}
-            <option value="0"{{#if_equal retention_type compare=0}} selected="selected"{{/if_equal}}>{{#t}}Use workspace preference{{/t}}</option>
-          {{else}}
-            <option value="0"{{#if_equal retention_type compare=0}} selected="selected"{{/if_equal}}>{{#t}}Use team preference{{/t}}</option>
-          {{/feature}}
+          <option value="0"{{#if_equal retention_type compare=0}} selected="selected"{{/if_equal}}>{{#t}}Use workspace preference{{/t}}</option>
           <option value="1"{{#if_equal retention_type compare=1}} selected="selected"{{/if_equal}}>{{#t}}Retain all messages for a specific number of days{{/t}}</option>
         </select>
       </label>
@@ -37,11 +28,7 @@
       <label for="retention_type" class="select small full_width align_left">
         {{#t}}Retention Type{{/t}}
         <select name="retention_type" class="small">
-          {{#feature flag="feature_teams_to_workspaces"}}
-            <option value="0"{{#if_equal retention_type compare=0}} selected="selected"{{/if_equal}}>{{#t}}Use workspace preference{{/t}}</option>
-          {{else}}
-            <option value="0"{{#if_equal retention_type compare=0}} selected="selected"{{/if_equal}}>{{#t}}Use team preference{{/t}}</option>
-          {{/feature}}
+          <option value="0"{{#if_equal retention_type compare=0}} selected="selected"{{/if_equal}}>{{#t}}Use workspace preference{{/t}}</option>
           <option value="1"{{#if_equal retention_type compare=1}} selected="selected"{{/if_equal}}>{{#t}}Retain all messages for a specific number of days{{/t}}</option>
         </select>
       </label>
@@ -59,17 +46,10 @@
 
 <div id="team_retention_pref" class="hidden">
   <p>
-    {{#feature flag="feature_teams_to_workspaces"}}
-      {{#if_equal team_type compare=0}}{{#t}}The workspace preference is to <strong>retain all messages.</strong>{{/t}}{{/if_equal}}
-      {{#if_equal team_type compare=1}}{{#t}}The workspace preference is to <strong>retain all messages AND also retain edit and deletion logs for all messages.</strong>{{/t}}{{/if_equal}}
-      {{#if_equal team_type compare=2}}{{#t}}The workspace preference is to <strong>retain all messages for {team_duration, plural, =1 {# day} other {# days}}.</strong>{{/t}}{{/if_equal}}
-      {{#if_equal team_type compare=3}}{{#t}}The workspace preference is to <strong>retain all messages for {team_duration, plural, =1 {# day} other {# days}} but keep logs for compliance exports.</strong>{{/t}}{{/if_equal}}
-    {{else}}
-      {{#if_equal team_type compare=0}}{{#t}}The team preference is to <strong>retain all messages.</strong>{{/t}}{{/if_equal}}
-      {{#if_equal team_type compare=1}}{{#t}}The team preference is to <strong>retain all messages AND also retain edit and deletion logs for all messages.</strong>{{/t}}{{/if_equal}}
-      {{#if_equal team_type compare=2}}{{#t}}The team preference is to <strong>retain all messages for {team_duration, plural, =1 {# day} other {# days}}.</strong>{{/t}}{{/if_equal}}
-      {{#if_equal team_type compare=3}}{{#t}}The team preference is to <strong>retain all messages for {team_duration, plural, =1 {# day} other {# days}} but keep logs for compliance exports.</strong>{{/t}}{{/if_equal}}
-    {{/feature}}
+    {{#if_equal team_type compare=0}}{{#t}}The workspace preference is to <strong>retain all messages.</strong>{{/t}}{{/if_equal}}
+    {{#if_equal team_type compare=1}}{{#t}}The workspace preference is to <strong>retain all messages AND also retain edit and deletion logs for all messages.</strong>{{/t}}{{/if_equal}}
+    {{#if_equal team_type compare=2}}{{#t}}The workspace preference is to <strong>retain all messages for {team_duration, plural, =1 {# day} other {# days}}.</strong>{{/t}}{{/if_equal}}
+    {{#if_equal team_type compare=3}}{{#t}}The workspace preference is to <strong>retain all messages for {team_duration, plural, =1 {# day} other {# days}} but keep logs for compliance exports.</strong>{{/t}}{{/if_equal}}
   </p>
 </div>
 

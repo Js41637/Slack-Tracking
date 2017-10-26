@@ -1,5 +1,5 @@
-webpackJsonp([199], {
-  1600: function(t, c) {
+webpackJsonp([151], {
+  1727: function(t, c) {
     $(function() {
       $("footer .links .col").click(function(t) {
         if (!$(t.target).closest("a").length) $(this).toggleClass("open");
@@ -17,4 +17,4 @@ webpackJsonp([199], {
       });
     }());
   }
-}, [1600]);
+}, [1727]);

@@ -1,10 +1,10 @@
 webpackJsonp([80], {
-  609: function(t, e, n) {
+  683: function(t, e, n) {
     (function(e) {
-      t.exports = e["Ladda"] = n(610);
+      t.exports = e["Ladda"] = n(684);
     }).call(e, n(7));
   },
-  610: function(t, e, n) {
+  684: function(t, e, n) {
     /*!
      * Ladda 0.9.0
      * http://lab.hakim.se/ladda
@@ -193,4 +193,4 @@ webpackJsonp([80], {
     }
     t.exports = n;
   }
-}, [609]);
+}, [683]);

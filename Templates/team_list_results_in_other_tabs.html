@@ -8,11 +8,7 @@
       <p class="small_bottom_margin bold"><a onclick="TS.members.view.switchTabs('accepted');">{{#t}}{accepted_matches.length, plural, =1{# accepted invite}other{# accepted invites}} found{{/t}}</a></p>
     {{/if}}
     {{#if show_active_matches}}
-      {{#feature flag="feature_teams_to_workspaces"}}
-        <p class="small_bottom_margin bold"><a onclick="TS.members.view.switchTabs('active');">{{#t}}{active_matches.length, plural, =1{# full member}other{# full members}} found{{/t}}</a></p>
-      {{else}}
-        <p class="small_bottom_margin bold"><a onclick="TS.members.view.switchTabs('active');">{{#t}}{active_matches.length, plural, =1{# full team member}other{# full team members}} found{{/t}}</a></p>
-      {{/feature}}
+      <p class="small_bottom_margin bold"><a onclick="TS.members.view.switchTabs('active');">{{#t}}{active_matches.length, plural, =1{# full member}other{# full members}} found{{/t}}</a></p>
     {{/if}}
     {{#if show_restricted_matches}}
       <p class="small_bottom_margin bold"><a onclick="TS.members.view.switchTabs('restricted');">{{#t}}{restricted_matches.length, plural, =1{# restricted account}other{# restricted accounts}} found{{/t}}</a></p>

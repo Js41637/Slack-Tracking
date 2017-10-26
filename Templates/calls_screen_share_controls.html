@@ -1,7 +1,6 @@
 {{i18n_ns "calls"}}
 
 <div class="ss_controls ss_controls--{{#if is_host }}host{{else}}guest{{/if}}">
-    {{#experiment name="calls_interactive_ss" group="enabled"}}
     <div class="ss_controls__info_container">
         <div class="ss_controls__speaker">
             <span class="ss_controls__empty_speaker_message">{{#t}}Waiting for people...{{/t}}</span>
@@ -46,5 +45,4 @@
         <button data-action="options" class="ss_controls__button ss_controls__button--options"></button>
         {{/if}}
     </div>
-    {{/experiment}}
 </div>

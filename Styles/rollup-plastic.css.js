@@ -14134,47 +14134,12 @@ only screen and (min-resolution:2dppx) {
   color: #2c2d30
 }
 
-#member_preview_scroller .member_details .member_restriction,
 #member_preview_scroller .member_details .member_title,
-#member_preview_web_container .member_details .member_restriction,
 #member_preview_web_container .member_details .member_title,
-.menu_member_header .member_details .member_restriction,
 .menu_member_header .member_details .member_title {
   font-size: .9375rem;
-  line-height: 1.375rem
-}
-
-#member_preview_scroller .member_details .member_title,
-#member_preview_web_container .member_details .member_title,
-.menu_member_header .member_details .member_title {
+  line-height: 1.375rem;
   color: #2c2d30
-}
-
-#member_preview_scroller .member_details .member_restriction,
-#member_preview_web_container .member_details .member_restriction,
-.menu_member_header .member_details .member_restriction {
-  color: #a0a0a2
-}
-
-#member_preview_scroller .member_details .member_restriction .ts_icon_question_circle,
-#member_preview_web_container .member_details .member_restriction .ts_icon_question_circle,
-.menu_member_header .member_details .member_restriction .ts_icon_question_circle {
-  top: .0625rem
-}
-
-#member_preview_scroller .member_details .member_restriction .ts_icon_question_circle:focus,
-#member_preview_scroller .member_details .member_restriction .ts_icon_question_circle:hover,
-#member_preview_web_container .member_details .member_restriction .ts_icon_question_circle:focus,
-#member_preview_web_container .member_details .member_restriction .ts_icon_question_circle:hover,
-.menu_member_header .member_details .member_restriction .ts_icon_question_circle:focus,
-.menu_member_header .member_details .member_restriction .ts_icon_question_circle:hover {
-  color: #2c2d30
-}
-
-#member_preview_scroller .member_details .member_restriction .ts_icon_question_circle:before,
-#member_preview_web_container .member_details .member_restriction .ts_icon_question_circle:before,
-.menu_member_header .member_details .member_restriction .ts_icon_question_circle:before {
-  font-size: 1rem
 }
 
 #member_preview_scroller .member_details .member_action_bar,
@@ -14277,7 +14242,28 @@ only screen and (min-resolution:2dppx) {
   position: relative
 }
 
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512 {
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image {
+  border-top-right-radius: .25rem;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: .25rem;
+  background-clip: padding-box;
+  margin: 0;
+  width: 320px;
+  height: 224px;
+  position: relative
+}
+
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image:hover .member_image.thumb_512 {
+  background-position: 0 0, 0 -48px, 0 -48px
+}
+
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image:hover .member_details_over_image,
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image:hover .member_restriction_over_image {
+  opacity: 0
+}
+
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image .member_image.thumb_512 {
   cursor: pointer;
   border-top-right-radius: .25rem;
   border-bottom-right-radius: 0;
@@ -14294,60 +14280,7 @@ only screen and (min-resolution:2dppx) {
   transition: background-position 150ms ease
 }
 
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status {
-  line-height: 1.875rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status~.member_restriction {
-  padding-top: 1rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status~.member_restriction+.member_timezone_value {
-  padding-bottom: 1rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status~.member_restriction+.member_timezone_value+.member_details_over_image {
-  bottom: 6.875rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status~.member_timezone_value {
-  line-height: 1.875rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_current_status~.member_timezone_value+.member_details_over_image {
-  bottom: 4.75rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_restriction {
-  padding-top: 1rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_restriction+.member_timezone_value {
-  padding-bottom: 1rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_restriction+.member_timezone_value+.member_details_over_image {
-  bottom: 4.75rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_timezone_value {
-  line-height: 1.875rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512+.member_timezone_value+.member_details_over_image {
-  bottom: 2.625rem
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512:hover {
-  background-position: 0 0, 0 -48px, 0 -48px
-}
-
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512:hover~.member_details_over_image,
-.menu_member_header .member_details.cropped_preview .member_image.thumb_512:hover~.member_restriction_over_image {
-  opacity: 0
-}
-
-.menu_member_header .member_details .member_details_over_image {
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image .member_details_over_image {
   opacity: 1;
   pointer-events: none;
   position: absolute;
@@ -14359,7 +14292,7 @@ only screen and (min-resolution:2dppx) {
   transition: opacity 150ms ease
 }
 
-.menu_member_header .member_details .member_restriction_over_image {
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image .member_restriction_over_image {
   opacity: 1;
   -webkit-transition: opacity 150ms ease;
   -moz-transition: opacity 150ms ease;
@@ -14375,21 +14308,44 @@ only screen and (min-resolution:2dppx) {
   font-size: 13px
 }
 
-.menu_member_header .member_details .member_restriction_over_image.external {
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image .member_restriction_over_image.external {
   padding-right: 32px
 }
 
-.menu_member_header .member_details .member_restriction_over_image .ts_icon {
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image .member_restriction_over_image .ts_icon {
   line-height: 0
 }
 
-.menu_member_header .member_details .member_restriction_over_image .ts_icon:before {
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image .member_restriction_over_image .ts_icon:before {
   margin-left: -5px
 }
 
-.menu_member_header .member_details .member_restriction_over_image .external_team_badge {
+.menu_member_header .member_details.cropped_preview .cropped_preview_member_image .member_restriction_over_image .external_team_badge {
   top: 9px;
   right: 9px
+}
+
+.menu_member_header .member_details .member_current_status,
+.menu_member_header .member_details .member_timezone_value {
+  color: #2c2d30;
+  font-size: .75rem;
+  line-height: 1.125;
+  padding: .5rem 1rem;
+  margin: 0
+}
+
+.menu_member_header .member_details .member_current_status a,
+.menu_member_header .member_details .member_timezone_value a {
+  color: #2c2d30
+}
+
+.menu_member_header .member_details .member_current_status a:hover,
+.menu_member_header .member_details .member_timezone_value a:hover {
+  color: #005e99
+}
+
+.menu_member_header .member_details .member_timezone_value {
+  padding-bottom: .5625rem
 }
 
 .menu_member_header .member_details .member_name_and_presence {
@@ -14416,28 +14372,6 @@ only screen and (min-resolution:2dppx) {
   font-size: .9375rem;
   line-height: 1.375rem;
   margin: 0
-}
-
-.menu_member_header .member_details .member_current_status,
-.menu_member_header .member_details .member_restriction,
-.menu_member_header .member_details .member_timezone_value {
-  color: #2c2d30;
-  font-size: .75rem;
-  line-height: 1rem;
-  padding: 0 1rem;
-  margin: 0
-}
-
-.menu_member_header .member_details .member_current_status a,
-.menu_member_header .member_details .member_restriction a,
-.menu_member_header .member_details .member_timezone_value a {
-  color: #2c2d30
-}
-
-.menu_member_header .member_details .member_current_status a:hover,
-.menu_member_header .member_details .member_restriction a:hover,
-.menu_member_header .member_details .member_timezone_value a:hover {
-  color: #005e99
 }
 
 .menu_member_header .member_details .member_current_status {
@@ -14478,9 +14412,10 @@ only screen and (min-resolution:2dppx) {
 
 .menu_member_footer .menu_member_footer_notice {
   margin: 0;
-  padding: 0 .75rem .25rem;
+  padding: 0 .75rem .25rem .25rem;
   color: #717274;
-  line-height: 1.4
+  line-height: 1.46666667;
+  font-size: 15px
 }
 
 @media screen and (max-width:424px) {

@@ -150,6 +150,9 @@
   {{/if}}
 </div>{{!--/channel_title--}}
 
+{{!-- Drag region for SSB --}}
+<div class="channel_header_drag_region" data-region="main"></div>
+
 <div class="channel_title_info">
   {{#if all_unreads.is_showing}}
     <button type="button" id="channel_header_unread_refresh" class="channel_header_icon channel_actions_toggle btn_unstyle ts_tip ts_tip_bottom {{#unless unread_has_new_messages}}hidden{{/unless}}">

@@ -5,11 +5,7 @@
     <h1 class="channel_modal_header">
       <span class="public_channel_item{{#unless is_public}} hidden{{/unless}}">{{#t}}Create a channel{{/t}}</span>
     </h1>
-    {{#feature flag="feature_teams_to_workspaces"}}
-      <p class="input_note_special medium_bottom_margin">{{#t}}<b>What topic will you discuss in this channel?</b> Choose a channel name that makes the purpose clear to your teammates.{{/t}}</p>
-    {{else}}
-      <p class="input_note_special medium_bottom_margin">{{#t}}<b>What topic will you discuss in this channel?</b> Choose a channel name that makes the purpose clear to your teammates.{{/t}}</p>
-    {{/feature}}
+    <p class="input_note_special medium_bottom_margin">{{#t}}<b>What topic will you discuss in this channel?</b> Choose a channel name that makes the purpose clear to your teammates.{{/t}}</p>
   </div>
   <div>
     <div class="bottom_margin">

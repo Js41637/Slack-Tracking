@@ -33,10 +33,28 @@
         {{else}}
           {{#sharedChannelsEnabled}}
             <option {{#if_equal sort_by_selected compare="local"}}selected{{/if_equal}} value="local">{{#t team_name=(currentTeamName)}}{team_name} channels{{/t}}</option>
+          {{else if (objectKeyCount external_teams)}}
+            <option {{#if_equal sort_by_selected compare="local"}}selected{{/if_equal}} value="local">{{#t team_name=(currentTeamName)}}{team_name} channels{{/t}}</option>
           {{/sharedChannelsEnabled}}
         {{/pageNeedsEnterprise}}
         <option {{#if_equal sort_by_selected compare="archived"}}selected{{/if_equal}} value="archived">{{#t}}Archived channels{{/t}}</option>
         {{#sharedChannelsEnabled}}
+          {{#feature flag="feature_pending_channel_string"}}
+            <option {{#if_equal sort_by_selected compare="pending_ext_shared"}}selected{{/if_equal}} value="pending_ext_shared">{{#t}}Pending shared channels{{/t}}</option>
+          {{/feature}}
+          {{! show filter options for individual external teams if there are more than one }}
+          {{#if_gt (objectKeyCount external_teams) compare=1}}
+            <option {{#if_equal sort_by_selected compare="ext_shared"}}selected{{/if_equal}} value="ext_shared">{{#t}}All shared channels (beta){{/t}}</option>
+            {{#each external_teams}}
+              <option value="ext_shared_team_{{@key}}">{{#t team_name=(escape name)}}Shared with {team_name}{{/t}}</option>
+            {{/each}}
+          {{else}}
+            <option {{#if_equal sort_by_selected compare="ext_shared"}}selected{{/if_equal}} value="ext_shared">{{#t}}Shared channels (beta){{/t}}</option>
+          {{/if_gt}}
+        {{else if (objectKeyCount external_teams)}}
+          {{#feature flag="feature_pending_channel_string"}}
+            <option {{#if_equal sort_by_selected compare="pending_ext_shared"}}selected{{/if_equal}} value="pending_ext_shared">{{#t}}Pending shared channels{{/t}}</option>
+          {{/feature}}
           {{! show filter options for individual external teams if there are more than one }}
           {{#if_gt (objectKeyCount external_teams) compare=1}}
             <option {{#if_equal sort_by_selected compare="ext_shared"}}selected{{/if_equal}} value="ext_shared">{{#t}}All shared channels (beta){{/t}}</option>
