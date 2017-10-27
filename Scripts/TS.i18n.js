@@ -314,9 +314,9 @@ webpackJsonp([260], {
             msg_input_send_btn_auto_set: true
           });
           var t = TS.i18n.t("Just for Japan: a button for sending", "send_btn")();
-          var n = TS.i18n.t("Send a message with a quick click, or by pressing {keys}</br>\t\t\tDon‘t like the change? You can always switch back in <button {id_class}>your preferences</button>.", "send_btn")({
+          var n = TS.i18n.t('Send a message with a quick click, or by pressing {keys}</br>\t\t\tDon‘t like the change? You can always switch back in <button id="send_btn_link_prefs" class="{class}">your preferences</button>.', "send_btn")({
             keys: '<span class="c-keyboard_key c-keyboard_key--slim">' + (TS.model.is_mac ? "⌘" : "Ctrl") + '</span>\n\t\t\t<span class="c-keyboard_key c-keyboard_key--slim">Enter</span>',
-            id_class: 'id="send_btn_link_prefs" class="btn_link"'
+            class: "btn_link"
           });
           TS.generic_notification_banner.start({
             h1_copy: t,

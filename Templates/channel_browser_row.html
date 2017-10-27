@@ -2,7 +2,12 @@
 
 <div class="channel_browser_row">
   <div class="channel_browser_row_header overflow_ellipsis">
-    <ts-icon class="channel_browser_type_icon greigh"></ts-icon><span class="channel_browser_channel_name bold"></span> <ts-icon class="shared_channel_icon greigh ts_icon_shared_channel hidden"></ts-icon> <span class="shared_channels_icon hidden">{{> shared_channels_icon model_ob=model_ob}}</span><span class="shared_channels_pending_icon hidden">{{> shared_channels_icon model_ob=model_ob}}</span>
+    <ts-icon class="channel_browser_type_icon greigh"></ts-icon>
+    <span class="channel_browser_channel_name bold"></span>
+    <ts-icon class="shared_channel_icon greigh ts_icon_shared_channel hidden"></ts-icon>
+    <span class="shared_channels_icon hidden">{{> shared_channels_icon model_ob=model_ob}}</span>
+    <span class="shared_channels_pending_icon hidden">{{> shared_channels_icon model_ob=model_ob}}</span>
+    <span class="p-shared_channels_pending_label margin_left_25">{{#t fallback_hash='7e5d5313fa862c540c9ab17cc7b2d4015a29ca93'}}Pending{{/t}}</span>
   </div>
   <div class="overflow_ellipsis">
     {{#t note="Populated by code and will have user name and date added, e.g. 'Created by {username} on {date}'"}}

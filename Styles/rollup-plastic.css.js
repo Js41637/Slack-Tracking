@@ -15772,6 +15772,18 @@ html:not(.supports_flexbox) .channel_modal_with_list .channel_modal_list {
   bottom: -3px
 }
 
+#channel_browser .p-shared_channels_pending_label {
+  font-size: 13px;
+  line-height: 1.38461538;
+  font-weight: initial;
+  font-weight: 700;
+  text-transform: uppercase;
+  background-color: #e8e8e8;
+  color: #717274;
+  padding: 1px 4px 2px;
+  border-radius: 3px
+}
+
 #channel_browser .channel_browser_teams_info {
   color: #2c2d30
 }
