@@ -11,15 +11,13 @@
   {{/if}}
 </h3>
 <p class="c-modal_copy--quick_promo">
-  {{#if copy_is_non_contextual}}
-    {{#t}}Bring your teammates into Slack, so you can cut down on reply-all emails and start working together more efficiently.{{/t}}
-  {{else if copy_is_contextual_with_invites}}
-    {{#t}}
-      So far, you\u2019ve invited {invite_count, plural, =1{# person}other{# people}} to this team. Bring more of your teammates into Slack, so you can cut down on reply-all emails and start working together more efficiently.
+  {{#if copy_is_contextual_with_invites}}
+    {{#t invite_count=invite_count fallback_hash='22b3fb675bee0e09d92d7c6270576396f5af58c7'}}
+      So far, you\u2019ve invited {invite_count, plural, =1{# person}other{# people}} to this workspace. Bring more of your teammates into Slack, so you can cut down on reply-all emails and start working together more efficiently.
     {{/t}}
   {{else}}
-    {{#t invite_count=invite_count}}
-      So far, you haven\u2019t invited anyone to this team. Bring your teammates into Slack, so you can cut down on reply-all emails and start working together more efficiently.
+    {{#t fallback_hash='7b22427fbaffe311aafd88f6d650f1d3008dfe88'}}
+      So far, you haven\u2019t invited anyone to this workspace. Bring your teammates into Slack, so you can cut down on reply-all emails and start working together more efficiently.
     {{/t}}
   {{/if}}
 </p>

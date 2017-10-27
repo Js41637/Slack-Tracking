@@ -569,7 +569,6 @@
   background-color: #f5f5f5;
   -webkit-border-radius: 0 0 6px 6px;
   -moz-border-radius: 0 0 6px 6px;
-  border-radius: 0 0 6px 6px;
   *zoom: 1;
   -webkit-box-shadow: inset 0 1px 0 #fff;
   -moz-box-shadow: inset 0 1px 0 #fff
@@ -10096,29 +10095,25 @@ textarea.validation_warning:focus {
 }
 
 .modal {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, .5);
-  border-radius: .5rem;
+  box-shadow: 0 12px 44px rgba(0, 0, 0, .2), 0 0 1px rgba(0, 0, 0, .15);
+  border-radius: 8px;
   border: none
 }
 
 .modal-header {
-  padding: .75rem 1.5rem .75rem 2rem;
-  background: #f9f9f9;
+  padding: 20px 24px 10px;
   color: #2c2d30;
   font-weight: 900;
   border-bottom: none;
-  border-top-right-radius: .5rem;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-left-radius: .5rem;
-  background-clip: padding-box
+  background-clip: padding-box;
+  border-radius: 8px 8px 0 0
 }
 
 .modal-header h3 {
   font-weight: 900;
-  font-size: 1.25rem;
-  line-height: 1.5rem;
-  margin: .3rem 0
+  font-size: 22px;
+  line-height: 1.36363636;
+  margin: 0
 }
 
 .modal-header-image {
@@ -10143,30 +10138,25 @@ only screen and (min-resolution:2dppx) {
 }
 
 .modal .close {
-  color: #2c2d30;
+  color: #717274;
   font-size: 2rem;
   line-height: 1.5rem;
   text-shadow: none;
-  opacity: .25;
-  -moz-opacity: .25;
-  -khtml-opacity: .25;
-  -webkit-transition: opacity .1s ease-out 0s;
-  -moz-transition: opacity .1s ease-out 0s;
-  transition: opacity .1s ease-out 0s;
+  opacity: 1;
+  -moz-opacity: 1;
+  -khtml-opacity: 1;
+  font-weight: 400;
   padding: 0;
   border: 0;
   cursor: pointer;
   background: 0 0;
   -webkit-appearance: none;
-  font-weight: 700;
   float: right;
   font-family: "Helvetica Neue", Helvetica, "Segoe UI", Tahoma, Arial, sans-serif
 }
 
 .modal .close:hover {
-  opacity: 1;
-  -moz-opacity: 1;
-  -khtml-opacity: 1
+  color: #2c2d30
 }
 
 .modal p {
@@ -10182,7 +10172,8 @@ only screen and (min-resolution:2dppx) {
   -moz-user-select: text;
   -ms-user-select: text;
   user-select: text;
-  padding: 2rem 2rem 0
+  padding: 0 24px 2px;
+  margin-top: 10px
 }
 
 .modal-body.share_dialog {
@@ -10290,11 +10281,8 @@ only screen and (min-resolution:2dppx) {
   box-shadow: none;
   border-top: none;
   padding: 2rem;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: .5rem;
-  border-bottom-left-radius: .5rem;
-  border-top-left-radius: 0;
-  background-clip: padding-box
+  background-clip: padding-box;
+  border-radius: 0 0 8px 8px
 }
 
 .modal.small {
@@ -18711,7 +18699,7 @@ ts-message.selected .rxn_panel .rxn_panel .rxn_hover_container {
 }
 
 .supports_custom_scrollbar #share_dialog_input_container #file_comment_textarea.ql-container~.emo_menu {
-  right: 16px
+  right: 25px
 }
 
 #share_dialog_input_container #file_comment_textarea.ql-container.focus,
